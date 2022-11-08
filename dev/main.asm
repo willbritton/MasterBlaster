@@ -93,78 +93,78 @@ _volume_atenuation::
 ; code
 ;--------------------------------------------------------
 	.area _CODE
-;.\Core\funcs.h:2: void InterruptHandler(void)
+;Core\funcs.h:2: void InterruptHandler(void)
 ;	---------------------------------
 ; Function InterruptHandler
 ; ---------------------------------
 _InterruptHandler::
-;.\Core\funcs.h:5: }
+;Core\funcs.h:5: }
 	ret
-;.\Core\funcs.h:7: void InitConsole()
+;Core\funcs.h:7: void InitConsole()
 ;	---------------------------------
 ; Function InitConsole
 ; ---------------------------------
 _InitConsole::
-;.\Core\funcs.h:10: SMS_init();
+;Core\funcs.h:10: SMS_init();
 	call	_SMS_init
-;.\Core\funcs.h:13: SMS_getKeysStatus();
+;Core\funcs.h:13: SMS_getKeysStatus();
 	call	_SMS_getKeysStatus
-;.\Core\funcs.h:16: SMS_setLineInterruptHandler(&InterruptHandler);
+;Core\funcs.h:16: SMS_setLineInterruptHandler(&InterruptHandler);
 	ld	hl,#_InterruptHandler
 	push	hl
 	call	_SMS_setLineInterruptHandler
-;.\Core\funcs.h:17: SMS_setLineCounter (192);
+;Core\funcs.h:17: SMS_setLineCounter (192);
 	ld	h,#0xc0
 	ex	(sp),hl
 	inc	sp
 	call	_SMS_setLineCounter
 	inc	sp
-;.\Core\funcs.h:18: SMS_enableLineInterrupt();
+;Core\funcs.h:18: SMS_enableLineInterrupt();
 	ld	hl,#0x0010
 	call	_SMS_VDPturnOnFeature
-;.\Core\funcs.h:21: SMS_VDPturnOnFeature(VDPFEATURE_LEFTCOLBLANK);
+;Core\funcs.h:21: SMS_VDPturnOnFeature(VDPFEATURE_LEFTCOLBLANK);
 	ld	hl,#0x0020
 	jp  _SMS_VDPturnOnFeature
-;main.c:27: void init_console(void)
+;main.c:26: void init_console(void)
 ;	---------------------------------
 ; Function init_console
 ; ---------------------------------
 _init_console::
-;main.c:29: SMS_init();
+;main.c:28: SMS_init();
 	call	_SMS_init
-;main.c:30: SMS_displayOff();
+;main.c:29: SMS_displayOff();
 	ld	hl,#0x0140
 	call	_SMS_VDPturnOffFeature
-;main.c:31: SMS_setSpriteMode(SPRITEMODE_NORMAL);
+;main.c:30: SMS_setSpriteMode(SPRITEMODE_NORMAL);
 	ld	l,#0x00
 	call	_SMS_setSpriteMode
-;main.c:32: SMS_zeroBGPalette();
+;main.c:31: SMS_zeroBGPalette();
 	jp  _SMS_zeroBGPalette
-;main.c:35: void loadGraphics2vram(void)
+;main.c:34: void loadGraphics2vram(void)
 ;	---------------------------------
 ; Function loadGraphics2vram
 ; ---------------------------------
 _loadGraphics2vram::
-;main.c:37: SMS_loadBGPalette(backgroundpalette_bin);
+;main.c:36: SMS_loadBGPalette(backgroundpalette_bin);
 	ld	hl,#_backgroundpalette_bin
 	call	_SMS_loadBGPalette
-;main.c:41: SMS_loadSpritePalette(spritepalette_bin);
+;main.c:40: SMS_loadSpritePalette(spritepalette_bin);
 	ld	hl,#_spritepalette_bin
 	call	_SMS_loadSpritePalette
-;main.c:42: SMS_loadPSGaidencompressedTiles (spritetiles_psgcompr,SPRITE_TILES_POSITION);
+;main.c:41: SMS_loadPSGaidencompressedTiles (spritetiles_psgcompr,SPRITE_TILES_POSITION);
 	ld	hl,#0x0100
 	push	hl
 	ld	hl,#_spritetiles_psgcompr
 	push	hl
 	call	_SMS_loadPSGaidencompressedTiles
 	pop	af
-;main.c:44: SMS_setSpritePaletteColor(0, RGB(0, 0, 0));
+;main.c:43: SMS_setSpritePaletteColor(0, RGB(0, 0, 0));
 	ld	hl, #0x0000
 	ex	(sp),hl
 	call	_SMS_setSpritePaletteColor
 	pop	af
 	ret
-;main.c:47: void draw_main_character(void)
+;main.c:46: void draw_main_character(void)
 ;	---------------------------------
 ; Function draw_main_character
 ; ---------------------------------
@@ -173,10 +173,10 @@ _draw_main_character::
 	ld	ix,#0
 	add	ix,sp
 	push	af
-;main.c:52: for(j=0; j<3; j++)
+;main.c:51: for(j=0; j<3; j++)
 	ld	-2 (ix),#0x00
 	ld	c,#0x00
-;main.c:54: for(i=0; i<2; i++) {
+;main.c:53: for(i=0; i<2; i++) {
 00113$:
 	ld	a,-2 (ix)
 	rlca
@@ -186,7 +186,7 @@ _draw_main_character::
 	ld	-1 (ix),a
 	ld	e,#0x00
 00107$:
-;main.c:55: SMS_addSprite(player_x+(i<<3), player_y+(j<<3), SPRITE_TILES_POSITION + direction_offset + current_frame * NUMBER_TILES_BY_FRAME + NUMBER_TILES_FRAMES_BOTH_DIRECTIONS *j + i);
+;main.c:54: SMS_addSprite(player_x+(i<<3), player_y+(j<<3), SPRITE_TILES_POSITION + direction_offset + current_frame * NUMBER_TILES_BY_FRAME + NUMBER_TILES_FRAMES_BOTH_DIRECTIONS *j + i);
 	ld	a,(#_current_frame + 0)
 	add	a, a
 	ld	l,a
@@ -216,12 +216,12 @@ _draw_main_character::
 	inc	sp
 	pop	de
 	pop	bc
-;main.c:54: for(i=0; i<2; i++) {
+;main.c:53: for(i=0; i<2; i++) {
 	inc	e
 	ld	a,e
 	sub	a, #0x02
 	jr	C,00107$
-;main.c:52: for(j=0; j<3; j++)
+;main.c:51: for(j=0; j<3; j++)
 	ld	a,c
 	add	a, #0x0c
 	ld	c,a
@@ -229,87 +229,82 @@ _draw_main_character::
 	ld	a,-2 (ix)
 	sub	a, #0x03
 	jr	C,00113$
-;main.c:59: if((frame_counter%16) == 0) {
+;main.c:58: if((frame_counter%16) == 0) {
 	ld	a,(#_frame_counter + 0)
 	and	a, #0x0f
 	jr	NZ,00111$
-;main.c:60: current_frame++;
+;main.c:59: current_frame++;
 	ld	iy,#_current_frame
 	inc	0 (iy)
-;main.c:61: if(current_frame == NUMBER_FRAMES) {
+;main.c:60: if(current_frame == NUMBER_FRAMES) {
 	ld	a,0 (iy)
 	sub	a, #0x03
 	jr	NZ,00111$
-;main.c:62: current_frame = 0;
+;main.c:61: current_frame = 0;
 	ld	0 (iy),#0x00
 00111$:
 	ld	sp, ix
 	pop	ix
 	ret
-;main.c:67: void main (void)
+;main.c:66: void main (void)
 ;	---------------------------------
 ; Function main
 ; ---------------------------------
 _main::
-;main.c:69: player_x = 0;
+;main.c:68: player_x = 0;
 	ld	hl,#_player_x + 0
 	ld	(hl), #0x00
-;main.c:70: player_y = 134;
+;main.c:69: player_y = 134;
 	ld	hl,#_player_y + 0
 	ld	(hl), #0x86
-;main.c:71: current_frame = 0;
+;main.c:70: current_frame = 0;
 	ld	hl,#_current_frame + 0
 	ld	(hl), #0x00
-;main.c:72: frame_counter = 0;
+;main.c:71: frame_counter = 0;
 	ld	hl,#_frame_counter + 0
 	ld	(hl), #0x00
-;main.c:74: init_console();
+;main.c:73: init_console();
 	call	_init_console
-;main.c:75: loadGraphics2vram();
+;main.c:74: loadGraphics2vram();
 	call	_loadGraphics2vram
-;main.c:76: SMS_displayOn();
+;main.c:75: SMS_displayOn();
 	ld	hl,#0x0140
 	call	_SMS_VDPturnOnFeature
-;main.c:78: PSGPlay(music_psg);
+;main.c:77: PSGPlay(music_psg);
 	ld	hl,#_music_psg
 	push	hl
 	call	_PSGPlay
 	pop	af
-;main.c:83: while (1)
+;main.c:82: while (1)
 00108$:
-;main.c:85: frame_counter++;
+;main.c:84: frame_counter++;
 	ld	iy,#_frame_counter
 	inc	0 (iy)
-;main.c:87: if((frame_counter%64) == 0)
+;main.c:86: if((frame_counter%64) == 0)
 	ld	a,0 (iy)
 	and	a, #0x3f
 	jr	NZ,00104$
-;main.c:89: volume_atenuation++;
+;main.c:88: volume_atenuation++;
 	ld	iy,#_volume_atenuation
 	inc	0 (iy)
-;main.c:90: if(volume_atenuation > 15)
+;main.c:89: if(volume_atenuation > 15)
 	ld	a,#0x0f
 	sub	a, 0 (iy)
 	jr	NC,00104$
-;main.c:92: volume_atenuation = 0;
+;main.c:91: volume_atenuation = 0;
 	ld	0 (iy),#0x00
 00104$:
-;main.c:96: SMS_initSprites();
+;main.c:95: SMS_initSprites();
 	call	_SMS_initSprites
-;main.c:97: if(SMS_getKeysStatus() & PORT_A_KEY_1)
+;main.c:96: if(SMS_getKeysStatus() & PORT_A_KEY_1)
 	call	_SMS_getKeysStatus
-	bit	4, l
-	jr	Z,00106$
-;main.c:99: draw_main_character();
-	call	_draw_main_character
-00106$:
-;main.c:102: SMS_finalizeSprites();
+;main.c:101: SMS_finalizeSprites();
 	call	_SMS_finalizeSprites
-;main.c:103: SMS_waitForVBlank();
+;main.c:102: SMS_waitForVBlank();
 	call	_SMS_waitForVBlank
-;main.c:105: PSGFrame();
+;main.c:104: PSGFrame();
 	call	_PSGFrame
-;main.c:108: SMS_copySpritestoSAT();
+;main.c:107: SMS_copySpritestoSAT();
 	call	_SMS_copySpritestoSAT
 	jr	00108$
 	.area _CODE
