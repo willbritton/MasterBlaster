@@ -1,0 +1,77 @@
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180), page 1.
+Hexadecimal [16-Bits]
+
+Symbol Table
+
+    .__.$$$.                                                    =  2710 L
+    .__.ABS.                                                    =  0000 G
+    .__.CPU.                                                    =  0000 L
+    .__.H$L.                                                    =  0000 L
+  0 _InitConsole                                                   0001 GR
+  0 _InterruptHandler                                              0000 GR
+    _PSGFrame                                                      **** GX
+    _PSGPlay                                                       **** GX
+    _ROM_bank_to_be_mapped_on_slot2                             =  FFFF G
+    _SMS_SRAM                                                   =  8000 G
+    _SMS_VDPturnOffFeature                                         **** GX
+    _SMS_VDPturnOnFeature                                          **** GX
+    _SMS_addSprite                                                 **** GX
+    _SMS_copySpritestoSAT                                          **** GX
+    _SMS_finalizeSprites                                           **** GX
+    _SMS_getKeysStatus                                             **** GX
+    _SMS_init                                                      **** GX
+    _SMS_initSprites                                               **** GX
+    _SMS_loadBGPalette                                             **** GX
+    _SMS_loadPSGaidencompressedTiles                               **** GX
+    _SMS_loadSpritePalette                                         **** GX
+    _SMS_setLineCounter                                            **** GX
+    _SMS_setLineInterruptHandler                                   **** GX
+    _SMS_setSpriteMode                                             **** GX
+    _SMS_setSpritePaletteColor                                     **** GX
+    _SMS_waitForVBlank                                             **** GX
+    _SMS_zeroBGPalette                                             **** GX
+    _SRAM_bank_to_be_mapped_on_slot2                            =  FFFC G
+  A ___SMS__SDSC_author                                            7FD5 GR
+  C ___SMS__SDSC_descr                                             7F93 GR
+  B ___SMS__SDSC_name                                              7FC6 GR
+  D ___SMS__SDSC_signature                                         7FE0 GR
+  9 ___SMS__SEGA_signature                                         7FF0 GR
+  0 __str_0                                                        012D R
+  0 __str_1                                                        0138 R
+  0 __str_2                                                        0147 R
+    _backgroundpalette_bin                                         **** GX
+  1 _current_frame                                                 0003 GR
+  0 _draw_main_character                                           0054 GR
+  1 _frame_counter                                                 0004 GR
+  0 _init_console                                                  0022 GR
+  0 _loadGraphics2vram                                             0033 GR
+  0 _main                                                          00CA GR
+    _music_psg                                                     **** GX
+  1 _numinterrupts                                                 0000 GR
+  1 _player_x                                                      0001 GR
+  1 _player_y                                                      0002 GR
+    _spritepalette_bin                                             **** GX
+    _spritetiles_psgcompr                                          **** GX
+  1 _volume_atenuation                                             0005 GR
+
+
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180), page 2.
+Hexadecimal [16-Bits]
+
+Area Table
+
+   0 _CODE                                      size  17A   flags    0
+   1 _DATA                                      size    6   flags    0
+   2 _INITIALIZED                               size    0   flags    0
+   3 _DABS                                      size    0   flags    8
+   4 _HOME                                      size    0   flags    0
+   5 _GSINIT                                    size    0   flags    0
+   6 _GSFINAL                                   size    0   flags    0
+   7 _INITIALIZER                               size    0   flags    0
+   8 _CABS                                      size    0   flags    8
+   9 _CABS0                                     size   10   flags    8
+   A _CABS1                                     size    B   flags    8
+   B _CABS2                                     size    F   flags    8
+   C _CABS3                                     size   33   flags    8
+   D _CABS4                                     size   10   flags    8
+

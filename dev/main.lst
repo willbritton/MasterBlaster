@@ -1,0 +1,396 @@
+                              1 ;--------------------------------------------------------
+                              2 ; File Created by SDCC : free open source ANSI-C Compiler
+                              3 ; Version 3.6.0 #9615 (MINGW64)
+                              4 ;--------------------------------------------------------
+                              5 	.module main
+                              6 	.optsdcc -mz80
+                              7 	
+                              8 ;--------------------------------------------------------
+                              9 ; Public variables in this module
+                             10 ;--------------------------------------------------------
+                             11 	.globl ___SMS__SDSC_signature
+                             12 	.globl ___SMS__SDSC_descr
+                             13 	.globl ___SMS__SDSC_name
+                             14 	.globl ___SMS__SDSC_author
+                             15 	.globl ___SMS__SEGA_signature
+                             16 	.globl _main
+                             17 	.globl _draw_main_character
+                             18 	.globl _loadGraphics2vram
+                             19 	.globl _init_console
+                             20 	.globl _InitConsole
+                             21 	.globl _InterruptHandler
+                             22 	.globl _PSGFrame
+                             23 	.globl _PSGPlay
+                             24 	.globl _SMS_setLineCounter
+                             25 	.globl _SMS_setLineInterruptHandler
+                             26 	.globl _SMS_getKeysStatus
+                             27 	.globl _SMS_zeroBGPalette
+                             28 	.globl _SMS_loadSpritePalette
+                             29 	.globl _SMS_loadBGPalette
+                             30 	.globl _SMS_setSpritePaletteColor
+                             31 	.globl _SMS_copySpritestoSAT
+                             32 	.globl _SMS_finalizeSprites
+                             33 	.globl _SMS_addSprite
+                             34 	.globl _SMS_initSprites
+                             35 	.globl _SMS_loadPSGaidencompressedTiles
+                             36 	.globl _SMS_waitForVBlank
+                             37 	.globl _SMS_setSpriteMode
+                             38 	.globl _SMS_VDPturnOffFeature
+                             39 	.globl _SMS_VDPturnOnFeature
+                             40 	.globl _SMS_init
+                             41 	.globl _volume_atenuation
+                             42 	.globl _frame_counter
+                             43 	.globl _current_frame
+                             44 	.globl _player_y
+                             45 	.globl _player_x
+                             46 	.globl _numinterrupts
+                             47 	.globl _SMS_SRAM
+                             48 	.globl _SRAM_bank_to_be_mapped_on_slot2
+                             49 	.globl _ROM_bank_to_be_mapped_on_slot2
+                             50 ;--------------------------------------------------------
+                             51 ; special function registers
+                             52 ;--------------------------------------------------------
+                             53 ;--------------------------------------------------------
+                             54 ; ram data
+                             55 ;--------------------------------------------------------
+                             56 	.area _DATA
+                     FFFF    57 _ROM_bank_to_be_mapped_on_slot2	=	0xffff
+                     FFFC    58 _SRAM_bank_to_be_mapped_on_slot2	=	0xfffc
+                     8000    59 _SMS_SRAM	=	0x8000
+   0000                      60 _numinterrupts::
+   0000                      61 	.ds 1
+   0001                      62 _player_x::
+   0001                      63 	.ds 1
+   0002                      64 _player_y::
+   0002                      65 	.ds 1
+   0003                      66 _current_frame::
+   0003                      67 	.ds 1
+   0004                      68 _frame_counter::
+   0004                      69 	.ds 1
+   0005                      70 _volume_atenuation::
+   0005                      71 	.ds 1
+                             72 ;--------------------------------------------------------
+                             73 ; ram data
+                             74 ;--------------------------------------------------------
+                             75 	.area _INITIALIZED
+                             76 ;--------------------------------------------------------
+                             77 ; absolute external ram data
+                             78 ;--------------------------------------------------------
+                             79 	.area _DABS (ABS)
+                             80 ;--------------------------------------------------------
+                             81 ; global & static initialisations
+                             82 ;--------------------------------------------------------
+                             83 	.area _HOME
+                             84 	.area _GSINIT
+                             85 	.area _GSFINAL
+                             86 	.area _GSINIT
+                             87 ;--------------------------------------------------------
+                             88 ; Home
+                             89 ;--------------------------------------------------------
+                             90 	.area _HOME
+                             91 	.area _HOME
+                             92 ;--------------------------------------------------------
+                             93 ; code
+                             94 ;--------------------------------------------------------
+                             95 	.area _CODE
+                             96 ;.\Core\funcs.h:2: void InterruptHandler(void)
+                             97 ;	---------------------------------
+                             98 ; Function InterruptHandler
+                             99 ; ---------------------------------
+   0000                     100 _InterruptHandler::
+                            101 ;.\Core\funcs.h:5: }
+   0000 C9            [10]  102 	ret
+                            103 ;.\Core\funcs.h:7: void InitConsole()
+                            104 ;	---------------------------------
+                            105 ; Function InitConsole
+                            106 ; ---------------------------------
+   0001                     107 _InitConsole::
+                            108 ;.\Core\funcs.h:10: SMS_init();
+   0001 CDr00r00      [17]  109 	call	_SMS_init
+                            110 ;.\Core\funcs.h:13: SMS_getKeysStatus();
+   0004 CDr00r00      [17]  111 	call	_SMS_getKeysStatus
+                            112 ;.\Core\funcs.h:16: SMS_setLineInterruptHandler(&InterruptHandler);
+   0007 21r00r00      [10]  113 	ld	hl,#_InterruptHandler
+   000A E5            [11]  114 	push	hl
+   000B CDr00r00      [17]  115 	call	_SMS_setLineInterruptHandler
+                            116 ;.\Core\funcs.h:17: SMS_setLineCounter (192);
+   000E 26 C0         [ 7]  117 	ld	h,#0xc0
+   0010 E3            [19]  118 	ex	(sp),hl
+   0011 33            [ 6]  119 	inc	sp
+   0012 CDr00r00      [17]  120 	call	_SMS_setLineCounter
+   0015 33            [ 6]  121 	inc	sp
+                            122 ;.\Core\funcs.h:18: SMS_enableLineInterrupt();
+   0016 21 10 00      [10]  123 	ld	hl,#0x0010
+   0019 CDr00r00      [17]  124 	call	_SMS_VDPturnOnFeature
+                            125 ;.\Core\funcs.h:21: SMS_VDPturnOnFeature(VDPFEATURE_LEFTCOLBLANK);
+   001C 21 20 00      [10]  126 	ld	hl,#0x0020
+   001F C3r00r00      [10]  127 	jp  _SMS_VDPturnOnFeature
+                            128 ;main.c:27: void init_console(void)
+                            129 ;	---------------------------------
+                            130 ; Function init_console
+                            131 ; ---------------------------------
+   0022                     132 _init_console::
+                            133 ;main.c:29: SMS_init();
+   0022 CDr00r00      [17]  134 	call	_SMS_init
+                            135 ;main.c:30: SMS_displayOff();
+   0025 21 40 01      [10]  136 	ld	hl,#0x0140
+   0028 CDr00r00      [17]  137 	call	_SMS_VDPturnOffFeature
+                            138 ;main.c:31: SMS_setSpriteMode(SPRITEMODE_NORMAL);
+   002B 2E 00         [ 7]  139 	ld	l,#0x00
+   002D CDr00r00      [17]  140 	call	_SMS_setSpriteMode
+                            141 ;main.c:32: SMS_zeroBGPalette();
+   0030 C3r00r00      [10]  142 	jp  _SMS_zeroBGPalette
+                            143 ;main.c:35: void loadGraphics2vram(void)
+                            144 ;	---------------------------------
+                            145 ; Function loadGraphics2vram
+                            146 ; ---------------------------------
+   0033                     147 _loadGraphics2vram::
+                            148 ;main.c:37: SMS_loadBGPalette(backgroundpalette_bin);
+   0033 21r00r00      [10]  149 	ld	hl,#_backgroundpalette_bin
+   0036 CDr00r00      [17]  150 	call	_SMS_loadBGPalette
+                            151 ;main.c:41: SMS_loadSpritePalette(spritepalette_bin);
+   0039 21r00r00      [10]  152 	ld	hl,#_spritepalette_bin
+   003C CDr00r00      [17]  153 	call	_SMS_loadSpritePalette
+                            154 ;main.c:42: SMS_loadPSGaidencompressedTiles (spritetiles_psgcompr,SPRITE_TILES_POSITION);
+   003F 21 00 01      [10]  155 	ld	hl,#0x0100
+   0042 E5            [11]  156 	push	hl
+   0043 21r00r00      [10]  157 	ld	hl,#_spritetiles_psgcompr
+   0046 E5            [11]  158 	push	hl
+   0047 CDr00r00      [17]  159 	call	_SMS_loadPSGaidencompressedTiles
+   004A F1            [10]  160 	pop	af
+                            161 ;main.c:44: SMS_setSpritePaletteColor(0, RGB(0, 0, 0));
+   004B 21 00 00      [10]  162 	ld	hl, #0x0000
+   004E E3            [19]  163 	ex	(sp),hl
+   004F CDr00r00      [17]  164 	call	_SMS_setSpritePaletteColor
+   0052 F1            [10]  165 	pop	af
+   0053 C9            [10]  166 	ret
+                            167 ;main.c:47: void draw_main_character(void)
+                            168 ;	---------------------------------
+                            169 ; Function draw_main_character
+                            170 ; ---------------------------------
+   0054                     171 _draw_main_character::
+   0054 DD E5         [15]  172 	push	ix
+   0056 DD 21 00 00   [14]  173 	ld	ix,#0
+   005A DD 39         [15]  174 	add	ix,sp
+   005C F5            [11]  175 	push	af
+                            176 ;main.c:52: for(j=0; j<3; j++)
+   005D DD 36 FE 00   [19]  177 	ld	-2 (ix),#0x00
+   0061 0E 00         [ 7]  178 	ld	c,#0x00
+                            179 ;main.c:54: for(i=0; i<2; i++) {
+   0063                     180 00113$:
+   0063 DD 7E FE      [19]  181 	ld	a,-2 (ix)
+   0066 07            [ 4]  182 	rlca
+   0067 07            [ 4]  183 	rlca
+   0068 07            [ 4]  184 	rlca
+   0069 E6 F8         [ 7]  185 	and	a,#0xf8
+   006B DD 77 FF      [19]  186 	ld	-1 (ix),a
+   006E 1E 00         [ 7]  187 	ld	e,#0x00
+   0070                     188 00107$:
+                            189 ;main.c:55: SMS_addSprite(player_x+(i<<3), player_y+(j<<3), SPRITE_TILES_POSITION + direction_offset + current_frame * NUMBER_TILES_BY_FRAME + NUMBER_TILES_FRAMES_BOTH_DIRECTIONS *j + i);
+   0070 3Ar03r00      [13]  190 	ld	a,(#_current_frame + 0)
+   0073 87            [ 4]  191 	add	a, a
+   0074 6F            [ 4]  192 	ld	l,a
+   0075 09            [11]  193 	add	hl, bc
+   0076 7D            [ 4]  194 	ld	a,l
+   0077 83            [ 4]  195 	add	a, e
+   0078 47            [ 4]  196 	ld	b,a
+   0079 3Ar02r00      [13]  197 	ld	a,(#_player_y + 0)
+   007C DD 86 FF      [19]  198 	add	a, -1 (ix)
+   007F 57            [ 4]  199 	ld	d,a
+   0080 7B            [ 4]  200 	ld	a,e
+   0081 07            [ 4]  201 	rlca
+   0082 07            [ 4]  202 	rlca
+   0083 07            [ 4]  203 	rlca
+   0084 E6 F8         [ 7]  204 	and	a,#0xf8
+   0086 6F            [ 4]  205 	ld	l,a
+   0087 3Ar01r00      [13]  206 	ld	a,(#_player_x + 0)
+   008A 85            [ 4]  207 	add	a, l
+   008B C5            [11]  208 	push	bc
+   008C D5            [11]  209 	push	de
+   008D 4A            [ 4]  210 	ld	c, d
+   008E C5            [11]  211 	push	bc
+   008F F5            [11]  212 	push	af
+   0090 33            [ 6]  213 	inc	sp
+   0091 CDr00r00      [17]  214 	call	_SMS_addSprite
+   0094 F1            [10]  215 	pop	af
+   0095 33            [ 6]  216 	inc	sp
+   0096 D1            [10]  217 	pop	de
+   0097 C1            [10]  218 	pop	bc
+                            219 ;main.c:54: for(i=0; i<2; i++) {
+   0098 1C            [ 4]  220 	inc	e
+   0099 7B            [ 4]  221 	ld	a,e
+   009A D6 02         [ 7]  222 	sub	a, #0x02
+   009C 38 D2         [12]  223 	jr	C,00107$
+                            224 ;main.c:52: for(j=0; j<3; j++)
+   009E 79            [ 4]  225 	ld	a,c
+   009F C6 0C         [ 7]  226 	add	a, #0x0c
+   00A1 4F            [ 4]  227 	ld	c,a
+   00A2 DD 34 FE      [23]  228 	inc	-2 (ix)
+   00A5 DD 7E FE      [19]  229 	ld	a,-2 (ix)
+   00A8 D6 03         [ 7]  230 	sub	a, #0x03
+   00AA 38 B7         [12]  231 	jr	C,00113$
+                            232 ;main.c:59: if((frame_counter%16) == 0) {
+   00AC 3Ar04r00      [13]  233 	ld	a,(#_frame_counter + 0)
+   00AF E6 0F         [ 7]  234 	and	a, #0x0f
+   00B1 20 12         [12]  235 	jr	NZ,00111$
+                            236 ;main.c:60: current_frame++;
+   00B3 FD 21r03r00   [14]  237 	ld	iy,#_current_frame
+   00B7 FD 34 00      [23]  238 	inc	0 (iy)
+                            239 ;main.c:61: if(current_frame == NUMBER_FRAMES) {
+   00BA FD 7E 00      [19]  240 	ld	a,0 (iy)
+   00BD D6 03         [ 7]  241 	sub	a, #0x03
+   00BF 20 04         [12]  242 	jr	NZ,00111$
+                            243 ;main.c:62: current_frame = 0;
+   00C1 FD 36 00 00   [19]  244 	ld	0 (iy),#0x00
+   00C5                     245 00111$:
+   00C5 DD F9         [10]  246 	ld	sp, ix
+   00C7 DD E1         [14]  247 	pop	ix
+   00C9 C9            [10]  248 	ret
+                            249 ;main.c:67: void main (void)
+                            250 ;	---------------------------------
+                            251 ; Function main
+                            252 ; ---------------------------------
+   00CA                     253 _main::
+                            254 ;main.c:69: player_x = 0;
+   00CA 21r01r00      [10]  255 	ld	hl,#_player_x + 0
+   00CD 36 00         [10]  256 	ld	(hl), #0x00
+                            257 ;main.c:70: player_y = 134;
+   00CF 21r02r00      [10]  258 	ld	hl,#_player_y + 0
+   00D2 36 86         [10]  259 	ld	(hl), #0x86
+                            260 ;main.c:71: current_frame = 0;
+   00D4 21r03r00      [10]  261 	ld	hl,#_current_frame + 0
+   00D7 36 00         [10]  262 	ld	(hl), #0x00
+                            263 ;main.c:72: frame_counter = 0;
+   00D9 21r04r00      [10]  264 	ld	hl,#_frame_counter + 0
+   00DC 36 00         [10]  265 	ld	(hl), #0x00
+                            266 ;main.c:74: init_console();
+   00DE CDr22r00      [17]  267 	call	_init_console
+                            268 ;main.c:75: loadGraphics2vram();
+   00E1 CDr33r00      [17]  269 	call	_loadGraphics2vram
+                            270 ;main.c:76: SMS_displayOn();
+   00E4 21 40 01      [10]  271 	ld	hl,#0x0140
+   00E7 CDr00r00      [17]  272 	call	_SMS_VDPturnOnFeature
+                            273 ;main.c:78: PSGPlay(music_psg);
+   00EA 21r00r00      [10]  274 	ld	hl,#_music_psg
+   00ED E5            [11]  275 	push	hl
+   00EE CDr00r00      [17]  276 	call	_PSGPlay
+   00F1 F1            [10]  277 	pop	af
+                            278 ;main.c:83: while (1)
+   00F2                     279 00108$:
+                            280 ;main.c:85: frame_counter++;
+   00F2 FD 21r04r00   [14]  281 	ld	iy,#_frame_counter
+   00F6 FD 34 00      [23]  282 	inc	0 (iy)
+                            283 ;main.c:87: if((frame_counter%64) == 0)
+   00F9 FD 7E 00      [19]  284 	ld	a,0 (iy)
+   00FC E6 3F         [ 7]  285 	and	a, #0x3f
+   00FE 20 12         [12]  286 	jr	NZ,00104$
+                            287 ;main.c:89: volume_atenuation++;
+   0100 FD 21r05r00   [14]  288 	ld	iy,#_volume_atenuation
+   0104 FD 34 00      [23]  289 	inc	0 (iy)
+                            290 ;main.c:90: if(volume_atenuation > 15)
+   0107 3E 0F         [ 7]  291 	ld	a,#0x0f
+   0109 FD 96 00      [19]  292 	sub	a, 0 (iy)
+   010C 30 04         [12]  293 	jr	NC,00104$
+                            294 ;main.c:92: volume_atenuation = 0;
+   010E FD 36 00 00   [19]  295 	ld	0 (iy),#0x00
+   0112                     296 00104$:
+                            297 ;main.c:96: SMS_initSprites();
+   0112 CDr00r00      [17]  298 	call	_SMS_initSprites
+                            299 ;main.c:97: if(SMS_getKeysStatus() & PORT_A_KEY_1)
+   0115 CDr00r00      [17]  300 	call	_SMS_getKeysStatus
+   0118 CB 65         [ 8]  301 	bit	4, l
+   011A 28 03         [12]  302 	jr	Z,00106$
+                            303 ;main.c:99: draw_main_character();
+   011C CDr54r00      [17]  304 	call	_draw_main_character
+   011F                     305 00106$:
+                            306 ;main.c:102: SMS_finalizeSprites();
+   011F CDr00r00      [17]  307 	call	_SMS_finalizeSprites
+                            308 ;main.c:103: SMS_waitForVBlank();
+   0122 CDr00r00      [17]  309 	call	_SMS_waitForVBlank
+                            310 ;main.c:105: PSGFrame();
+   0125 CDr00r00      [17]  311 	call	_PSGFrame
+                            312 ;main.c:108: SMS_copySpritestoSAT();
+   0128 CDr00r00      [17]  313 	call	_SMS_copySpritestoSAT
+   012B 18 C5         [12]  314 	jr	00108$
+                            315 	.area _CODE
+   012D                     316 __str_0:
+   012D 47 61 72 79 20 50   317 	.ascii "Gary Paluk"
+        61 6C 75 6B
+   0137 00                  318 	.db 0x00
+   0138                     319 __str_1:
+   0138 4D 61 73 74 65 72   320 	.ascii "Master Blaster"
+        20 42 6C 61 73 74
+        65 72
+   0146 00                  321 	.db 0x00
+   0147                     322 __str_2:
+   0147 47 72 61 62 20 61   323 	.ascii "Grab a friend and jump into endless bombastic fun."
+        20 66 72 69 65 6E
+        64 20 61 6E 64 20
+        6A 75 6D 70 20 69
+        6E 74 6F 20 65 6E
+        64 6C 65 73 73 20
+        62 6F 6D 62 61 73
+        74 69 63 20 66 75
+        6E 2E
+   0179 00                  324 	.db 0x00
+                            325 	.area _INITIALIZER
+                            326 	.area _CABS (ABS)
+   7FF0                     327 	.org 0x7FF0
+   7FF0                     328 ___SMS__SEGA_signature:
+   7FF0 54                  329 	.db #0x54	; 84	'T'
+   7FF1 4D                  330 	.db #0x4d	; 77	'M'
+   7FF2 52                  331 	.db #0x52	; 82	'R'
+   7FF3 20                  332 	.db #0x20	; 32
+   7FF4 53                  333 	.db #0x53	; 83	'S'
+   7FF5 45                  334 	.db #0x45	; 69	'E'
+   7FF6 47                  335 	.db #0x47	; 71	'G'
+   7FF7 41                  336 	.db #0x41	; 65	'A'
+   7FF8 FF                  337 	.db #0xff	; 255
+   7FF9 FF                  338 	.db #0xff	; 255
+   7FFA FF                  339 	.db #0xff	; 255
+   7FFB FF                  340 	.db #0xff	; 255
+   7FFC 99                  341 	.db #0x99	; 153
+   7FFD 99                  342 	.db #0x99	; 153
+   7FFE 00                  343 	.db #0x00	; 0
+   7FFF 4C                  344 	.db #0x4c	; 76	'L'
+   7FD5                     345 	.org 0x7FD5
+   7FD5                     346 ___SMS__SDSC_author:
+   7FD5 47 61 72 79 20 50   347 	.ascii "Gary Paluk"
+        61 6C 75 6B
+   7FDF 00                  348 	.db 0x00
+   7FC6                     349 	.org 0x7FC6
+   7FC6                     350 ___SMS__SDSC_name:
+   7FC6 4D 61 73 74 65 72   351 	.ascii "Master Blaster"
+        20 42 6C 61 73 74
+        65 72
+   7FD4 00                  352 	.db 0x00
+   7F93                     353 	.org 0x7F93
+   7F93                     354 ___SMS__SDSC_descr:
+   7F93 47 72 61 62 20 61   355 	.ascii "Grab a friend and jump into endless bombastic fun."
+        20 66 72 69 65 6E
+        64 20 61 6E 64 20
+        6A 75 6D 70 20 69
+        6E 74 6F 20 65 6E
+        64 6C 65 73 73 20
+        62 6F 6D 62 61 73
+        74 69 63 20 66 75
+        6E 2E
+   7FC5 00                  356 	.db 0x00
+   7FE0                     357 	.org 0x7FE0
+   7FE0                     358 ___SMS__SDSC_signature:
+   7FE0 53                  359 	.db #0x53	; 83	'S'
+   7FE1 44                  360 	.db #0x44	; 68	'D'
+   7FE2 53                  361 	.db #0x53	; 83	'S'
+   7FE3 43                  362 	.db #0x43	; 67	'C'
+   7FE4 01                  363 	.db #0x01	; 1
+   7FE5 00                  364 	.db #0x00	; 0
+   7FE6 11                  365 	.db #0x11	; 17
+   7FE7 07                  366 	.db #0x07	; 7
+   7FE8 22                  367 	.db #0x22	; 34
+   7FE9 20                  368 	.db #0x20	; 32
+   7FEA D5                  369 	.db #0xd5	; 213
+   7FEB 7F                  370 	.db #0x7f	; 127
+   7FEC C6                  371 	.db #0xc6	; 198
+   7FED 7F                  372 	.db #0x7f	; 127
+   7FEE 93                  373 	.db #0x93	; 147
+   7FEF 7F                  374 	.db #0x7f	; 127
