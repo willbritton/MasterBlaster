@@ -11,6 +11,10 @@ Symbol Table
   0 _InterruptHandler                                              0000 GR
     _PSGFrame                                                      **** GX
     _PSGPlay                                                       **** GX
+  0 _Player1Init                                                   0022 GR
+  0 _Player1Update                                                 0037 GR
+  0 _Player1UpdateDraw                                             0089 GR
+  0 _Player1UpdatePosition                                         0046 GR
     _ROM_bank_to_be_mapped_on_slot2                             =  FFFF G
     _SMS_SRAM                                                   =  8000 G
     _SMS_VDPturnOffFeature                                         **** GX
@@ -36,32 +40,31 @@ Symbol Table
   B ___SMS__SDSC_name                                              7FC6 GR
   D ___SMS__SDSC_signature                                         7FE0 GR
   9 ___SMS__SEGA_signature                                         7FF0 GR
-  0 __str_0                                                        0126 R
-  0 __str_1                                                        0131 R
-  0 __str_2                                                        0140 R
+  0 __str_0                                                        01A8 R
+  0 __str_1                                                        01B3 R
+  0 __str_2                                                        01C2 R
     _backgroundpalette_bin                                         **** GX
-  1 _current_frame                                                 0003 GR
-  0 _draw_main_character                                           0054 GR
-  1 _frame_counter                                                 0004 GR
-  0 _init_console                                                  0022 GR
-  0 _loadGraphics2vram                                             0033 GR
-  0 _main                                                          00CA GR
+  1 _frame_counter                                                 0005 GR
+  0 _init_console                                                  0120 GR
+  0 _loadGraphics2vram                                             0131 GR
+  0 _main                                                          0152 GR
     _music_psg                                                     **** GX
   1 _numinterrupts                                                 0000 GR
-  1 _player_x                                                      0001 GR
-  1 _player_y                                                      0002 GR
+  1 _player1_current_frame                                         0003 GR
+  1 _player1_direction                                             0004 GR
+  1 _player1_x                                                     0001 GR
+  1 _player1_y                                                     0002 GR
     _spritepalette_bin                                             **** GX
     _spritetiles_psgcompr                                          **** GX
-  1 _volume_atenuation                                             0005 GR
-
+  1 _volume_atenuation                                             0006 GR
 
 ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180), page 2.
 Hexadecimal [16-Bits]
 
 Area Table
 
-   0 _CODE                                      size  173   flags    0
-   1 _DATA                                      size    6   flags    0
+   0 _CODE                                      size  1F5   flags    0
+   1 _DATA                                      size    7   flags    0
    2 _INITIALIZED                               size    0   flags    0
    3 _DABS                                      size    0   flags    8
    4 _HOME                                      size    0   flags    0

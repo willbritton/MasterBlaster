@@ -1,10 +1,15 @@
+// declarations needed
+void Player1Update(unsigned char time);
+void Player1UpdatePosition(void);
+void Player1UpdateDraw(unsigned char time);
+
 
 void InterruptHandler(void)
 {
 	// numinterrupts++;
 }
 
-void InitConsole()
+void InitConsole(void)
 {
     // La consola
 	SMS_init();

@@ -1,4 +1,5 @@
 #include "main.h"
+#include "Players/players.h"
 
 /*
 void main (void)
@@ -12,14 +13,6 @@ void main (void)
 }
 */
 
-#define SPRITE_TILES_POSITION 256
-#define NUMBER_FRAMES 3
-#define NUMBER_TILES_BY_FRAME 2
-#define NUMBER_TILES_FRAMES_BOTH_DIRECTIONS 12
-
-unsigned char player_x;
-unsigned char player_y;
-unsigned char current_frame;
 unsigned char frame_counter;
 unsigned char volume_atenuation;
 
@@ -38,36 +31,15 @@ void loadGraphics2vram(void)
   // SMS_loadTileMap(0,0, backgroundtilemap_bin, backgroundtilemap_bin_size);
 
   SMS_loadSpritePalette(spritepalette_bin);
-  SMS_loadPSGaidencompressedTiles (spritetiles_psgcompr,SPRITE_TILES_POSITION);
+  SMS_loadPSGaidencompressedTiles (spritetiles_psgcompr,PLAYER1_SPRITE_TILES_POSITION); // Bomberman - move to player?
   
   SMS_setSpritePaletteColor(0, RGB(0, 0, 0));
 }
 
-void draw_main_character(void)
-{
-  unsigned char i, j;
-  unsigned char direction_offset = 0;
-
-  for(j=0; j<3; j++)
-  {
-    for(i=0; i<2; i++) {
-      SMS_addSprite(player_x+(i<<3), player_y+(j<<3), SPRITE_TILES_POSITION + direction_offset + current_frame * NUMBER_TILES_BY_FRAME + NUMBER_TILES_FRAMES_BOTH_DIRECTIONS *j + i);
-    }
-  }
-
-  if((frame_counter%16) == 0) {
-    current_frame++;
-    if(current_frame == NUMBER_FRAMES) {
-      current_frame = 0;
-    }
-  }
-}
-
 void main (void)
 {
-  player_x = 0;
-  player_y = 134;
-  current_frame = 0;
+  Player1Init();
+
   frame_counter = 0;
 
   init_console();
@@ -93,10 +65,8 @@ void main (void)
     }
 
     SMS_initSprites();
-    if(SMS_getKeysStatus() & PORT_A_KEY_1)
-    {
-      draw_main_character();
-    }
+    
+    Player1Update(frame_counter);
 
     SMS_finalizeSprites();
     SMS_waitForVBlank();
