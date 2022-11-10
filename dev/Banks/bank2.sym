@@ -7,8 +7,14 @@ Symbol Table
     .__.ABS.                                                    =  0000 G
     .__.CPU.                                                    =  0000 L
     .__.H$L.                                                    =  0000 L
-  7 _music_psg                                                     0000 GR
-
+  7 _backgroundpalette_bin                                         0000 GR
+  7 _backgroundtilemap_bin                                         0010 GR
+  7 _backgroundtiles_psgcompr                                      0610 GR
+  7 _enemybomb_psg                                                 1550 GR
+  7 _explosion_psg                                                 1568 GR
+  7 _music_psg                                                     1581 GR
+  7 _spritepalette_bin                                             2795 GR
+  7 _spritetiles_psgcompr                                          279D GR
 
 ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180), page 2.
 Hexadecimal [16-Bits]
@@ -22,7 +28,7 @@ Area Table
    4 _HOME                                      size    0   flags    0
    5 _GSINIT                                    size    0   flags    0
    6 _GSFINAL                                   size    0   flags    0
-   7 _BANK2                                     size 1214   flags    0
+   7 _BANK2                                     size 2AC7   flags    0
    8 _INITIALIZER                               size    0   flags    0
    9 _CABS                                      size    0   flags    8
 

@@ -1,28 +1,8 @@
 #include "main.h"
 #include "Players/players.h"
 
-/*
-void main (void)
-{
-  //InitConsole();
-
-  while(1)
-	{
-    // do nothing
-  }
-}
-*/
-
 unsigned char frame_counter;
 unsigned char volume_atenuation;
-
-void init_console(void)
-{
-  SMS_init();
-  SMS_displayOff();
-  SMS_setSpriteMode(SPRITEMODE_NORMAL);
-  SMS_zeroBGPalette();
-}
 
 void loadGraphics2vram(void)
 {
@@ -38,17 +18,15 @@ void loadGraphics2vram(void)
 
 void main (void)
 {
-  Player1Init();
-
   frame_counter = 0;
 
-  init_console();
+  Player1Init();
+  InitConsole();
+  
   loadGraphics2vram();
   SMS_displayOn();
 
   PSGPlay(music_psg);
-  // PSGSFXPlay(fx_psg, 0x01|0x02);
-
 
   // main game loop
   while (1)
@@ -68,11 +46,16 @@ void main (void)
     
     Player1Update(frame_counter);
 
+    if(SMS_getKeysStatus() & PORT_A_KEY_1)
+    {
+      PSGSFXPlay(enemybomb_psg, 0x00);
+    }
+
     SMS_finalizeSprites();
     SMS_waitForVBlank();
 
     PSGFrame();
-    // PSGSFXFrame();
+    PSGSFXFrame();
 
     SMS_copySpritestoSAT();
     // SMS_setBGScrollX(scroll_x);

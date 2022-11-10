@@ -15,16 +15,16 @@
 	.globl ___SMS__SEGA_signature
 	.globl _main
 	.globl _loadGraphics2vram
-	.globl _init_console
 	.globl _Player1Init
 	.globl _InitConsole
 	.globl _InterruptHandler
+	.globl _PSGSFXFrame
 	.globl _PSGFrame
+	.globl _PSGSFXPlay
 	.globl _PSGPlay
 	.globl _SMS_setLineCounter
 	.globl _SMS_setLineInterruptHandler
 	.globl _SMS_getKeysStatus
-	.globl _SMS_zeroBGPalette
 	.globl _SMS_loadSpritePalette
 	.globl _SMS_loadBGPalette
 	.globl _SMS_setSpritePaletteColor
@@ -34,8 +34,6 @@
 	.globl _SMS_initSprites
 	.globl _SMS_loadPSGaidencompressedTiles
 	.globl _SMS_waitForVBlank
-	.globl _SMS_setSpriteMode
-	.globl _SMS_VDPturnOffFeature
 	.globl _SMS_VDPturnOnFeature
 	.globl _SMS_init
 	.globl _volume_atenuation
@@ -300,120 +298,121 @@ _Player1UpdateDraw::
 	ld	a,-3 (ix)
 	sub	a, #0x03
 	jr	C,00120$
-;Players/players.h:76: if((time%16) == 0) {
+;Players/players.h:78: if((time%8) == 0) {
 	ld	a,4 (ix)
-	and	a, #0x0f
+	and	a, #0x07
 	jr	NZ,00116$
-;Players/players.h:77: player1_current_frame++;
+;Players/players.h:79: player1_current_frame++;
 	ld	iy,#_player1_current_frame
 	inc	0 (iy)
-;Players/players.h:78: if(player1_current_frame == PLAYER1_NUMBER_FRAMES) {
+;Players/players.h:80: if(player1_current_frame == PLAYER1_NUMBER_FRAMES) {
 	ld	a,0 (iy)
-	sub	a, #0x03
+	sub	a, #0x06
 	jr	NZ,00116$
-;Players/players.h:79: player1_current_frame = 0;
+;Players/players.h:81: player1_current_frame = 0;
 	ld	0 (iy),#0x00
 00116$:
 	ld	sp, ix
 	pop	ix
 	ret
-;main.c:19: void init_console(void)
-;	---------------------------------
-; Function init_console
-; ---------------------------------
-_init_console::
-;main.c:21: SMS_init();
-	call	_SMS_init
-;main.c:22: SMS_displayOff();
-	ld	hl,#0x0140
-	call	_SMS_VDPturnOffFeature
-;main.c:23: SMS_setSpriteMode(SPRITEMODE_NORMAL);
-	ld	l,#0x00
-	call	_SMS_setSpriteMode
-;main.c:24: SMS_zeroBGPalette();
-	jp  _SMS_zeroBGPalette
-;main.c:27: void loadGraphics2vram(void)
+;main.c:7: void loadGraphics2vram(void)
 ;	---------------------------------
 ; Function loadGraphics2vram
 ; ---------------------------------
 _loadGraphics2vram::
-;main.c:29: SMS_loadBGPalette(backgroundpalette_bin);
+;main.c:9: SMS_loadBGPalette(backgroundpalette_bin);
 	ld	hl,#_backgroundpalette_bin
 	call	_SMS_loadBGPalette
-;main.c:33: SMS_loadSpritePalette(spritepalette_bin);
+;main.c:13: SMS_loadSpritePalette(spritepalette_bin);
 	ld	hl,#_spritepalette_bin
 	call	_SMS_loadSpritePalette
-;main.c:34: SMS_loadPSGaidencompressedTiles (spritetiles_psgcompr,PLAYER1_SPRITE_TILES_POSITION); // Bomberman - move to player?
+;main.c:14: SMS_loadPSGaidencompressedTiles (spritetiles_psgcompr,PLAYER1_SPRITE_TILES_POSITION); // Bomberman - move to player?
 	ld	hl,#0x0100
 	push	hl
 	ld	hl,#_spritetiles_psgcompr
 	push	hl
 	call	_SMS_loadPSGaidencompressedTiles
 	pop	af
-;main.c:36: SMS_setSpritePaletteColor(0, RGB(0, 0, 0));
+;main.c:16: SMS_setSpritePaletteColor(0, RGB(0, 0, 0));
 	ld	hl, #0x0000
 	ex	(sp),hl
 	call	_SMS_setSpritePaletteColor
 	pop	af
 	ret
-;main.c:39: void main (void)
+;main.c:19: void main (void)
 ;	---------------------------------
 ; Function main
 ; ---------------------------------
 _main::
-;main.c:41: Player1Init();
-	call	_Player1Init
-;main.c:43: frame_counter = 0;
+;main.c:21: frame_counter = 0;
 	ld	hl,#_frame_counter + 0
 	ld	(hl), #0x00
-;main.c:45: init_console();
-	call	_init_console
-;main.c:46: loadGraphics2vram();
+;main.c:23: Player1Init();
+	call	_Player1Init
+;main.c:24: InitConsole();
+	call	_InitConsole
+;main.c:26: loadGraphics2vram();
 	call	_loadGraphics2vram
-;main.c:47: SMS_displayOn();
+;main.c:27: SMS_displayOn();
 	ld	hl,#0x0140
 	call	_SMS_VDPturnOnFeature
-;main.c:49: PSGPlay(music_psg);
+;main.c:29: PSGPlay(music_psg);
 	ld	hl,#_music_psg
 	push	hl
 	call	_PSGPlay
 	pop	af
-;main.c:54: while (1)
-00106$:
-;main.c:56: frame_counter++;
+;main.c:32: while (1)
+00108$:
+;main.c:34: frame_counter++;
 	ld	iy,#_frame_counter
 	inc	0 (iy)
-;main.c:58: if((frame_counter%64) == 0)
+;main.c:36: if((frame_counter%64) == 0)
 	ld	a,0 (iy)
 	and	a, #0x3f
 	jr	NZ,00104$
-;main.c:60: volume_atenuation++;
+;main.c:38: volume_atenuation++;
 	ld	iy,#_volume_atenuation
 	inc	0 (iy)
-;main.c:61: if(volume_atenuation > 15)
+;main.c:39: if(volume_atenuation > 15)
 	ld	a,#0x0f
 	sub	a, 0 (iy)
 	jr	NC,00104$
-;main.c:63: volume_atenuation = 0;
+;main.c:41: volume_atenuation = 0;
 	ld	0 (iy),#0x00
 00104$:
-;main.c:67: SMS_initSprites();
+;main.c:45: SMS_initSprites();
 	call	_SMS_initSprites
-;main.c:69: Player1Update(frame_counter);
+;main.c:47: Player1Update(frame_counter);
 	ld	a,(_frame_counter)
 	push	af
 	inc	sp
 	call	_Player1Update
 	inc	sp
-;main.c:71: SMS_finalizeSprites();
+;main.c:49: if(SMS_getKeysStatus() & PORT_A_KEY_1)
+	call	_SMS_getKeysStatus
+	bit	4, l
+	jr	Z,00106$
+;main.c:51: PSGSFXPlay(enemybomb_psg, 0x00);
+	xor	a, a
+	push	af
+	inc	sp
+	ld	hl,#_enemybomb_psg
+	push	hl
+	call	_PSGSFXPlay
+	pop	af
+	inc	sp
+00106$:
+;main.c:54: SMS_finalizeSprites();
 	call	_SMS_finalizeSprites
-;main.c:72: SMS_waitForVBlank();
+;main.c:55: SMS_waitForVBlank();
 	call	_SMS_waitForVBlank
-;main.c:74: PSGFrame();
+;main.c:57: PSGFrame();
 	call	_PSGFrame
-;main.c:77: SMS_copySpritestoSAT();
+;main.c:58: PSGSFXFrame();
+	call	_PSGSFXFrame
+;main.c:60: SMS_copySpritestoSAT();
 	call	_SMS_copySpritestoSAT
-	jr	00106$
+	jr	00108$
 	.area _CODE
 __str_0:
 	.ascii "Gary Paluk"

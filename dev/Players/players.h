@@ -4,7 +4,7 @@ unsigned char player1_current_frame;
 unsigned char player1_direction;
 
 #define PLAYER1_SPRITE_TILES_POSITION 256
-#define PLAYER1_NUMBER_FRAMES 3
+#define PLAYER1_NUMBER_FRAMES 6
 #define PLAYER1_NUMBER_TILES_BY_FRAME 2
 #define PLAYER1_NUMBER_TILES_FRAMES_BOTH_DIRECTIONS 12
 
@@ -70,10 +70,12 @@ void Player1UpdateDraw(unsigned char time)
     {
         for(i=0; i<2; i++) {
             SMS_addSprite(player1_x+(i<<3), player1_y+(j<<3), PLAYER1_SPRITE_TILES_POSITION + direction_offset + player1_current_frame * PLAYER1_NUMBER_TILES_BY_FRAME + PLAYER1_NUMBER_TILES_FRAMES_BOTH_DIRECTIONS *j + i);
+
+            // SMS_addSprite(player1_x+(i<<3), player1_y+(j<<3), player1_current_frame * j + i)
         }
     }
 
-    if((time%16) == 0) {
+    if((time%8) == 0) {
         player1_current_frame++;
         if(player1_current_frame == PLAYER1_NUMBER_FRAMES) {
             player1_current_frame = 0;

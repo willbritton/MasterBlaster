@@ -11,13 +11,14 @@ Symbol Table
   0 _InterruptHandler                                              0000 GR
     _PSGFrame                                                      **** GX
     _PSGPlay                                                       **** GX
+    _PSGSFXFrame                                                   **** GX
+    _PSGSFXPlay                                                    **** GX
   0 _Player1Init                                                   0022 GR
   0 _Player1Update                                                 0037 GR
   0 _Player1UpdateDraw                                             0089 GR
   0 _Player1UpdatePosition                                         0046 GR
     _ROM_bank_to_be_mapped_on_slot2                             =  FFFF G
     _SMS_SRAM                                                   =  8000 G
-    _SMS_VDPturnOffFeature                                         **** GX
     _SMS_VDPturnOnFeature                                          **** GX
     _SMS_addSprite                                                 **** GX
     _SMS_copySpritestoSAT                                          **** GX
@@ -30,24 +31,22 @@ Symbol Table
     _SMS_loadSpritePalette                                         **** GX
     _SMS_setLineCounter                                            **** GX
     _SMS_setLineInterruptHandler                                   **** GX
-    _SMS_setSpriteMode                                             **** GX
     _SMS_setSpritePaletteColor                                     **** GX
     _SMS_waitForVBlank                                             **** GX
-    _SMS_zeroBGPalette                                             **** GX
     _SRAM_bank_to_be_mapped_on_slot2                            =  FFFC G
   A ___SMS__SDSC_author                                            7FD5 GR
   C ___SMS__SDSC_descr                                             7F93 GR
   B ___SMS__SDSC_name                                              7FC6 GR
   D ___SMS__SDSC_signature                                         7FE0 GR
   9 ___SMS__SEGA_signature                                         7FF0 GR
-  0 __str_0                                                        01A8 R
-  0 __str_1                                                        01B3 R
-  0 __str_2                                                        01C2 R
+  0 __str_0                                                        01AD R
+  0 __str_1                                                        01B8 R
+  0 __str_2                                                        01C7 R
     _backgroundpalette_bin                                         **** GX
+    _enemybomb_psg                                                 **** GX
   1 _frame_counter                                                 0005 GR
-  0 _init_console                                                  0120 GR
-  0 _loadGraphics2vram                                             0131 GR
-  0 _main                                                          0152 GR
+  0 _loadGraphics2vram                                             0120 GR
+  0 _main                                                          0141 GR
     _music_psg                                                     **** GX
   1 _numinterrupts                                                 0000 GR
   1 _player1_current_frame                                         0003 GR
@@ -58,12 +57,13 @@ Symbol Table
     _spritetiles_psgcompr                                          **** GX
   1 _volume_atenuation                                             0006 GR
 
+
 ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180), page 2.
 Hexadecimal [16-Bits]
 
 Area Table
 
-   0 _CODE                                      size  1F5   flags    0
+   0 _CODE                                      size  1FA   flags    0
    1 _DATA                                      size    7   flags    0
    2 _INITIALIZED                               size    0   flags    0
    3 _DABS                                      size    0   flags    8
