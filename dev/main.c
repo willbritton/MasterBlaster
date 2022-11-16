@@ -14,6 +14,7 @@ void loadGraphics2vram(void)
   SMS_loadPSGaidencompressedTiles (spritetiles_psgcompr,PLAYER1_SPRITE_TILES_POSITION); // Bomberman - move to player?
   
   SMS_setSpritePaletteColor(0, RGB(0, 0, 0));
+  SMS_setBGPaletteColor(0, RGB(0, 3, 0));
 }
 
 void main (void)

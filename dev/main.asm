@@ -28,6 +28,7 @@
 	.globl _SMS_loadSpritePalette
 	.globl _SMS_loadBGPalette
 	.globl _SMS_setSpritePaletteColor
+	.globl _SMS_setBGPaletteColor
 	.globl _SMS_copySpritestoSAT
 	.globl _SMS_finalizeSprites
 	.globl _SMS_addSprite
@@ -333,66 +334,70 @@ _loadGraphics2vram::
 	push	hl
 	call	_SMS_loadPSGaidencompressedTiles
 	pop	af
-;main.c:16: SMS_setSpritePaletteColor(0, RGB(0, 0, 0));
-	ld	hl, #0x0000
+;main.c:16: SMS_setSpritePaletteColor(0, RGB(3, 0, 0));
+	ld	hl, #0x0300
 	ex	(sp),hl
 	call	_SMS_setSpritePaletteColor
+;main.c:17: SMS_setBGPaletteColor(0, RGB(0, 3, 0));
+	ld	hl, #0x0c00
+	ex	(sp),hl
+	call	_SMS_setBGPaletteColor
 	pop	af
 	ret
-;main.c:19: void main (void)
+;main.c:20: void main (void)
 ;	---------------------------------
 ; Function main
 ; ---------------------------------
 _main::
-;main.c:21: frame_counter = 0;
+;main.c:22: frame_counter = 0;
 	ld	hl,#_frame_counter + 0
 	ld	(hl), #0x00
-;main.c:23: Player1Init();
+;main.c:24: Player1Init();
 	call	_Player1Init
-;main.c:24: InitConsole();
+;main.c:25: InitConsole();
 	call	_InitConsole
-;main.c:26: loadGraphics2vram();
+;main.c:27: loadGraphics2vram();
 	call	_loadGraphics2vram
-;main.c:27: SMS_displayOn();
+;main.c:28: SMS_displayOn();
 	ld	hl,#0x0140
 	call	_SMS_VDPturnOnFeature
-;main.c:29: PSGPlay(music_psg);
+;main.c:30: PSGPlay(music_psg);
 	ld	hl,#_music_psg
 	push	hl
 	call	_PSGPlay
 	pop	af
-;main.c:32: while (1)
+;main.c:33: while (1)
 00108$:
-;main.c:34: frame_counter++;
+;main.c:35: frame_counter++;
 	ld	iy,#_frame_counter
 	inc	0 (iy)
-;main.c:36: if((frame_counter%64) == 0)
+;main.c:37: if((frame_counter%64) == 0)
 	ld	a,0 (iy)
 	and	a, #0x3f
 	jr	NZ,00104$
-;main.c:38: volume_atenuation++;
+;main.c:39: volume_atenuation++;
 	ld	iy,#_volume_atenuation
 	inc	0 (iy)
-;main.c:39: if(volume_atenuation > 15)
+;main.c:40: if(volume_atenuation > 15)
 	ld	a,#0x0f
 	sub	a, 0 (iy)
 	jr	NC,00104$
-;main.c:41: volume_atenuation = 0;
+;main.c:42: volume_atenuation = 0;
 	ld	0 (iy),#0x00
 00104$:
-;main.c:45: SMS_initSprites();
+;main.c:46: SMS_initSprites();
 	call	_SMS_initSprites
-;main.c:47: Player1Update(frame_counter);
+;main.c:48: Player1Update(frame_counter);
 	ld	a,(_frame_counter)
 	push	af
 	inc	sp
 	call	_Player1Update
 	inc	sp
-;main.c:49: if(SMS_getKeysStatus() & PORT_A_KEY_1)
+;main.c:50: if(SMS_getKeysStatus() & PORT_A_KEY_1)
 	call	_SMS_getKeysStatus
 	bit	4, l
 	jr	Z,00106$
-;main.c:51: PSGSFXPlay(enemybomb_psg, 0x00);
+;main.c:52: PSGSFXPlay(enemybomb_psg, 0x00);
 	xor	a, a
 	push	af
 	inc	sp
@@ -402,15 +407,15 @@ _main::
 	pop	af
 	inc	sp
 00106$:
-;main.c:54: SMS_finalizeSprites();
+;main.c:55: SMS_finalizeSprites();
 	call	_SMS_finalizeSprites
-;main.c:55: SMS_waitForVBlank();
+;main.c:56: SMS_waitForVBlank();
 	call	_SMS_waitForVBlank
-;main.c:57: PSGFrame();
+;main.c:58: PSGFrame();
 	call	_PSGFrame
-;main.c:58: PSGSFXFrame();
+;main.c:59: PSGSFXFrame();
 	call	_PSGSFXFrame
-;main.c:60: SMS_copySpritestoSAT();
+;main.c:61: SMS_copySpritestoSAT();
 	call	_SMS_copySpritestoSAT
 	jr	00108$
 	.area _CODE
