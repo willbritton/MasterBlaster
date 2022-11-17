@@ -11,24 +11,28 @@ Symbol Table
   0 _InterruptHandler                                              0000 GR
     _PSGFrame                                                      **** GX
     _PSGPlay                                                       **** GX
+    _PSGPlayNoRepeat                                               **** GX
     _PSGSFXFrame                                                   **** GX
+    _PSGSFXGetStatus                                               **** GX
     _PSGSFXPlay                                                    **** GX
-  0 _Player1Init                                                   0022 GR
-  0 _Player1Update                                                 0037 GR
-  0 _Player1UpdateDraw                                             0089 GR
-  0 _Player1UpdatePosition                                         0046 GR
+  0 _Player1Init                                                   004A GR
+  0 _Player1Update                                                 005F GR
+  0 _Player1UpdateDraw                                             00B1 GR
+  0 _Player1UpdatePosition                                         006E GR
     _ROM_bank_to_be_mapped_on_slot2                             =  FFFF G
     _SMS_SRAM                                                   =  8000 G
     _SMS_VDPturnOnFeature                                          **** GX
+    _SMS_VRAMmemsetW                                               **** GX
     _SMS_addSprite                                                 **** GX
     _SMS_copySpritestoSAT                                          **** GX
     _SMS_finalizeSprites                                           **** GX
     _SMS_getKeysStatus                                             **** GX
     _SMS_init                                                      **** GX
     _SMS_initSprites                                               **** GX
-    _SMS_loadBGPalette                                             **** GX
     _SMS_loadPSGaidencompressedTiles                               **** GX
     _SMS_loadSpritePalette                                         **** GX
+    _SMS_queryPauseRequested                                       **** GX
+    _SMS_resetPauseRequest                                         **** GX
     _SMS_setBGPaletteColor                                         **** GX
     _SMS_setLineCounter                                            **** GX
     _SMS_setLineInterruptHandler                                   **** GX
@@ -40,31 +44,38 @@ Symbol Table
   B ___SMS__SDSC_name                                              7FC6 GR
   D ___SMS__SDSC_signature                                         7FE0 GR
   9 ___SMS__SEGA_signature                                         7FF0 GR
-  0 __str_0                                                        01B4 R
-  0 __str_1                                                        01BF R
-  0 __str_2                                                        01CE R
-    _backgroundpalette_bin                                         **** GX
+  0 __str_0                                                        01F0 R
+  0 __str_1                                                        01FB R
+  0 __str_2                                                        020A R
+  0 _checkgamepause                                                0022 GR
     _enemybomb_psg                                                 **** GX
-  1 _frame_counter                                                 0005 GR
-  0 _loadGraphics2vram                                             0120 GR
-  0 _main                                                          0148 GR
+  1 _frame_counter                                                 0006 GR
+  1 _gamepause                                                     0001 GR
+  0 _loadGraphics2vram                                             0130 GR
+  0 _main                                                          0164 GR
     _music_psg                                                     **** GX
   1 _numinterrupts                                                 0000 GR
-  1 _player1_current_frame                                         0003 GR
-  1 _player1_direction                                             0004 GR
-  1 _player1_x                                                     0001 GR
-  1 _player1_y                                                     0002 GR
+    _pause_psg                                                     **** GX
+  1 _player1_current_frame                                         0004 GR
+  1 _player1_direction                                             0005 GR
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180), page 2.
+Hexadecimal [16-Bits]
+
+Symbol Table
+
+  1 _player1_x                                                     0002 GR
+  1 _player1_y                                                     0003 GR
     _spritepalette_bin                                             **** GX
     _spritetiles_psgcompr                                          **** GX
-  1 _volume_atenuation                                             0006 GR
+  1 _volume_atenuation                                             0007 GR
 
-ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180), page 2.
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180), page 3.
 Hexadecimal [16-Bits]
 
 Area Table
 
-   0 _CODE                                      size  201   flags    0
-   1 _DATA                                      size    7   flags    0
+   0 _CODE                                      size  23D   flags    0
+   1 _DATA                                      size    8   flags    0
    2 _INITIALIZED                               size    0   flags    0
    3 _DABS                                      size    0   flags    8
    4 _HOME                                      size    0   flags    0

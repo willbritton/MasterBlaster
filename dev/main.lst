@@ -16,420 +16,479 @@
                              16 	.globl _main
                              17 	.globl _loadGraphics2vram
                              18 	.globl _Player1Init
-                             19 	.globl _InitConsole
-                             20 	.globl _InterruptHandler
-                             21 	.globl _PSGSFXFrame
-                             22 	.globl _PSGFrame
-                             23 	.globl _PSGSFXPlay
-                             24 	.globl _PSGPlay
-                             25 	.globl _SMS_setLineCounter
-                             26 	.globl _SMS_setLineInterruptHandler
-                             27 	.globl _SMS_getKeysStatus
-                             28 	.globl _SMS_loadSpritePalette
-                             29 	.globl _SMS_loadBGPalette
-                             30 	.globl _SMS_setSpritePaletteColor
-                             31 	.globl _SMS_setBGPaletteColor
-                             32 	.globl _SMS_copySpritestoSAT
-                             33 	.globl _SMS_finalizeSprites
-                             34 	.globl _SMS_addSprite
-                             35 	.globl _SMS_initSprites
-                             36 	.globl _SMS_loadPSGaidencompressedTiles
-                             37 	.globl _SMS_waitForVBlank
-                             38 	.globl _SMS_VDPturnOnFeature
-                             39 	.globl _SMS_init
-                             40 	.globl _volume_atenuation
-                             41 	.globl _frame_counter
-                             42 	.globl _player1_direction
-                             43 	.globl _player1_current_frame
-                             44 	.globl _player1_y
-                             45 	.globl _player1_x
-                             46 	.globl _numinterrupts
-                             47 	.globl _SMS_SRAM
-                             48 	.globl _SRAM_bank_to_be_mapped_on_slot2
-                             49 	.globl _ROM_bank_to_be_mapped_on_slot2
-                             50 	.globl _Player1Update
-                             51 	.globl _Player1UpdatePosition
-                             52 	.globl _Player1UpdateDraw
-                             53 ;--------------------------------------------------------
-                             54 ; special function registers
-                             55 ;--------------------------------------------------------
-                             56 ;--------------------------------------------------------
-                             57 ; ram data
-                             58 ;--------------------------------------------------------
-                             59 	.area _DATA
-                     FFFF    60 _ROM_bank_to_be_mapped_on_slot2	=	0xffff
-                     FFFC    61 _SRAM_bank_to_be_mapped_on_slot2	=	0xfffc
-                     8000    62 _SMS_SRAM	=	0x8000
-   0000                      63 _numinterrupts::
-   0000                      64 	.ds 1
-   0001                      65 _player1_x::
-   0001                      66 	.ds 1
-   0002                      67 _player1_y::
-   0002                      68 	.ds 1
-   0003                      69 _player1_current_frame::
-   0003                      70 	.ds 1
-   0004                      71 _player1_direction::
-   0004                      72 	.ds 1
-   0005                      73 _frame_counter::
-   0005                      74 	.ds 1
-   0006                      75 _volume_atenuation::
-   0006                      76 	.ds 1
-                             77 ;--------------------------------------------------------
-                             78 ; ram data
-                             79 ;--------------------------------------------------------
-                             80 	.area _INITIALIZED
-                             81 ;--------------------------------------------------------
-                             82 ; absolute external ram data
-                             83 ;--------------------------------------------------------
-                             84 	.area _DABS (ABS)
+                             19 	.globl _checkgamepause
+                             20 	.globl _InitConsole
+                             21 	.globl _InterruptHandler
+                             22 	.globl _PSGSFXFrame
+                             23 	.globl _PSGFrame
+                             24 	.globl _PSGSFXGetStatus
+                             25 	.globl _PSGSFXPlay
+                             26 	.globl _PSGPlayNoRepeat
+                             27 	.globl _PSGPlay
+                             28 	.globl _SMS_VRAMmemsetW
+                             29 	.globl _SMS_setLineCounter
+                             30 	.globl _SMS_setLineInterruptHandler
+                             31 	.globl _SMS_resetPauseRequest
+                             32 	.globl _SMS_queryPauseRequested
+                             33 	.globl _SMS_getKeysStatus
+                             34 	.globl _SMS_loadSpritePalette
+                             35 	.globl _SMS_setSpritePaletteColor
+                             36 	.globl _SMS_setBGPaletteColor
+                             37 	.globl _SMS_copySpritestoSAT
+                             38 	.globl _SMS_finalizeSprites
+                             39 	.globl _SMS_addSprite
+                             40 	.globl _SMS_initSprites
+                             41 	.globl _SMS_loadPSGaidencompressedTiles
+                             42 	.globl _SMS_waitForVBlank
+                             43 	.globl _SMS_VDPturnOnFeature
+                             44 	.globl _SMS_init
+                             45 	.globl _volume_atenuation
+                             46 	.globl _frame_counter
+                             47 	.globl _player1_direction
+                             48 	.globl _player1_current_frame
+                             49 	.globl _player1_y
+                             50 	.globl _player1_x
+                             51 	.globl _gamepause
+                             52 	.globl _numinterrupts
+                             53 	.globl _SMS_SRAM
+                             54 	.globl _SRAM_bank_to_be_mapped_on_slot2
+                             55 	.globl _ROM_bank_to_be_mapped_on_slot2
+                             56 	.globl _Player1Update
+                             57 	.globl _Player1UpdatePosition
+                             58 	.globl _Player1UpdateDraw
+                             59 ;--------------------------------------------------------
+                             60 ; special function registers
+                             61 ;--------------------------------------------------------
+                             62 ;--------------------------------------------------------
+                             63 ; ram data
+                             64 ;--------------------------------------------------------
+                             65 	.area _DATA
+                     FFFF    66 _ROM_bank_to_be_mapped_on_slot2	=	0xffff
+                     FFFC    67 _SRAM_bank_to_be_mapped_on_slot2	=	0xfffc
+                     8000    68 _SMS_SRAM	=	0x8000
+   0000                      69 _numinterrupts::
+   0000                      70 	.ds 1
+   0001                      71 _gamepause::
+   0001                      72 	.ds 1
+   0002                      73 _player1_x::
+   0002                      74 	.ds 1
+   0003                      75 _player1_y::
+   0003                      76 	.ds 1
+   0004                      77 _player1_current_frame::
+   0004                      78 	.ds 1
+   0005                      79 _player1_direction::
+   0005                      80 	.ds 1
+   0006                      81 _frame_counter::
+   0006                      82 	.ds 1
+   0007                      83 _volume_atenuation::
+   0007                      84 	.ds 1
                              85 ;--------------------------------------------------------
-                             86 ; global & static initialisations
+                             86 ; ram data
                              87 ;--------------------------------------------------------
-                             88 	.area _HOME
-                             89 	.area _GSINIT
-                             90 	.area _GSFINAL
-                             91 	.area _GSINIT
-                             92 ;--------------------------------------------------------
-                             93 ; Home
-                             94 ;--------------------------------------------------------
-                             95 	.area _HOME
+                             88 	.area _INITIALIZED
+                             89 ;--------------------------------------------------------
+                             90 ; absolute external ram data
+                             91 ;--------------------------------------------------------
+                             92 	.area _DABS (ABS)
+                             93 ;--------------------------------------------------------
+                             94 ; global & static initialisations
+                             95 ;--------------------------------------------------------
                              96 	.area _HOME
-                             97 ;--------------------------------------------------------
-                             98 ; code
-                             99 ;--------------------------------------------------------
-                            100 	.area _CODE
-                            101 ;Core\funcs.h:7: void InterruptHandler(void)
-                            102 ;	---------------------------------
-                            103 ; Function InterruptHandler
-                            104 ; ---------------------------------
-   0000                     105 _InterruptHandler::
-                            106 ;Core\funcs.h:10: }
-   0000 C9            [10]  107 	ret
-                            108 ;Core\funcs.h:12: void InitConsole(void)
-                            109 ;	---------------------------------
-                            110 ; Function InitConsole
-                            111 ; ---------------------------------
-   0001                     112 _InitConsole::
-                            113 ;Core\funcs.h:15: SMS_init();
-   0001 CDr00r00      [17]  114 	call	_SMS_init
-                            115 ;Core\funcs.h:18: SMS_getKeysStatus();
-   0004 CDr00r00      [17]  116 	call	_SMS_getKeysStatus
-                            117 ;Core\funcs.h:21: SMS_setLineInterruptHandler(&InterruptHandler);
-   0007 21r00r00      [10]  118 	ld	hl,#_InterruptHandler
-   000A E5            [11]  119 	push	hl
-   000B CDr00r00      [17]  120 	call	_SMS_setLineInterruptHandler
-                            121 ;Core\funcs.h:22: SMS_setLineCounter (192);
-   000E 26 C0         [ 7]  122 	ld	h,#0xc0
-   0010 E3            [19]  123 	ex	(sp),hl
-   0011 33            [ 6]  124 	inc	sp
-   0012 CDr00r00      [17]  125 	call	_SMS_setLineCounter
-   0015 33            [ 6]  126 	inc	sp
-                            127 ;Core\funcs.h:23: SMS_enableLineInterrupt();
-   0016 21 10 00      [10]  128 	ld	hl,#0x0010
-   0019 CDr00r00      [17]  129 	call	_SMS_VDPturnOnFeature
-                            130 ;Core\funcs.h:26: SMS_VDPturnOnFeature(VDPFEATURE_LEFTCOLBLANK);
-   001C 21 20 00      [10]  131 	ld	hl,#0x0020
-   001F C3r00r00      [10]  132 	jp  _SMS_VDPturnOnFeature
-                            133 ;Players/players.h:16: void Player1Init()
-                            134 ;	---------------------------------
-                            135 ; Function Player1Init
-                            136 ; ---------------------------------
-   0022                     137 _Player1Init::
-                            138 ;Players/players.h:18: player1_direction = LEFT;
-   0022 21r04r00      [10]  139 	ld	hl,#_player1_direction + 0
-   0025 36 02         [10]  140 	ld	(hl), #0x02
-                            141 ;Players/players.h:19: player1_x = 50;
-   0027 21r01r00      [10]  142 	ld	hl,#_player1_x + 0
-   002A 36 32         [10]  143 	ld	(hl), #0x32
-                            144 ;Players/players.h:20: player1_y = 134;
-   002C 21r02r00      [10]  145 	ld	hl,#_player1_y + 0
-   002F 36 86         [10]  146 	ld	(hl), #0x86
-                            147 ;Players/players.h:21: player1_current_frame = 0;
-   0031 21r03r00      [10]  148 	ld	hl,#_player1_current_frame + 0
-   0034 36 00         [10]  149 	ld	(hl), #0x00
-   0036 C9            [10]  150 	ret
-                            151 ;Players/players.h:24: void Player1Update(unsigned char time)
-                            152 ;	---------------------------------
-                            153 ; Function Player1Update
-                            154 ; ---------------------------------
-   0037                     155 _Player1Update::
-                            156 ;Players/players.h:26: Player1UpdatePosition();
-   0037 CDr46r00      [17]  157 	call	_Player1UpdatePosition
-                            158 ;Players/players.h:27: Player1UpdateDraw(time);
-   003A 21 02 00      [10]  159 	ld	hl, #2+0
-   003D 39            [11]  160 	add	hl, sp
-   003E 7E            [ 7]  161 	ld	a, (hl)
-   003F F5            [11]  162 	push	af
-   0040 33            [ 6]  163 	inc	sp
-   0041 CDr89r00      [17]  164 	call	_Player1UpdateDraw
-   0044 33            [ 6]  165 	inc	sp
-   0045 C9            [10]  166 	ret
-                            167 ;Players/players.h:30: void Player1UpdatePosition()
-                            168 ;	---------------------------------
-                            169 ; Function Player1UpdatePosition
-                            170 ; ---------------------------------
-   0046                     171 _Player1UpdatePosition::
-                            172 ;Players/players.h:32: if(SMS_getKeysStatus() & PORT_A_KEY_UP)
-   0046 CDr00r00      [17]  173 	call	_SMS_getKeysStatus
-   0049 CB 45         [ 8]  174 	bit	0, l
-   004B 28 0B         [12]  175 	jr	Z,00104$
-                            176 ;Players/players.h:34: player1_direction = UP;
-   004D 21r04r00      [10]  177 	ld	hl,#_player1_direction + 0
-   0050 36 00         [10]  178 	ld	(hl), #0x00
-                            179 ;Players/players.h:35: player1_y--;
-   0052 21r02r00      [10]  180 	ld	hl, #_player1_y+0
-   0055 35            [11]  181 	dec	(hl)
-   0056 18 10         [12]  182 	jr	00105$
-   0058                     183 00104$:
-                            184 ;Players/players.h:37: else if(SMS_getKeysStatus() & PORT_A_KEY_DOWN)
-   0058 CDr00r00      [17]  185 	call	_SMS_getKeysStatus
-   005B CB 4D         [ 8]  186 	bit	1, l
-   005D 28 09         [12]  187 	jr	Z,00105$
-                            188 ;Players/players.h:39: player1_direction = DOWN;
-   005F 21r04r00      [10]  189 	ld	hl,#_player1_direction + 0
-   0062 36 01         [10]  190 	ld	(hl), #0x01
-                            191 ;Players/players.h:40: player1_y++;
-   0064 21r02r00      [10]  192 	ld	hl, #_player1_y+0
-   0067 34            [11]  193 	inc	(hl)
-   0068                     194 00105$:
-                            195 ;Players/players.h:43: if(SMS_getKeysStatus() & PORT_A_KEY_LEFT)
-   0068 CDr00r00      [17]  196 	call	_SMS_getKeysStatus
-   006B CB 55         [ 8]  197 	bit	2, l
-   006D 28 0A         [12]  198 	jr	Z,00109$
-                            199 ;Players/players.h:45: player1_direction = LEFT;
-   006F 21r04r00      [10]  200 	ld	hl,#_player1_direction + 0
-   0072 36 02         [10]  201 	ld	(hl), #0x02
-                            202 ;Players/players.h:46: player1_x--;
-   0074 21r01r00      [10]  203 	ld	hl, #_player1_x+0
-   0077 35            [11]  204 	dec	(hl)
-   0078 C9            [10]  205 	ret
-   0079                     206 00109$:
-                            207 ;Players/players.h:48: else if(SMS_getKeysStatus() & PORT_A_KEY_RIGHT)
-   0079 CDr00r00      [17]  208 	call	_SMS_getKeysStatus
-   007C CB 5D         [ 8]  209 	bit	3, l
-   007E C8            [11]  210 	ret	Z
-                            211 ;Players/players.h:50: player1_direction = RIGHT;
-   007F 21r04r00      [10]  212 	ld	hl,#_player1_direction + 0
-   0082 36 03         [10]  213 	ld	(hl), #0x03
-                            214 ;Players/players.h:51: player1_x++;
-   0084 21r01r00      [10]  215 	ld	hl, #_player1_x+0
-   0087 34            [11]  216 	inc	(hl)
-   0088 C9            [10]  217 	ret
-                            218 ;Players/players.h:55: void Player1UpdateDraw(unsigned char time)
-                            219 ;	---------------------------------
-                            220 ; Function Player1UpdateDraw
-                            221 ; ---------------------------------
-   0089                     222 _Player1UpdateDraw::
-   0089 DD E5         [15]  223 	push	ix
-   008B DD 21 00 00   [14]  224 	ld	ix,#0
-   008F DD 39         [15]  225 	add	ix,sp
-   0091 F5            [11]  226 	push	af
-   0092 3B            [ 6]  227 	dec	sp
-                            228 ;Players/players.h:58: unsigned char direction_offset = 0;
-   0093 0E 00         [ 7]  229 	ld	c,#0x00
-                            230 ;Players/players.h:60: if(player1_direction == LEFT)
-   0095 3Ar04r00      [13]  231 	ld	a,(#_player1_direction + 0)
-   0098 D6 02         [ 7]  232 	sub	a, #0x02
-   009A 20 04         [12]  233 	jr	NZ,00104$
-                            234 ;Players/players.h:62: direction_offset = PLAYER1_NUMBER_TILES_FRAMES_BOTH_DIRECTIONS >> 1;
-   009C 0E 06         [ 7]  235 	ld	c,#0x06
-   009E 18 08         [12]  236 	jr	00122$
-   00A0                     237 00104$:
-                            238 ;Players/players.h:64: else if(player1_direction == RIGHT)
-   00A0 3Ar04r00      [13]  239 	ld	a,(#_player1_direction + 0)
-                            240 ;Players/players.h:66: direction_offset = 0;
-   00A3 D6 03         [ 7]  241 	sub	a,#0x03
-   00A5 20 01         [12]  242 	jr	NZ,00122$
-   00A7 4F            [ 4]  243 	ld	c,a
-                            244 ;Players/players.h:69: for(j=0; j<3; j++)
-   00A8                     245 00122$:
-   00A8 DD 36 FD 00   [19]  246 	ld	-3 (ix),#0x00
-   00AC 1E 00         [ 7]  247 	ld	e,#0x00
-                            248 ;Players/players.h:71: for(i=0; i<2; i++) {
-   00AE                     249 00120$:
-   00AE DD 7E FD      [19]  250 	ld	a,-3 (ix)
-   00B1 07            [ 4]  251 	rlca
-   00B2 07            [ 4]  252 	rlca
-   00B3 07            [ 4]  253 	rlca
-   00B4 E6 F8         [ 7]  254 	and	a,#0xf8
-   00B6 DD 77 FF      [19]  255 	ld	-1 (ix),a
-   00B9 DD 36 FE 00   [19]  256 	ld	-2 (ix),#0x00
-   00BD                     257 00112$:
-                            258 ;Players/players.h:72: SMS_addSprite(player1_x+(i<<3), player1_y+(j<<3), PLAYER1_SPRITE_TILES_POSITION + direction_offset + player1_current_frame * PLAYER1_NUMBER_TILES_BY_FRAME + PLAYER1_NUMBER_TILES_FRAMES_BOTH_DIRECTIONS *j + i);
-   00BD 3Ar03r00      [13]  259 	ld	a,(#_player1_current_frame + 0)
-   00C0 87            [ 4]  260 	add	a, a
-   00C1 6F            [ 4]  261 	ld	l,a
-   00C2 09            [11]  262 	add	hl, bc
-   00C3 19            [11]  263 	add	hl, de
-   00C4 7D            [ 4]  264 	ld	a,l
-   00C5 DD 86 FE      [19]  265 	add	a, -2 (ix)
-   00C8 47            [ 4]  266 	ld	b,a
-   00C9 3Ar02r00      [13]  267 	ld	a,(#_player1_y + 0)
-   00CC DD 86 FF      [19]  268 	add	a, -1 (ix)
-   00CF 57            [ 4]  269 	ld	d,a
-   00D0 DD 7E FE      [19]  270 	ld	a,-2 (ix)
-   00D3 07            [ 4]  271 	rlca
-   00D4 07            [ 4]  272 	rlca
-   00D5 07            [ 4]  273 	rlca
-   00D6 E6 F8         [ 7]  274 	and	a,#0xf8
-   00D8 6F            [ 4]  275 	ld	l,a
-   00D9 3Ar01r00      [13]  276 	ld	a,(#_player1_x + 0)
-   00DC 85            [ 4]  277 	add	a, l
-   00DD C5            [11]  278 	push	bc
-   00DE D5            [11]  279 	push	de
-   00DF 4A            [ 4]  280 	ld	c, d
-   00E0 C5            [11]  281 	push	bc
-   00E1 F5            [11]  282 	push	af
-   00E2 33            [ 6]  283 	inc	sp
-   00E3 CDr00r00      [17]  284 	call	_SMS_addSprite
-   00E6 F1            [10]  285 	pop	af
-   00E7 33            [ 6]  286 	inc	sp
-   00E8 D1            [10]  287 	pop	de
-   00E9 C1            [10]  288 	pop	bc
-                            289 ;Players/players.h:71: for(i=0; i<2; i++) {
-   00EA DD 34 FE      [23]  290 	inc	-2 (ix)
-   00ED DD 7E FE      [19]  291 	ld	a,-2 (ix)
-   00F0 D6 02         [ 7]  292 	sub	a, #0x02
-   00F2 38 C9         [12]  293 	jr	C,00112$
-                            294 ;Players/players.h:69: for(j=0; j<3; j++)
-   00F4 7B            [ 4]  295 	ld	a,e
-   00F5 C6 0C         [ 7]  296 	add	a, #0x0c
-   00F7 5F            [ 4]  297 	ld	e,a
-   00F8 DD 34 FD      [23]  298 	inc	-3 (ix)
-   00FB DD 7E FD      [19]  299 	ld	a,-3 (ix)
-   00FE D6 03         [ 7]  300 	sub	a, #0x03
-   0100 38 AC         [12]  301 	jr	C,00120$
-                            302 ;Players/players.h:78: if((time%8) == 0) {
-   0102 DD 7E 04      [19]  303 	ld	a,4 (ix)
-   0105 E6 07         [ 7]  304 	and	a, #0x07
-   0107 20 12         [12]  305 	jr	NZ,00116$
-                            306 ;Players/players.h:79: player1_current_frame++;
-   0109 FD 21r03r00   [14]  307 	ld	iy,#_player1_current_frame
-   010D FD 34 00      [23]  308 	inc	0 (iy)
-                            309 ;Players/players.h:80: if(player1_current_frame == PLAYER1_NUMBER_FRAMES) {
-   0110 FD 7E 00      [19]  310 	ld	a,0 (iy)
-   0113 D6 06         [ 7]  311 	sub	a, #0x06
-   0115 20 04         [12]  312 	jr	NZ,00116$
-                            313 ;Players/players.h:81: player1_current_frame = 0;
-   0117 FD 36 00 00   [19]  314 	ld	0 (iy),#0x00
-   011B                     315 00116$:
-   011B DD F9         [10]  316 	ld	sp, ix
-   011D DD E1         [14]  317 	pop	ix
-   011F C9            [10]  318 	ret
-                            319 ;main.c:7: void loadGraphics2vram(void)
-                            320 ;	---------------------------------
-                            321 ; Function loadGraphics2vram
-                            322 ; ---------------------------------
-   0120                     323 _loadGraphics2vram::
-                            324 ;main.c:9: SMS_loadBGPalette(backgroundpalette_bin);
-   0120 21r00r00      [10]  325 	ld	hl,#_backgroundpalette_bin
-   0123 CDr00r00      [17]  326 	call	_SMS_loadBGPalette
-                            327 ;main.c:13: SMS_loadSpritePalette(spritepalette_bin);
-   0126 21r00r00      [10]  328 	ld	hl,#_spritepalette_bin
-   0129 CDr00r00      [17]  329 	call	_SMS_loadSpritePalette
-                            330 ;main.c:14: SMS_loadPSGaidencompressedTiles (spritetiles_psgcompr,PLAYER1_SPRITE_TILES_POSITION); // Bomberman - move to player?
-   012C 21 00 01      [10]  331 	ld	hl,#0x0100
-   012F E5            [11]  332 	push	hl
-   0130 21r00r00      [10]  333 	ld	hl,#_spritetiles_psgcompr
-   0133 E5            [11]  334 	push	hl
-   0134 CDr00r00      [17]  335 	call	_SMS_loadPSGaidencompressedTiles
-   0137 F1            [10]  336 	pop	af
-                            337 ;main.c:16: SMS_setSpritePaletteColor(0, RGB(3, 0, 0));
-   0138 21 00 03      [10]  338 	ld	hl, #0x0300
-   013B E3            [19]  339 	ex	(sp),hl
-   013C CDr00r00      [17]  340 	call	_SMS_setSpritePaletteColor
-                            341 ;main.c:17: SMS_setBGPaletteColor(0, RGB(0, 3, 0));
-   013F 21 00 0C      [10]  342 	ld	hl, #0x0c00
-   0142 E3            [19]  343 	ex	(sp),hl
-   0143 CDr00r00      [17]  344 	call	_SMS_setBGPaletteColor
-   0146 F1            [10]  345 	pop	af
-   0147 C9            [10]  346 	ret
-                            347 ;main.c:20: void main (void)
+                             97 	.area _GSINIT
+                             98 	.area _GSFINAL
+                             99 	.area _GSINIT
+                            100 ;--------------------------------------------------------
+                            101 ; Home
+                            102 ;--------------------------------------------------------
+                            103 	.area _HOME
+                            104 	.area _HOME
+                            105 ;--------------------------------------------------------
+                            106 ; code
+                            107 ;--------------------------------------------------------
+                            108 	.area _CODE
+                            109 ;Core\funcs.h:6: void InterruptHandler(void)
+                            110 ;	---------------------------------
+                            111 ; Function InterruptHandler
+                            112 ; ---------------------------------
+   0000                     113 _InterruptHandler::
+                            114 ;Core\funcs.h:9: }
+   0000 C9            [10]  115 	ret
+                            116 ;Core\funcs.h:11: void InitConsole(void)
+                            117 ;	---------------------------------
+                            118 ; Function InitConsole
+                            119 ; ---------------------------------
+   0001                     120 _InitConsole::
+                            121 ;Core\funcs.h:14: SMS_init();
+   0001 CDr00r00      [17]  122 	call	_SMS_init
+                            123 ;Core\funcs.h:17: SMS_getKeysStatus();
+   0004 CDr00r00      [17]  124 	call	_SMS_getKeysStatus
+                            125 ;Core\funcs.h:20: SMS_setLineInterruptHandler(&InterruptHandler);
+   0007 21r00r00      [10]  126 	ld	hl,#_InterruptHandler
+   000A E5            [11]  127 	push	hl
+   000B CDr00r00      [17]  128 	call	_SMS_setLineInterruptHandler
+                            129 ;Core\funcs.h:21: SMS_setLineCounter (192);
+   000E 26 C0         [ 7]  130 	ld	h,#0xc0
+   0010 E3            [19]  131 	ex	(sp),hl
+   0011 33            [ 6]  132 	inc	sp
+   0012 CDr00r00      [17]  133 	call	_SMS_setLineCounter
+   0015 33            [ 6]  134 	inc	sp
+                            135 ;Core\funcs.h:22: SMS_enableLineInterrupt();
+   0016 21 10 00      [10]  136 	ld	hl,#0x0010
+   0019 CDr00r00      [17]  137 	call	_SMS_VDPturnOnFeature
+                            138 ;Core\funcs.h:25: SMS_VDPturnOnFeature(VDPFEATURE_LEFTCOLBLANK);
+   001C 21 20 00      [10]  139 	ld	hl,#0x0020
+   001F C3r00r00      [10]  140 	jp  _SMS_VDPturnOnFeature
+                            141 ;Core\funcs.h:28: void checkgamepause()
+                            142 ;	---------------------------------
+                            143 ; Function checkgamepause
+                            144 ; ---------------------------------
+   0022                     145 _checkgamepause::
+                            146 ;Core\funcs.h:30: if(SMS_queryPauseRequested())
+   0022 CDr00r00      [17]  147 	call	_SMS_queryPauseRequested
+   0025 CB 45         [ 8]  148 	bit	0,l
+   0027 C8            [11]  149 	ret	Z
+                            150 ;Core\funcs.h:32: SMS_resetPauseRequest();
+   0028 CDr00r00      [17]  151 	call	_SMS_resetPauseRequest
+                            152 ;Core\funcs.h:33: gamepause=1-gamepause;
+   002B 21r01r00      [10]  153 	ld	hl,#_gamepause
+   002E 3E 01         [ 7]  154 	ld	a,#0x01
+   0030 96            [ 7]  155 	sub	a, (hl)
+   0031 77            [ 7]  156 	ld	(hl),a
+                            157 ;Core\funcs.h:34: if(gamepause==1)
+   0032 3Ar01r00      [13]  158 	ld	a,(#_gamepause + 0)
+   0035 3D            [ 4]  159 	dec	a
+   0036 20 09         [12]  160 	jr	NZ,00102$
+                            161 ;Core\funcs.h:35: PSGPlayNoRepeat(pause_psg);
+   0038 21r00r00      [10]  162 	ld	hl,#_pause_psg
+   003B E5            [11]  163 	push	hl
+   003C CDr00r00      [17]  164 	call	_PSGPlayNoRepeat
+   003F F1            [10]  165 	pop	af
+   0040 C9            [10]  166 	ret
+   0041                     167 00102$:
+                            168 ;Core\funcs.h:37: PSGPlay(music_psg);
+   0041 21r00r00      [10]  169 	ld	hl,#_music_psg
+   0044 E5            [11]  170 	push	hl
+   0045 CDr00r00      [17]  171 	call	_PSGPlay
+   0048 F1            [10]  172 	pop	af
+   0049 C9            [10]  173 	ret
+                            174 ;Players/players.h:16: void Player1Init()
+                            175 ;	---------------------------------
+                            176 ; Function Player1Init
+                            177 ; ---------------------------------
+   004A                     178 _Player1Init::
+                            179 ;Players/players.h:18: player1_direction = LEFT;
+   004A 21r05r00      [10]  180 	ld	hl,#_player1_direction + 0
+   004D 36 02         [10]  181 	ld	(hl), #0x02
+                            182 ;Players/players.h:19: player1_x = 50;
+   004F 21r02r00      [10]  183 	ld	hl,#_player1_x + 0
+   0052 36 32         [10]  184 	ld	(hl), #0x32
+                            185 ;Players/players.h:20: player1_y = 134;
+   0054 21r03r00      [10]  186 	ld	hl,#_player1_y + 0
+   0057 36 86         [10]  187 	ld	(hl), #0x86
+                            188 ;Players/players.h:21: player1_current_frame = 0;
+   0059 21r04r00      [10]  189 	ld	hl,#_player1_current_frame + 0
+   005C 36 00         [10]  190 	ld	(hl), #0x00
+   005E C9            [10]  191 	ret
+                            192 ;Players/players.h:24: void Player1Update(unsigned char time)
+                            193 ;	---------------------------------
+                            194 ; Function Player1Update
+                            195 ; ---------------------------------
+   005F                     196 _Player1Update::
+                            197 ;Players/players.h:26: Player1UpdatePosition();
+   005F CDr6Er00      [17]  198 	call	_Player1UpdatePosition
+                            199 ;Players/players.h:27: Player1UpdateDraw(time);
+   0062 21 02 00      [10]  200 	ld	hl, #2+0
+   0065 39            [11]  201 	add	hl, sp
+   0066 7E            [ 7]  202 	ld	a, (hl)
+   0067 F5            [11]  203 	push	af
+   0068 33            [ 6]  204 	inc	sp
+   0069 CDrB1r00      [17]  205 	call	_Player1UpdateDraw
+   006C 33            [ 6]  206 	inc	sp
+   006D C9            [10]  207 	ret
+                            208 ;Players/players.h:30: void Player1UpdatePosition()
+                            209 ;	---------------------------------
+                            210 ; Function Player1UpdatePosition
+                            211 ; ---------------------------------
+   006E                     212 _Player1UpdatePosition::
+                            213 ;Players/players.h:32: if(SMS_getKeysStatus() & PORT_A_KEY_UP)
+   006E CDr00r00      [17]  214 	call	_SMS_getKeysStatus
+   0071 CB 45         [ 8]  215 	bit	0, l
+   0073 28 0B         [12]  216 	jr	Z,00104$
+                            217 ;Players/players.h:34: player1_direction = UP;
+   0075 21r05r00      [10]  218 	ld	hl,#_player1_direction + 0
+   0078 36 00         [10]  219 	ld	(hl), #0x00
+                            220 ;Players/players.h:35: player1_y--;
+   007A 21r03r00      [10]  221 	ld	hl, #_player1_y+0
+   007D 35            [11]  222 	dec	(hl)
+   007E 18 10         [12]  223 	jr	00105$
+   0080                     224 00104$:
+                            225 ;Players/players.h:37: else if(SMS_getKeysStatus() & PORT_A_KEY_DOWN)
+   0080 CDr00r00      [17]  226 	call	_SMS_getKeysStatus
+   0083 CB 4D         [ 8]  227 	bit	1, l
+   0085 28 09         [12]  228 	jr	Z,00105$
+                            229 ;Players/players.h:39: player1_direction = DOWN;
+   0087 21r05r00      [10]  230 	ld	hl,#_player1_direction + 0
+   008A 36 01         [10]  231 	ld	(hl), #0x01
+                            232 ;Players/players.h:40: player1_y++;
+   008C 21r03r00      [10]  233 	ld	hl, #_player1_y+0
+   008F 34            [11]  234 	inc	(hl)
+   0090                     235 00105$:
+                            236 ;Players/players.h:43: if(SMS_getKeysStatus() & PORT_A_KEY_LEFT)
+   0090 CDr00r00      [17]  237 	call	_SMS_getKeysStatus
+   0093 CB 55         [ 8]  238 	bit	2, l
+   0095 28 0A         [12]  239 	jr	Z,00109$
+                            240 ;Players/players.h:45: player1_direction = LEFT;
+   0097 21r05r00      [10]  241 	ld	hl,#_player1_direction + 0
+   009A 36 02         [10]  242 	ld	(hl), #0x02
+                            243 ;Players/players.h:46: player1_x--;
+   009C 21r02r00      [10]  244 	ld	hl, #_player1_x+0
+   009F 35            [11]  245 	dec	(hl)
+   00A0 C9            [10]  246 	ret
+   00A1                     247 00109$:
+                            248 ;Players/players.h:48: else if(SMS_getKeysStatus() & PORT_A_KEY_RIGHT)
+   00A1 CDr00r00      [17]  249 	call	_SMS_getKeysStatus
+   00A4 CB 5D         [ 8]  250 	bit	3, l
+   00A6 C8            [11]  251 	ret	Z
+                            252 ;Players/players.h:50: player1_direction = RIGHT;
+   00A7 21r05r00      [10]  253 	ld	hl,#_player1_direction + 0
+   00AA 36 03         [10]  254 	ld	(hl), #0x03
+                            255 ;Players/players.h:51: player1_x++;
+   00AC 21r02r00      [10]  256 	ld	hl, #_player1_x+0
+   00AF 34            [11]  257 	inc	(hl)
+   00B0 C9            [10]  258 	ret
+                            259 ;Players/players.h:55: void Player1UpdateDraw(unsigned char time)
+                            260 ;	---------------------------------
+                            261 ; Function Player1UpdateDraw
+                            262 ; ---------------------------------
+   00B1                     263 _Player1UpdateDraw::
+   00B1 DD E5         [15]  264 	push	ix
+   00B3 DD 21 00 00   [14]  265 	ld	ix,#0
+   00B7 DD 39         [15]  266 	add	ix,sp
+   00B9 F5            [11]  267 	push	af
+                            268 ;Players/players.h:69: for(j=0; j<3; j++)
+   00BA DD 36 FE 00   [19]  269 	ld	-2 (ix),#0x00
+   00BE 0E 00         [ 7]  270 	ld	c,#0x00
+                            271 ;Players/players.h:71: for(i=0; i<2; i++) {
+   00C0                     272 00120$:
+   00C0 DD 7E FE      [19]  273 	ld	a,-2 (ix)
+   00C3 07            [ 4]  274 	rlca
+   00C4 07            [ 4]  275 	rlca
+   00C5 07            [ 4]  276 	rlca
+   00C6 E6 F8         [ 7]  277 	and	a,#0xf8
+   00C8 DD 77 FF      [19]  278 	ld	-1 (ix),a
+   00CB 1E 00         [ 7]  279 	ld	e,#0x00
+   00CD                     280 00112$:
+                            281 ;Players/players.h:72: SMS_addSprite(player1_x+(i<<3), player1_y+(j<<3), PLAYER1_SPRITE_TILES_POSITION + player1_direction + player1_current_frame * PLAYER1_NUMBER_FRAMES + PLAYER1_NUMBER_TILES_FRAMES_BOTH_DIRECTIONS *j + i);
+   00CD 3Ar04r00      [13]  282 	ld	a,(#_player1_current_frame + 0)
+   00D0 07            [ 4]  283 	rlca
+   00D1 07            [ 4]  284 	rlca
+   00D2 07            [ 4]  285 	rlca
+   00D3 E6 F8         [ 7]  286 	and	a,#0xf8
+   00D5 47            [ 4]  287 	ld	b,a
+   00D6 3Ar05r00      [13]  288 	ld	a,(#_player1_direction + 0)
+   00D9 80            [ 4]  289 	add	a, b
+   00DA 6F            [ 4]  290 	ld	l,a
+   00DB 09            [11]  291 	add	hl, bc
+   00DC 7D            [ 4]  292 	ld	a,l
+   00DD 83            [ 4]  293 	add	a, e
+   00DE 47            [ 4]  294 	ld	b,a
+   00DF 3Ar03r00      [13]  295 	ld	a,(#_player1_y + 0)
+   00E2 DD 86 FF      [19]  296 	add	a, -1 (ix)
+   00E5 57            [ 4]  297 	ld	d,a
+   00E6 7B            [ 4]  298 	ld	a,e
+   00E7 07            [ 4]  299 	rlca
+   00E8 07            [ 4]  300 	rlca
+   00E9 07            [ 4]  301 	rlca
+   00EA E6 F8         [ 7]  302 	and	a,#0xf8
+   00EC 6F            [ 4]  303 	ld	l,a
+   00ED 3Ar02r00      [13]  304 	ld	a,(#_player1_x + 0)
+   00F0 85            [ 4]  305 	add	a, l
+   00F1 C5            [11]  306 	push	bc
+   00F2 D5            [11]  307 	push	de
+   00F3 4A            [ 4]  308 	ld	c, d
+   00F4 C5            [11]  309 	push	bc
+   00F5 F5            [11]  310 	push	af
+   00F6 33            [ 6]  311 	inc	sp
+   00F7 CDr00r00      [17]  312 	call	_SMS_addSprite
+   00FA F1            [10]  313 	pop	af
+   00FB 33            [ 6]  314 	inc	sp
+   00FC D1            [10]  315 	pop	de
+   00FD C1            [10]  316 	pop	bc
+                            317 ;Players/players.h:71: for(i=0; i<2; i++) {
+   00FE 1C            [ 4]  318 	inc	e
+   00FF 7B            [ 4]  319 	ld	a,e
+   0100 D6 02         [ 7]  320 	sub	a, #0x02
+   0102 38 C9         [12]  321 	jr	C,00112$
+                            322 ;Players/players.h:69: for(j=0; j<3; j++)
+   0104 79            [ 4]  323 	ld	a,c
+   0105 C6 0C         [ 7]  324 	add	a, #0x0c
+   0107 4F            [ 4]  325 	ld	c,a
+   0108 DD 34 FE      [23]  326 	inc	-2 (ix)
+   010B DD 7E FE      [19]  327 	ld	a,-2 (ix)
+   010E D6 03         [ 7]  328 	sub	a, #0x03
+   0110 38 AE         [12]  329 	jr	C,00120$
+                            330 ;Players/players.h:76: if((time%8) == 0) {
+   0112 DD 7E 04      [19]  331 	ld	a,4 (ix)
+   0115 E6 07         [ 7]  332 	and	a, #0x07
+   0117 20 12         [12]  333 	jr	NZ,00116$
+                            334 ;Players/players.h:77: player1_current_frame++;
+   0119 FD 21r04r00   [14]  335 	ld	iy,#_player1_current_frame
+   011D FD 34 00      [23]  336 	inc	0 (iy)
+                            337 ;Players/players.h:78: if(player1_current_frame == PLAYER1_NUMBER_FRAMES) {
+   0120 FD 7E 00      [19]  338 	ld	a,0 (iy)
+   0123 D6 08         [ 7]  339 	sub	a, #0x08
+   0125 20 04         [12]  340 	jr	NZ,00116$
+                            341 ;Players/players.h:79: player1_current_frame = 0;
+   0127 FD 36 00 00   [19]  342 	ld	0 (iy),#0x00
+   012B                     343 00116$:
+   012B DD F9         [10]  344 	ld	sp, ix
+   012D DD E1         [14]  345 	pop	ix
+   012F C9            [10]  346 	ret
+                            347 ;main.c:7: void loadGraphics2vram(void)
                             348 ;	---------------------------------
-                            349 ; Function main
+                            349 ; Function loadGraphics2vram
                             350 ; ---------------------------------
-   0148                     351 _main::
-                            352 ;main.c:22: frame_counter = 0;
-   0148 21r05r00      [10]  353 	ld	hl,#_frame_counter + 0
-   014B 36 00         [10]  354 	ld	(hl), #0x00
-                            355 ;main.c:24: Player1Init();
-   014D CDr22r00      [17]  356 	call	_Player1Init
-                            357 ;main.c:25: InitConsole();
-   0150 CDr01r00      [17]  358 	call	_InitConsole
-                            359 ;main.c:27: loadGraphics2vram();
-   0153 CDr20r01      [17]  360 	call	_loadGraphics2vram
-                            361 ;main.c:28: SMS_displayOn();
-   0156 21 40 01      [10]  362 	ld	hl,#0x0140
-   0159 CDr00r00      [17]  363 	call	_SMS_VDPturnOnFeature
-                            364 ;main.c:30: PSGPlay(music_psg);
-   015C 21r00r00      [10]  365 	ld	hl,#_music_psg
-   015F E5            [11]  366 	push	hl
-   0160 CDr00r00      [17]  367 	call	_PSGPlay
-   0163 F1            [10]  368 	pop	af
-                            369 ;main.c:33: while (1)
-   0164                     370 00108$:
-                            371 ;main.c:35: frame_counter++;
-   0164 FD 21r05r00   [14]  372 	ld	iy,#_frame_counter
-   0168 FD 34 00      [23]  373 	inc	0 (iy)
-                            374 ;main.c:37: if((frame_counter%64) == 0)
-   016B FD 7E 00      [19]  375 	ld	a,0 (iy)
-   016E E6 3F         [ 7]  376 	and	a, #0x3f
-   0170 20 12         [12]  377 	jr	NZ,00104$
-                            378 ;main.c:39: volume_atenuation++;
-   0172 FD 21r06r00   [14]  379 	ld	iy,#_volume_atenuation
-   0176 FD 34 00      [23]  380 	inc	0 (iy)
-                            381 ;main.c:40: if(volume_atenuation > 15)
-   0179 3E 0F         [ 7]  382 	ld	a,#0x0f
-   017B FD 96 00      [19]  383 	sub	a, 0 (iy)
-   017E 30 04         [12]  384 	jr	NC,00104$
-                            385 ;main.c:42: volume_atenuation = 0;
-   0180 FD 36 00 00   [19]  386 	ld	0 (iy),#0x00
-   0184                     387 00104$:
-                            388 ;main.c:46: SMS_initSprites();
-   0184 CDr00r00      [17]  389 	call	_SMS_initSprites
-                            390 ;main.c:48: Player1Update(frame_counter);
-   0187 3Ar05r00      [13]  391 	ld	a,(_frame_counter)
-   018A F5            [11]  392 	push	af
-   018B 33            [ 6]  393 	inc	sp
-   018C CDr37r00      [17]  394 	call	_Player1Update
-   018F 33            [ 6]  395 	inc	sp
-                            396 ;main.c:50: if(SMS_getKeysStatus() & PORT_A_KEY_1)
-   0190 CDr00r00      [17]  397 	call	_SMS_getKeysStatus
-   0193 CB 65         [ 8]  398 	bit	4, l
-   0195 28 0C         [12]  399 	jr	Z,00106$
-                            400 ;main.c:52: PSGSFXPlay(enemybomb_psg, 0x00);
-   0197 AF            [ 4]  401 	xor	a, a
-   0198 F5            [11]  402 	push	af
-   0199 33            [ 6]  403 	inc	sp
-   019A 21r00r00      [10]  404 	ld	hl,#_enemybomb_psg
-   019D E5            [11]  405 	push	hl
-   019E CDr00r00      [17]  406 	call	_PSGSFXPlay
-   01A1 F1            [10]  407 	pop	af
-   01A2 33            [ 6]  408 	inc	sp
-   01A3                     409 00106$:
-                            410 ;main.c:55: SMS_finalizeSprites();
-   01A3 CDr00r00      [17]  411 	call	_SMS_finalizeSprites
-                            412 ;main.c:56: SMS_waitForVBlank();
-   01A6 CDr00r00      [17]  413 	call	_SMS_waitForVBlank
-                            414 ;main.c:58: PSGFrame();
-   01A9 CDr00r00      [17]  415 	call	_PSGFrame
-                            416 ;main.c:59: PSGSFXFrame();
-   01AC CDr00r00      [17]  417 	call	_PSGSFXFrame
-                            418 ;main.c:61: SMS_copySpritestoSAT();
-   01AF CDr00r00      [17]  419 	call	_SMS_copySpritestoSAT
-   01B2 18 B0         [12]  420 	jr	00108$
-                            421 	.area _CODE
-   01B4                     422 __str_0:
-   01B4 47 61 72 79 20 50   423 	.ascii "Gary Paluk"
+   0130                     351 _loadGraphics2vram::
+                            352 ;main.c:10: SMS_VRAMmemsetW(0, 0x0000, 0x4000);
+   0130 21 00 40      [10]  353 	ld	hl,#0x4000
+   0133 E5            [11]  354 	push	hl
+   0134 26 00         [ 7]  355 	ld	h, #0x00
+   0136 E5            [11]  356 	push	hl
+   0137 2E 00         [ 7]  357 	ld	l, #0x00
+   0139 E5            [11]  358 	push	hl
+   013A CDr00r00      [17]  359 	call	_SMS_VRAMmemsetW
+   013D 21 06 00      [10]  360 	ld	hl,#6
+   0140 39            [11]  361 	add	hl,sp
+   0141 F9            [ 6]  362 	ld	sp,hl
+                            363 ;main.c:16: SMS_loadSpritePalette(spritepalette_bin);
+   0142 21r00r00      [10]  364 	ld	hl,#_spritepalette_bin
+   0145 CDr00r00      [17]  365 	call	_SMS_loadSpritePalette
+                            366 ;main.c:17: SMS_loadPSGaidencompressedTiles(spritetiles_psgcompr, PLAYER1_SPRITE_TILES_POSITION); // Bomberman - move to player?
+   0148 21 00 01      [10]  367 	ld	hl,#0x0100
+   014B E5            [11]  368 	push	hl
+   014C 21r00r00      [10]  369 	ld	hl,#_spritetiles_psgcompr
+   014F E5            [11]  370 	push	hl
+   0150 CDr00r00      [17]  371 	call	_SMS_loadPSGaidencompressedTiles
+   0153 F1            [10]  372 	pop	af
+                            373 ;main.c:19: SMS_setSpritePaletteColor(0, RGB(0, 0, 0));
+   0154 21 00 00      [10]  374 	ld	hl, #0x0000
+   0157 E3            [19]  375 	ex	(sp),hl
+   0158 CDr00r00      [17]  376 	call	_SMS_setSpritePaletteColor
+                            377 ;main.c:20: SMS_setBGPaletteColor(0, RGB(0, 0, 0));
+   015B 21 00 00      [10]  378 	ld	hl, #0x0000
+   015E E3            [19]  379 	ex	(sp),hl
+   015F CDr00r00      [17]  380 	call	_SMS_setBGPaletteColor
+   0162 F1            [10]  381 	pop	af
+   0163 C9            [10]  382 	ret
+                            383 ;main.c:23: void main (void)
+                            384 ;	---------------------------------
+                            385 ; Function main
+                            386 ; ---------------------------------
+   0164                     387 _main::
+                            388 ;main.c:25: frame_counter = 0;
+   0164 21r06r00      [10]  389 	ld	hl,#_frame_counter + 0
+   0167 36 00         [10]  390 	ld	(hl), #0x00
+                            391 ;main.c:27: Player1Init();
+   0169 CDr4Ar00      [17]  392 	call	_Player1Init
+                            393 ;main.c:28: InitConsole();
+   016C CDr01r00      [17]  394 	call	_InitConsole
+                            395 ;main.c:30: loadGraphics2vram();
+   016F CDr30r01      [17]  396 	call	_loadGraphics2vram
+                            397 ;main.c:31: SMS_displayOn();
+   0172 21 40 01      [10]  398 	ld	hl,#0x0140
+   0175 CDr00r00      [17]  399 	call	_SMS_VDPturnOnFeature
+                            400 ;main.c:33: PSGPlay(music_psg);
+   0178 21r00r00      [10]  401 	ld	hl,#_music_psg
+   017B E5            [11]  402 	push	hl
+   017C CDr00r00      [17]  403 	call	_PSGPlay
+   017F F1            [10]  404 	pop	af
+                            405 ;main.c:36: while(1)
+   0180                     406 00113$:
+                            407 ;main.c:39: checkgamepause();
+   0180 CDr22r00      [17]  408 	call	_checkgamepause
+                            409 ;main.c:41: if(gamepause==0)
+   0183 3Ar01r00      [13]  410 	ld	a,(#_gamepause + 0)
+   0186 B7            [ 4]  411 	or	a, a
+   0187 20 50         [12]  412 	jr	NZ,00110$
+                            413 ;main.c:43: frame_counter++;
+   0189 FD 21r06r00   [14]  414 	ld	iy,#_frame_counter
+   018D FD 34 00      [23]  415 	inc	0 (iy)
+                            416 ;main.c:45: if((frame_counter%64) == 0)
+   0190 FD 7E 00      [19]  417 	ld	a,0 (iy)
+   0193 E6 3F         [ 7]  418 	and	a, #0x3f
+   0195 20 12         [12]  419 	jr	NZ,00104$
+                            420 ;main.c:47: volume_atenuation++;
+   0197 FD 21r07r00   [14]  421 	ld	iy,#_volume_atenuation
+   019B FD 34 00      [23]  422 	inc	0 (iy)
+                            423 ;main.c:48: if(volume_atenuation > 15)
+   019E 3E 0F         [ 7]  424 	ld	a,#0x0f
+   01A0 FD 96 00      [19]  425 	sub	a, 0 (iy)
+   01A3 30 04         [12]  426 	jr	NC,00104$
+                            427 ;main.c:50: volume_atenuation = 0;
+   01A5 FD 36 00 00   [19]  428 	ld	0 (iy),#0x00
+   01A9                     429 00104$:
+                            430 ;main.c:54: SMS_initSprites();
+   01A9 CDr00r00      [17]  431 	call	_SMS_initSprites
+                            432 ;main.c:56: Player1Update(frame_counter);
+   01AC 3Ar06r00      [13]  433 	ld	a,(_frame_counter)
+   01AF F5            [11]  434 	push	af
+   01B0 33            [ 6]  435 	inc	sp
+   01B1 CDr5Fr00      [17]  436 	call	_Player1Update
+   01B4 33            [ 6]  437 	inc	sp
+                            438 ;main.c:58: if(SMS_getKeysStatus() & PORT_A_KEY_1)
+   01B5 CDr00r00      [17]  439 	call	_SMS_getKeysStatus
+   01B8 CB 65         [ 8]  440 	bit	4, l
+   01BA 28 0C         [12]  441 	jr	Z,00106$
+                            442 ;main.c:60: PSGSFXPlay(enemybomb_psg, 0x00);
+   01BC AF            [ 4]  443 	xor	a, a
+   01BD F5            [11]  444 	push	af
+   01BE 33            [ 6]  445 	inc	sp
+   01BF 21r00r00      [10]  446 	ld	hl,#_enemybomb_psg
+   01C2 E5            [11]  447 	push	hl
+   01C3 CDr00r00      [17]  448 	call	_PSGSFXPlay
+   01C6 F1            [10]  449 	pop	af
+   01C7 33            [ 6]  450 	inc	sp
+   01C8                     451 00106$:
+                            452 ;main.c:63: SMS_finalizeSprites();
+   01C8 CDr00r00      [17]  453 	call	_SMS_finalizeSprites
+                            454 ;main.c:64: SMS_waitForVBlank();
+   01CB CDr00r00      [17]  455 	call	_SMS_waitForVBlank
+                            456 ;main.c:66: PSGFrame();
+   01CE CDr00r00      [17]  457 	call	_PSGFrame
+                            458 ;main.c:67: PSGSFXFrame();
+   01D1 CDr00r00      [17]  459 	call	_PSGSFXFrame
+                            460 ;main.c:69: SMS_copySpritestoSAT();
+   01D4 CDr00r00      [17]  461 	call	_SMS_copySpritestoSAT
+   01D7 18 A7         [12]  462 	jr	00113$
+   01D9                     463 00110$:
+                            464 ;main.c:76: PSGFrame();
+   01D9 CDr00r00      [17]  465 	call	_PSGFrame
+                            466 ;main.c:78: if(PSGSFXGetStatus())
+   01DC CDr00r00      [17]  467 	call	_PSGSFXGetStatus
+   01DF 7D            [ 4]  468 	ld	a,l
+   01E0 B7            [ 4]  469 	or	a, a
+   01E1 28 03         [12]  470 	jr	Z,00108$
+                            471 ;main.c:80: PSGSFXFrame();
+   01E3 CDr00r00      [17]  472 	call	_PSGSFXFrame
+   01E6                     473 00108$:
+                            474 ;main.c:84: SMS_waitForVBlank();
+   01E6 CDr00r00      [17]  475 	call	_SMS_waitForVBlank
+                            476 ;main.c:87: numinterrupts=0;
+   01E9 21r00r00      [10]  477 	ld	hl,#_numinterrupts + 0
+   01EC 36 00         [10]  478 	ld	(hl), #0x00
+   01EE 18 90         [12]  479 	jr	00113$
+                            480 	.area _CODE
+   01F0                     481 __str_0:
+   01F0 47 61 72 79 20 50   482 	.ascii "Gary Paluk"
         61 6C 75 6B
-   01BE 00                  424 	.db 0x00
-   01BF                     425 __str_1:
-   01BF 4D 61 73 74 65 72   426 	.ascii "Master Blaster"
+   01FA 00                  483 	.db 0x00
+   01FB                     484 __str_1:
+   01FB 4D 61 73 74 65 72   485 	.ascii "Master Blaster"
         20 42 6C 61 73 74
         65 72
-   01CD 00                  427 	.db 0x00
-   01CE                     428 __str_2:
-   01CE 47 72 61 62 20 61   429 	.ascii "Grab a friend and jump into endless bombastic fun."
+   0209 00                  486 	.db 0x00
+   020A                     487 __str_2:
+   020A 47 72 61 62 20 61   488 	.ascii "Grab a friend and jump into endless bombastic fun!"
         20 66 72 69 65 6E
         64 20 61 6E 64 20
         6A 75 6D 70 20 69
@@ -437,42 +496,42 @@
         64 6C 65 73 73 20
         62 6F 6D 62 61 73
         74 69 63 20 66 75
-        6E 2E
-   0200 00                  430 	.db 0x00
-                            431 	.area _INITIALIZER
-                            432 	.area _CABS (ABS)
-   7FF0                     433 	.org 0x7FF0
-   7FF0                     434 ___SMS__SEGA_signature:
-   7FF0 54                  435 	.db #0x54	; 84	'T'
-   7FF1 4D                  436 	.db #0x4d	; 77	'M'
-   7FF2 52                  437 	.db #0x52	; 82	'R'
-   7FF3 20                  438 	.db #0x20	; 32
-   7FF4 53                  439 	.db #0x53	; 83	'S'
-   7FF5 45                  440 	.db #0x45	; 69	'E'
-   7FF6 47                  441 	.db #0x47	; 71	'G'
-   7FF7 41                  442 	.db #0x41	; 65	'A'
-   7FF8 FF                  443 	.db #0xff	; 255
-   7FF9 FF                  444 	.db #0xff	; 255
-   7FFA FF                  445 	.db #0xff	; 255
-   7FFB FF                  446 	.db #0xff	; 255
-   7FFC 99                  447 	.db #0x99	; 153
-   7FFD 99                  448 	.db #0x99	; 153
-   7FFE 00                  449 	.db #0x00	; 0
-   7FFF 4C                  450 	.db #0x4c	; 76	'L'
-   7FD5                     451 	.org 0x7FD5
-   7FD5                     452 ___SMS__SDSC_author:
-   7FD5 47 61 72 79 20 50   453 	.ascii "Gary Paluk"
+        6E 21
+   023C 00                  489 	.db 0x00
+                            490 	.area _INITIALIZER
+                            491 	.area _CABS (ABS)
+   7FF0                     492 	.org 0x7FF0
+   7FF0                     493 ___SMS__SEGA_signature:
+   7FF0 54                  494 	.db #0x54	; 84	'T'
+   7FF1 4D                  495 	.db #0x4d	; 77	'M'
+   7FF2 52                  496 	.db #0x52	; 82	'R'
+   7FF3 20                  497 	.db #0x20	; 32
+   7FF4 53                  498 	.db #0x53	; 83	'S'
+   7FF5 45                  499 	.db #0x45	; 69	'E'
+   7FF6 47                  500 	.db #0x47	; 71	'G'
+   7FF7 41                  501 	.db #0x41	; 65	'A'
+   7FF8 FF                  502 	.db #0xff	; 255
+   7FF9 FF                  503 	.db #0xff	; 255
+   7FFA FF                  504 	.db #0xff	; 255
+   7FFB FF                  505 	.db #0xff	; 255
+   7FFC 99                  506 	.db #0x99	; 153
+   7FFD 99                  507 	.db #0x99	; 153
+   7FFE 00                  508 	.db #0x00	; 0
+   7FFF 4C                  509 	.db #0x4c	; 76	'L'
+   7FD5                     510 	.org 0x7FD5
+   7FD5                     511 ___SMS__SDSC_author:
+   7FD5 47 61 72 79 20 50   512 	.ascii "Gary Paluk"
         61 6C 75 6B
-   7FDF 00                  454 	.db 0x00
-   7FC6                     455 	.org 0x7FC6
-   7FC6                     456 ___SMS__SDSC_name:
-   7FC6 4D 61 73 74 65 72   457 	.ascii "Master Blaster"
+   7FDF 00                  513 	.db 0x00
+   7FC6                     514 	.org 0x7FC6
+   7FC6                     515 ___SMS__SDSC_name:
+   7FC6 4D 61 73 74 65 72   516 	.ascii "Master Blaster"
         20 42 6C 61 73 74
         65 72
-   7FD4 00                  458 	.db 0x00
-   7F93                     459 	.org 0x7F93
-   7F93                     460 ___SMS__SDSC_descr:
-   7F93 47 72 61 62 20 61   461 	.ascii "Grab a friend and jump into endless bombastic fun."
+   7FD4 00                  517 	.db 0x00
+   7F93                     518 	.org 0x7F93
+   7F93                     519 ___SMS__SDSC_descr:
+   7F93 47 72 61 62 20 61   520 	.ascii "Grab a friend and jump into endless bombastic fun!"
         20 66 72 69 65 6E
         64 20 61 6E 64 20
         6A 75 6D 70 20 69
@@ -480,23 +539,23 @@
         64 6C 65 73 73 20
         62 6F 6D 62 61 73
         74 69 63 20 66 75
-        6E 2E
-   7FC5 00                  462 	.db 0x00
-   7FE0                     463 	.org 0x7FE0
-   7FE0                     464 ___SMS__SDSC_signature:
-   7FE0 53                  465 	.db #0x53	; 83	'S'
-   7FE1 44                  466 	.db #0x44	; 68	'D'
-   7FE2 53                  467 	.db #0x53	; 83	'S'
-   7FE3 43                  468 	.db #0x43	; 67	'C'
-   7FE4 01                  469 	.db #0x01	; 1
-   7FE5 00                  470 	.db #0x00	; 0
-   7FE6 11                  471 	.db #0x11	; 17
-   7FE7 07                  472 	.db #0x07	; 7
-   7FE8 22                  473 	.db #0x22	; 34
-   7FE9 20                  474 	.db #0x20	; 32
-   7FEA D5                  475 	.db #0xd5	; 213
-   7FEB 7F                  476 	.db #0x7f	; 127
-   7FEC C6                  477 	.db #0xc6	; 198
-   7FED 7F                  478 	.db #0x7f	; 127
-   7FEE 93                  479 	.db #0x93	; 147
-   7FEF 7F                  480 	.db #0x7f	; 127
+        6E 21
+   7FC5 00                  521 	.db 0x00
+   7FE0                     522 	.org 0x7FE0
+   7FE0                     523 ___SMS__SDSC_signature:
+   7FE0 53                  524 	.db #0x53	; 83	'S'
+   7FE1 44                  525 	.db #0x44	; 68	'D'
+   7FE2 53                  526 	.db #0x53	; 83	'S'
+   7FE3 43                  527 	.db #0x43	; 67	'C'
+   7FE4 01                  528 	.db #0x01	; 1
+   7FE5 00                  529 	.db #0x00	; 0
+   7FE6 11                  530 	.db #0x11	; 17
+   7FE7 07                  531 	.db #0x07	; 7
+   7FE8 22                  532 	.db #0x22	; 34
+   7FE9 20                  533 	.db #0x20	; 32
+   7FEA D5                  534 	.db #0xd5	; 213
+   7FEB 7F                  535 	.db #0x7f	; 127
+   7FEC C6                  536 	.db #0xc6	; 198
+   7FED 7F                  537 	.db #0x7f	; 127
+   7FEE 93                  538 	.db #0x93	; 147
+   7FEF 7F                  539 	.db #0x7f	; 127

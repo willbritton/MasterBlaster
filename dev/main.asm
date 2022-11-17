@@ -16,17 +16,22 @@
 	.globl _main
 	.globl _loadGraphics2vram
 	.globl _Player1Init
+	.globl _checkgamepause
 	.globl _InitConsole
 	.globl _InterruptHandler
 	.globl _PSGSFXFrame
 	.globl _PSGFrame
+	.globl _PSGSFXGetStatus
 	.globl _PSGSFXPlay
+	.globl _PSGPlayNoRepeat
 	.globl _PSGPlay
+	.globl _SMS_VRAMmemsetW
 	.globl _SMS_setLineCounter
 	.globl _SMS_setLineInterruptHandler
+	.globl _SMS_resetPauseRequest
+	.globl _SMS_queryPauseRequested
 	.globl _SMS_getKeysStatus
 	.globl _SMS_loadSpritePalette
-	.globl _SMS_loadBGPalette
 	.globl _SMS_setSpritePaletteColor
 	.globl _SMS_setBGPaletteColor
 	.globl _SMS_copySpritestoSAT
@@ -43,6 +48,7 @@
 	.globl _player1_current_frame
 	.globl _player1_y
 	.globl _player1_x
+	.globl _gamepause
 	.globl _numinterrupts
 	.globl _SMS_SRAM
 	.globl _SRAM_bank_to_be_mapped_on_slot2
@@ -61,6 +67,8 @@ _ROM_bank_to_be_mapped_on_slot2	=	0xffff
 _SRAM_bank_to_be_mapped_on_slot2	=	0xfffc
 _SMS_SRAM	=	0x8000
 _numinterrupts::
+	.ds 1
+_gamepause::
 	.ds 1
 _player1_x::
 	.ds 1
@@ -98,38 +106,71 @@ _volume_atenuation::
 ; code
 ;--------------------------------------------------------
 	.area _CODE
-;Core\funcs.h:7: void InterruptHandler(void)
+;Core\funcs.h:6: void InterruptHandler(void)
 ;	---------------------------------
 ; Function InterruptHandler
 ; ---------------------------------
 _InterruptHandler::
-;Core\funcs.h:10: }
+;Core\funcs.h:9: }
 	ret
-;Core\funcs.h:12: void InitConsole(void)
+;Core\funcs.h:11: void InitConsole(void)
 ;	---------------------------------
 ; Function InitConsole
 ; ---------------------------------
 _InitConsole::
-;Core\funcs.h:15: SMS_init();
+;Core\funcs.h:14: SMS_init();
 	call	_SMS_init
-;Core\funcs.h:18: SMS_getKeysStatus();
+;Core\funcs.h:17: SMS_getKeysStatus();
 	call	_SMS_getKeysStatus
-;Core\funcs.h:21: SMS_setLineInterruptHandler(&InterruptHandler);
+;Core\funcs.h:20: SMS_setLineInterruptHandler(&InterruptHandler);
 	ld	hl,#_InterruptHandler
 	push	hl
 	call	_SMS_setLineInterruptHandler
-;Core\funcs.h:22: SMS_setLineCounter (192);
+;Core\funcs.h:21: SMS_setLineCounter (192);
 	ld	h,#0xc0
 	ex	(sp),hl
 	inc	sp
 	call	_SMS_setLineCounter
 	inc	sp
-;Core\funcs.h:23: SMS_enableLineInterrupt();
+;Core\funcs.h:22: SMS_enableLineInterrupt();
 	ld	hl,#0x0010
 	call	_SMS_VDPturnOnFeature
-;Core\funcs.h:26: SMS_VDPturnOnFeature(VDPFEATURE_LEFTCOLBLANK);
+;Core\funcs.h:25: SMS_VDPturnOnFeature(VDPFEATURE_LEFTCOLBLANK);
 	ld	hl,#0x0020
 	jp  _SMS_VDPturnOnFeature
+;Core\funcs.h:28: void checkgamepause()
+;	---------------------------------
+; Function checkgamepause
+; ---------------------------------
+_checkgamepause::
+;Core\funcs.h:30: if(SMS_queryPauseRequested())
+	call	_SMS_queryPauseRequested
+	bit	0,l
+	ret	Z
+;Core\funcs.h:32: SMS_resetPauseRequest();
+	call	_SMS_resetPauseRequest
+;Core\funcs.h:33: gamepause=1-gamepause;
+	ld	hl,#_gamepause
+	ld	a,#0x01
+	sub	a, (hl)
+	ld	(hl),a
+;Core\funcs.h:34: if(gamepause==1)
+	ld	a,(#_gamepause + 0)
+	dec	a
+	jr	NZ,00102$
+;Core\funcs.h:35: PSGPlayNoRepeat(pause_psg);
+	ld	hl,#_pause_psg
+	push	hl
+	call	_PSGPlayNoRepeat
+	pop	af
+	ret
+00102$:
+;Core\funcs.h:37: PSGPlay(music_psg);
+	ld	hl,#_music_psg
+	push	hl
+	call	_PSGPlay
+	pop	af
+	ret
 ;Players/players.h:16: void Player1Init()
 ;	---------------------------------
 ; Function Player1Init
@@ -224,50 +265,37 @@ _Player1UpdateDraw::
 	ld	ix,#0
 	add	ix,sp
 	push	af
-	dec	sp
-;Players/players.h:58: unsigned char direction_offset = 0;
-	ld	c,#0x00
-;Players/players.h:60: if(player1_direction == LEFT)
-	ld	a,(#_player1_direction + 0)
-	sub	a, #0x02
-	jr	NZ,00104$
-;Players/players.h:62: direction_offset = PLAYER1_NUMBER_TILES_FRAMES_BOTH_DIRECTIONS >> 1;
-	ld	c,#0x06
-	jr	00122$
-00104$:
-;Players/players.h:64: else if(player1_direction == RIGHT)
-	ld	a,(#_player1_direction + 0)
-;Players/players.h:66: direction_offset = 0;
-	sub	a,#0x03
-	jr	NZ,00122$
-	ld	c,a
 ;Players/players.h:69: for(j=0; j<3; j++)
-00122$:
-	ld	-3 (ix),#0x00
-	ld	e,#0x00
+	ld	-2 (ix),#0x00
+	ld	c,#0x00
 ;Players/players.h:71: for(i=0; i<2; i++) {
 00120$:
-	ld	a,-3 (ix)
+	ld	a,-2 (ix)
 	rlca
 	rlca
 	rlca
 	and	a,#0xf8
 	ld	-1 (ix),a
-	ld	-2 (ix),#0x00
+	ld	e,#0x00
 00112$:
-;Players/players.h:72: SMS_addSprite(player1_x+(i<<3), player1_y+(j<<3), PLAYER1_SPRITE_TILES_POSITION + direction_offset + player1_current_frame * PLAYER1_NUMBER_TILES_BY_FRAME + PLAYER1_NUMBER_TILES_FRAMES_BOTH_DIRECTIONS *j + i);
+;Players/players.h:72: SMS_addSprite(player1_x+(i<<3), player1_y+(j<<3), PLAYER1_SPRITE_TILES_POSITION + player1_direction + player1_current_frame * PLAYER1_NUMBER_FRAMES + PLAYER1_NUMBER_TILES_FRAMES_BOTH_DIRECTIONS *j + i);
 	ld	a,(#_player1_current_frame + 0)
-	add	a, a
+	rlca
+	rlca
+	rlca
+	and	a,#0xf8
+	ld	b,a
+	ld	a,(#_player1_direction + 0)
+	add	a, b
 	ld	l,a
 	add	hl, bc
-	add	hl, de
 	ld	a,l
-	add	a, -2 (ix)
+	add	a, e
 	ld	b,a
 	ld	a,(#_player1_y + 0)
 	add	a, -1 (ix)
 	ld	d,a
-	ld	a,-2 (ix)
+	ld	a,e
 	rlca
 	rlca
 	rlca
@@ -287,30 +315,30 @@ _Player1UpdateDraw::
 	pop	de
 	pop	bc
 ;Players/players.h:71: for(i=0; i<2; i++) {
-	inc	-2 (ix)
-	ld	a,-2 (ix)
+	inc	e
+	ld	a,e
 	sub	a, #0x02
 	jr	C,00112$
 ;Players/players.h:69: for(j=0; j<3; j++)
-	ld	a,e
+	ld	a,c
 	add	a, #0x0c
-	ld	e,a
-	inc	-3 (ix)
-	ld	a,-3 (ix)
+	ld	c,a
+	inc	-2 (ix)
+	ld	a,-2 (ix)
 	sub	a, #0x03
 	jr	C,00120$
-;Players/players.h:78: if((time%8) == 0) {
+;Players/players.h:76: if((time%8) == 0) {
 	ld	a,4 (ix)
 	and	a, #0x07
 	jr	NZ,00116$
-;Players/players.h:79: player1_current_frame++;
+;Players/players.h:77: player1_current_frame++;
 	ld	iy,#_player1_current_frame
 	inc	0 (iy)
-;Players/players.h:80: if(player1_current_frame == PLAYER1_NUMBER_FRAMES) {
+;Players/players.h:78: if(player1_current_frame == PLAYER1_NUMBER_FRAMES) {
 	ld	a,0 (iy)
-	sub	a, #0x06
+	sub	a, #0x08
 	jr	NZ,00116$
-;Players/players.h:81: player1_current_frame = 0;
+;Players/players.h:79: player1_current_frame = 0;
 	ld	0 (iy),#0x00
 00116$:
 	ld	sp, ix
@@ -321,83 +349,97 @@ _Player1UpdateDraw::
 ; Function loadGraphics2vram
 ; ---------------------------------
 _loadGraphics2vram::
-;main.c:9: SMS_loadBGPalette(backgroundpalette_bin);
-	ld	hl,#_backgroundpalette_bin
-	call	_SMS_loadBGPalette
-;main.c:13: SMS_loadSpritePalette(spritepalette_bin);
+;main.c:10: SMS_VRAMmemsetW(0, 0x0000, 0x4000);
+	ld	hl,#0x4000
+	push	hl
+	ld	h, #0x00
+	push	hl
+	ld	l, #0x00
+	push	hl
+	call	_SMS_VRAMmemsetW
+	ld	hl,#6
+	add	hl,sp
+	ld	sp,hl
+;main.c:16: SMS_loadSpritePalette(spritepalette_bin);
 	ld	hl,#_spritepalette_bin
 	call	_SMS_loadSpritePalette
-;main.c:14: SMS_loadPSGaidencompressedTiles (spritetiles_psgcompr,PLAYER1_SPRITE_TILES_POSITION); // Bomberman - move to player?
+;main.c:17: SMS_loadPSGaidencompressedTiles(spritetiles_psgcompr, PLAYER1_SPRITE_TILES_POSITION); // Bomberman - move to player?
 	ld	hl,#0x0100
 	push	hl
 	ld	hl,#_spritetiles_psgcompr
 	push	hl
 	call	_SMS_loadPSGaidencompressedTiles
 	pop	af
-;main.c:16: SMS_setSpritePaletteColor(0, RGB(3, 0, 0));
-	ld	hl, #0x0300
+;main.c:19: SMS_setSpritePaletteColor(0, RGB(0, 0, 0));
+	ld	hl, #0x0000
 	ex	(sp),hl
 	call	_SMS_setSpritePaletteColor
-;main.c:17: SMS_setBGPaletteColor(0, RGB(0, 3, 0));
-	ld	hl, #0x0c00
+;main.c:20: SMS_setBGPaletteColor(0, RGB(0, 0, 0));
+	ld	hl, #0x0000
 	ex	(sp),hl
 	call	_SMS_setBGPaletteColor
 	pop	af
 	ret
-;main.c:20: void main (void)
+;main.c:23: void main (void)
 ;	---------------------------------
 ; Function main
 ; ---------------------------------
 _main::
-;main.c:22: frame_counter = 0;
+;main.c:25: frame_counter = 0;
 	ld	hl,#_frame_counter + 0
 	ld	(hl), #0x00
-;main.c:24: Player1Init();
+;main.c:27: Player1Init();
 	call	_Player1Init
-;main.c:25: InitConsole();
+;main.c:28: InitConsole();
 	call	_InitConsole
-;main.c:27: loadGraphics2vram();
+;main.c:30: loadGraphics2vram();
 	call	_loadGraphics2vram
-;main.c:28: SMS_displayOn();
+;main.c:31: SMS_displayOn();
 	ld	hl,#0x0140
 	call	_SMS_VDPturnOnFeature
-;main.c:30: PSGPlay(music_psg);
+;main.c:33: PSGPlay(music_psg);
 	ld	hl,#_music_psg
 	push	hl
 	call	_PSGPlay
 	pop	af
-;main.c:33: while (1)
-00108$:
-;main.c:35: frame_counter++;
+;main.c:36: while(1)
+00113$:
+;main.c:39: checkgamepause();
+	call	_checkgamepause
+;main.c:41: if(gamepause==0)
+	ld	a,(#_gamepause + 0)
+	or	a, a
+	jr	NZ,00110$
+;main.c:43: frame_counter++;
 	ld	iy,#_frame_counter
 	inc	0 (iy)
-;main.c:37: if((frame_counter%64) == 0)
+;main.c:45: if((frame_counter%64) == 0)
 	ld	a,0 (iy)
 	and	a, #0x3f
 	jr	NZ,00104$
-;main.c:39: volume_atenuation++;
+;main.c:47: volume_atenuation++;
 	ld	iy,#_volume_atenuation
 	inc	0 (iy)
-;main.c:40: if(volume_atenuation > 15)
+;main.c:48: if(volume_atenuation > 15)
 	ld	a,#0x0f
 	sub	a, 0 (iy)
 	jr	NC,00104$
-;main.c:42: volume_atenuation = 0;
+;main.c:50: volume_atenuation = 0;
 	ld	0 (iy),#0x00
 00104$:
-;main.c:46: SMS_initSprites();
+;main.c:54: SMS_initSprites();
 	call	_SMS_initSprites
-;main.c:48: Player1Update(frame_counter);
+;main.c:56: Player1Update(frame_counter);
 	ld	a,(_frame_counter)
 	push	af
 	inc	sp
 	call	_Player1Update
 	inc	sp
-;main.c:50: if(SMS_getKeysStatus() & PORT_A_KEY_1)
+;main.c:58: if(SMS_getKeysStatus() & PORT_A_KEY_1)
 	call	_SMS_getKeysStatus
 	bit	4, l
 	jr	Z,00106$
-;main.c:52: PSGSFXPlay(enemybomb_psg, 0x00);
+;main.c:60: PSGSFXPlay(enemybomb_psg, 0x00);
 	xor	a, a
 	push	af
 	inc	sp
@@ -407,17 +449,34 @@ _main::
 	pop	af
 	inc	sp
 00106$:
-;main.c:55: SMS_finalizeSprites();
+;main.c:63: SMS_finalizeSprites();
 	call	_SMS_finalizeSprites
-;main.c:56: SMS_waitForVBlank();
+;main.c:64: SMS_waitForVBlank();
 	call	_SMS_waitForVBlank
-;main.c:58: PSGFrame();
+;main.c:66: PSGFrame();
 	call	_PSGFrame
-;main.c:59: PSGSFXFrame();
+;main.c:67: PSGSFXFrame();
 	call	_PSGSFXFrame
-;main.c:61: SMS_copySpritestoSAT();
+;main.c:69: SMS_copySpritestoSAT();
 	call	_SMS_copySpritestoSAT
-	jr	00108$
+	jr	00113$
+00110$:
+;main.c:76: PSGFrame();
+	call	_PSGFrame
+;main.c:78: if(PSGSFXGetStatus())
+	call	_PSGSFXGetStatus
+	ld	a,l
+	or	a, a
+	jr	Z,00108$
+;main.c:80: PSGSFXFrame();
+	call	_PSGSFXFrame
+00108$:
+;main.c:84: SMS_waitForVBlank();
+	call	_SMS_waitForVBlank
+;main.c:87: numinterrupts=0;
+	ld	hl,#_numinterrupts + 0
+	ld	(hl), #0x00
+	jr	00113$
 	.area _CODE
 __str_0:
 	.ascii "Gary Paluk"
@@ -426,7 +485,7 @@ __str_1:
 	.ascii "Master Blaster"
 	.db 0x00
 __str_2:
-	.ascii "Grab a friend and jump into endless bombastic fun."
+	.ascii "Grab a friend and jump into endless bombastic fun!"
 	.db 0x00
 	.area _INITIALIZER
 	.area _CABS (ABS)
@@ -458,7 +517,7 @@ ___SMS__SDSC_name:
 	.db 0x00
 	.org 0x7F93
 ___SMS__SDSC_descr:
-	.ascii "Grab a friend and jump into endless bombastic fun."
+	.ascii "Grab a friend and jump into endless bombastic fun!"
 	.db 0x00
 	.org 0x7FE0
 ___SMS__SDSC_signature:

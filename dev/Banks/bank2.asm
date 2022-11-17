@@ -10,6 +10,7 @@
 ;--------------------------------------------------------
 	.globl _spritetiles_psgcompr
 	.globl _spritepalette_bin
+	.globl _pause_psg
 	.globl _music_psg
 	.globl _explosion_psg
 	.globl _enemybomb_psg
@@ -10187,6 +10188,42 @@ _music_psg:
 	.db #0xb7	; 183
 	.db #0xf8	; 248
 	.db #0x39	; 57	'9'
+	.db #0x00	; 0
+_pause_psg:
+	.db #0xce	; 206
+	.db #0x4b	; 75	'K'
+	.db #0xd0	; 208
+	.db #0x3b	; 59
+	.db #0xd1	; 209
+	.db #0x38	; 56	'8'
+	.db #0xcf	; 207
+	.db #0x47	; 71	'G'
+	.db #0x08	; 8
+	.db #0x02	; 2
+	.db #0x00	; 0
+	.db #0xc7	; 199
+	.db #0x49	; 73	'I'
+	.db #0x0a	; 10
+	.db #0x02	; 2
+	.db #0x00	; 0
+	.db #0x09	; 9
+	.db #0x02	; 2
+	.db #0x00	; 0
+	.db #0x45	; 69	'E'
+	.db #0xd0	; 208
+	.db #0x3b	; 59
+	.db #0xd1	; 209
+	.db #0x3b	; 59
+	.db #0xd2	; 210
+	.db #0x3a	; 58
+	.db #0xd3	; 211
+	.db #0x39	; 57	'9'
+	.db #0xd4	; 212
+	.db #0x39	; 57	'9'
+	.db #0xc3	; 195
+	.db #0x55	; 85	'U'
+	.db #0xdf	; 223
+	.db #0x3c	; 60
 	.db #0x00	; 0
 _spritepalette_bin:
 	.db #0x3f	; 63

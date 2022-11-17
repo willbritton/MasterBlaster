@@ -1,5 +1,6 @@
 {
     "files.associations": {
-        "vars.h": "c"
+        "vars.h": "c",
+        "bank2.h": "c"
     }
 }

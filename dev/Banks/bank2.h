@@ -22,6 +22,10 @@ extern const unsigned char	music_psg[];
 #define				music_psg_size 4628
 #define				music_psg_bank 2
 
+extern const unsigned char	pause_psg[];
+#define				pause_psg_size 35
+#define				pause_psg_bank 2
+
 extern const unsigned char	spritepalette_bin[];
 #define				spritepalette_bin_size 8
 #define				spritepalette_bin_bank 2
