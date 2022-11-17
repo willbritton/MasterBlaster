@@ -44,29 +44,32 @@ Symbol Table
   B ___SMS__SDSC_name                                              7FC6 GR
   D ___SMS__SDSC_signature                                         7FE0 GR
   9 ___SMS__SEGA_signature                                         7FF0 GR
-  0 __str_0                                                        01F0 R
-  0 __str_1                                                        01FB R
-  0 __str_2                                                        020A R
+    __moduchar                                                     **** GX
+  0 __str_0                                                        036F R
+  0 __str_1                                                        037A R
+  0 __str_2                                                        0389 R
   0 _checkgamepause                                                0022 GR
     _enemybomb_psg                                                 **** GX
   1 _frame_counter                                                 0006 GR
   1 _gamepause                                                     0001 GR
-  0 _loadGraphics2vram                                             0130 GR
-  0 _main                                                          0164 GR
+  0 _loadGraphics2vram                                             0297 GR
+  0 _main                                                          02E3 GR
     _music_psg                                                     **** GX
   1 _numinterrupts                                                 0000 GR
     _pause_psg                                                     **** GX
   1 _player1_current_frame                                         0004 GR
-  1 _player1_direction                                             0005 GR
 ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180), page 2.
 Hexadecimal [16-Bits]
 
 Symbol Table
 
+  1 _player1_direction                                             0005 GR
   1 _player1_x                                                     0002 GR
   1 _player1_y                                                     0003 GR
     _spritepalette_bin                                             **** GX
-    _spritetiles_psgcompr                                          **** GX
+    _spritetiles_down_psgcompr                                     **** GX
+    _spritetiles_lr_psgcompr                                       **** GX
+    _spritetiles_up_psgcompr                                       **** GX
   1 _volume_atenuation                                             0007 GR
 
 ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180), page 3.
@@ -74,7 +77,7 @@ Hexadecimal [16-Bits]
 
 Area Table
 
-   0 _CODE                                      size  23D   flags    0
+   0 _CODE                                      size  3BC   flags    0
    1 _DATA                                      size    8   flags    0
    2 _INITIALIZED                               size    0   flags    0
    3 _DABS                                      size    0   flags    8

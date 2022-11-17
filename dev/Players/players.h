@@ -3,10 +3,23 @@ unsigned char player1_y;
 unsigned char player1_current_frame;
 unsigned char player1_direction;
 
-#define PLAYER1_SPRITE_TILES_POSITION 256
-#define PLAYER1_NUMBER_FRAMES 8
-#define PLAYER1_NUMBER_TILES_BY_FRAME 2
-#define PLAYER1_NUMBER_TILES_FRAMES_BOTH_DIRECTIONS 12
+// Walk up
+#define PLAYER1_UP_SPRITE_TILES_POSITION 256
+#define PLAYER1_UP_NUMBER_FRAMES 6
+#define PLAYER1_UP_NUMBER_TILES_BY_FRAME 2
+#define PLAYER1_UP_NUMBER_TILES_FRAMES_BOTH_DIRECTIONS 12
+
+// Walk down
+#define PLAYER1_DOWN_SPRITE_TILES_POSITION 312
+#define PLAYER1_DOWN_NUMBER_FRAMES 6
+#define PLAYER1_DOWN_NUMBER_TILES_BY_FRAME 2
+#define PLAYER1_DOWN_NUMBER_TILES_FRAMES_BOTH_DIRECTIONS 12
+
+// Walk left / right
+#define PLAYER1_LR_SPRITE_TILES_POSITION 368
+#define PLAYER1_LR_NUMBER_FRAMES 6
+#define PLAYER1_LR_NUMBER_TILES_BY_FRAME 2
+#define PLAYER1_LR_NUMBER_TILES_FRAMES_BOTH_DIRECTIONS 24
 
 #define UP 0
 #define DOWN 1
@@ -15,9 +28,9 @@ unsigned char player1_direction;
 
 void Player1Init()
 {
-    player1_direction = LEFT;
-    player1_x = 50;
-    player1_y = 134;
+    player1_direction = DOWN;
+    player1_x = 128-8;
+    player1_y = 96-12;
     player1_current_frame = 0;
 }
 
@@ -59,24 +72,70 @@ void Player1UpdateDraw(unsigned char time)
 
     if(player1_direction == LEFT)
     {
-        direction_offset = PLAYER1_NUMBER_TILES_FRAMES_BOTH_DIRECTIONS >> 1;
+        direction_offset = PLAYER1_LR_NUMBER_TILES_FRAMES_BOTH_DIRECTIONS >> 1;
     }
     else if(player1_direction == RIGHT)
     {
         direction_offset = 0;
     }
-
-    for(j=0; j<3; j++)
+    else if(player1_direction == DOWN)
     {
-        for(i=0; i<2; i++) {
-            SMS_addSprite(player1_x+(i<<3), player1_y+(j<<3), PLAYER1_SPRITE_TILES_POSITION + player1_direction + player1_current_frame * PLAYER1_NUMBER_FRAMES + PLAYER1_NUMBER_TILES_FRAMES_BOTH_DIRECTIONS *j + i);
-        }
+        direction_offset = 0;
+    }
+    else if(player1_direction == UP)
+    {
+        direction_offset = 0;
     }
 
-    if((time%8) == 0) {
+
+    if(player1_direction == UP)
+    {
+        for(j=0; j<3; j++)
+        {
+            for(i=0; i<2; i++) {
+                SMS_addSprite(player1_x+(i<<3), player1_y+(j<<3), PLAYER1_UP_SPRITE_TILES_POSITION + direction_offset + player1_current_frame * PLAYER1_UP_NUMBER_TILES_BY_FRAME + PLAYER1_UP_NUMBER_TILES_FRAMES_BOTH_DIRECTIONS *j + i);
+            }
+        }
+    }
+    else if(player1_direction == DOWN)
+    {
+        for(j=0; j<3; j++)
+        {
+            for(i=0; i<2; i++) {
+                SMS_addSprite(player1_x+(i<<3), player1_y+(j<<3), PLAYER1_DOWN_SPRITE_TILES_POSITION + direction_offset + player1_current_frame * PLAYER1_DOWN_NUMBER_TILES_BY_FRAME + PLAYER1_DOWN_NUMBER_TILES_FRAMES_BOTH_DIRECTIONS *j + i);
+            }
+        }
+    }
+    else if(player1_direction == LEFT || player1_direction == RIGHT)
+    {
+        for(j=0; j<3; j++)
+        {
+            for(i=0; i<2; i++) {
+                SMS_addSprite(player1_x+(i<<3), player1_y+(j<<3), PLAYER1_LR_SPRITE_TILES_POSITION + direction_offset + player1_current_frame * PLAYER1_LR_NUMBER_TILES_BY_FRAME + PLAYER1_LR_NUMBER_TILES_FRAMES_BOTH_DIRECTIONS *j + i);
+            }
+        }
+    }
+    
+    if((time%6) == 0) {
         player1_current_frame++;
-        if(player1_current_frame == PLAYER1_NUMBER_FRAMES) {
-            player1_current_frame = 0;
+
+        if(player1_direction == UP)
+        {
+            if(player1_current_frame == PLAYER1_UP_NUMBER_FRAMES) {
+                player1_current_frame = 0;
+            }
+        }
+        else if(player1_direction == DOWN)
+        {
+            if(player1_current_frame == PLAYER1_DOWN_NUMBER_FRAMES) {
+                player1_current_frame = 0;
+            }
+        }
+        else if(player1_direction == LEFT || player1_direction == RIGHT)
+        {
+            if(player1_current_frame == PLAYER1_LR_NUMBER_FRAMES) {
+                player1_current_frame = 0;
+            }
         }
     }
 }

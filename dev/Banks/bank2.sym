@@ -15,7 +15,11 @@ Symbol Table
   7 _music_psg                                                     1581 GR
   7 _pause_psg                                                     2795 GR
   7 _spritepalette_bin                                             27B8 GR
-  7 _spritetiles_psgcompr                                          27C0 GR
+  7 _spritepalette_lr_bin                                          27C0 GR
+  7 _spritetiles_down_psgcompr                                     2AF2 GR
+  7 _spritetiles_lr_psgcompr                                       2E1C GR
+  7 _spritetiles_psgcompr                                          27C8 GR
+  7 _spritetiles_up_psgcompr                                       344A GR
 
 
 ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180), page 2.
@@ -30,7 +34,7 @@ Area Table
    4 _HOME                                      size    0   flags    0
    5 _GSINIT                                    size    0   flags    0
    6 _GSFINAL                                   size    0   flags    0
-   7 _BANK2                                     size 2AEA   flags    0
+   7 _BANK2                                     size 3744   flags    0
    8 _INITIALIZER                               size    0   flags    0
    9 _CABS                                      size    0   flags    8
 

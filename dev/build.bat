@@ -2,8 +2,14 @@
 cls
 
 REM Bank 2
-REM bmp2tile.exe .\assets\gfx\SegaMasterSystemTitleScreen.png -savetiles Banks\bank2\backgroundtiles.psgcompr -mirror -removedupes -savepalette Banks\bank2\backgroundpalette.bin -savetilemap Banks\bank2\backgroundtilemap.bin -exit
-bmp2tile.exe .\assets\gfx\player_white_down.png -noremovedupes -nomirror -8x8 -palsms -savetiles Banks\bank2\spritetiles.psgcompr -savepalette Banks\bank2\spritepalette.bin -exit
+
+REM Player walk up
+bmp2tile.exe .\assets\gfx\player_white_up.png -noremovedupes -nomirror -8x8 -palsms -savetiles Banks\bank2\spritetiles_up.psgcompr -savepalette Banks\bank2\spritepalette.bin -exit
+REM Player walk down
+bmp2tile.exe .\assets\gfx\player_white_down.png -noremovedupes -nomirror -8x8 -palsms -savetiles Banks\bank2\spritetiles_down.psgcompr -savepalette Banks\bank2\spritepalette.bin -exit
+REM Player walk left/right
+bmp2tile.exe .\assets\gfx\player_white_lr.png -noremovedupes -nomirror -8x8 -palsms -savetiles Banks\bank2\spritetiles_lr.psgcompr -savepalette Banks\bank2\spritepalette_lr.bin -exit
+
 
 REM Banks conversion
 cd Banks
