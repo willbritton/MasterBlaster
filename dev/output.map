@@ -51,7 +51,7 @@ Area                                    Addr        Size        Decimal Bytes (A
      00000FCF  s__INITIALIZER                  
      00000FD3  s__GSINIT                       
      00000FE2  s__GSFINAL                      
-     000047A0  l__BANK2                        
+     00003824  l__BANK2                        
      00008000  _SMS_SRAM                          SMSlib_PSGaiden
      00008000  s__BANK2                        
      0000C000  s__DATA                         
@@ -375,7 +375,7 @@ Hexadecimal  [32-Bits]
 
 Area                                    Addr        Size        Decimal Bytes (Attributes)
 --------------------------------        ----        ----        ------- ----- ------------
-_BANK2                              00008000    000047A0 =       18336. bytes (REL,CON)
+_BANK2                              00008000    00003824 =       14372. bytes (REL,CON)
 
       Value  Global                              Global Defined In Module
       -----  --------------------------------   ------------------------
@@ -389,13 +389,9 @@ _BANK2                              00008000    000047A0 =       18336. bytes (R
      0000A5F1  _pause_psg                         bank2
      0000A614  _spritepalette_bin                 bank2
      0000A61C  _spritepalette_lr_bin              bank2
-     0000A624  _spritetiles_psgcompr              bank2
-     0000A94E  _spritetiles_down_bin              bank2
-     0000ADCE  _spritetiles_down_psgcompr         bank2
-     0000B0F8  _spritetiles_lr_bin                bank2
-     0000B9F8  _spritetiles_lr_psgcompr           bank2
-     0000C026  _spritetiles_up_bin                bank2
-     0000C4A6  _spritetiles_up_psgcompr           bank2
+     0000A624  _spritetiles_down_bin              bank2
+     0000AAA4  _spritetiles_lr_bin                bank2
+     0000B3A4  _spritetiles_up_bin                bank2
 
 ASxxxx Linker V03.00 + NoICE + sdld,  page 22.
 

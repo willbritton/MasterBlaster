@@ -17,13 +17,10 @@ Symbol Table
   7 _pause_psg                                                     25F1 GR
   7 _spritepalette_bin                                             2614 GR
   7 _spritepalette_lr_bin                                          261C GR
-  7 _spritetiles_down_bin                                          294E GR
-  7 _spritetiles_down_psgcompr                                     2DCE GR
-  7 _spritetiles_lr_bin                                            30F8 GR
-  7 _spritetiles_lr_psgcompr                                       39F8 GR
-  7 _spritetiles_psgcompr                                          2624 GR
-  7 _spritetiles_up_bin                                            4026 GR
-  7 _spritetiles_up_psgcompr                                       44A6 GR
+  7 _spritetiles_down_bin                                          2624 GR
+  7 _spritetiles_lr_bin                                            2AA4 GR
+  7 _spritetiles_up_bin                                            33A4 GR
+
 
 ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180), page 2.
 Hexadecimal [16-Bits]
@@ -37,7 +34,7 @@ Area Table
    4 _HOME                                      size    0   flags    0
    5 _GSINIT                                    size    0   flags    0
    6 _GSFINAL                                   size    0   flags    0
-   7 _BANK2                                     size 47A0   flags    0
+   7 _BANK2                                     size 3824   flags    0
    8 _INITIALIZER                               size    0   flags    0
    9 _CABS                                      size    0   flags    8
 

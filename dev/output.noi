@@ -42,7 +42,7 @@ DEF s__HOME 0xFCF
 DEF s__INITIALIZER 0xFCF
 DEF s__GSINIT 0xFD3
 DEF s__GSFINAL 0xFE2
-DEF l__BANK2 0x47A0
+DEF l__BANK2 0x3824
 DEF _SMS_SRAM 0x8000
 DEF s__BANK2 0x8000
 DEF s__DATA 0xC000
@@ -191,11 +191,7 @@ DEF _music_psg 0x93DD
 DEF _pause_psg 0xA5F1
 DEF _spritepalette_bin 0xA614
 DEF _spritepalette_lr_bin 0xA61C
-DEF _spritetiles_psgcompr 0xA624
-DEF _spritetiles_down_bin 0xA94E
-DEF _spritetiles_down_psgcompr 0xADCE
-DEF _spritetiles_lr_bin 0xB0F8
-DEF _spritetiles_lr_psgcompr 0xB9F8
-DEF _spritetiles_up_bin 0xC026
-DEF _spritetiles_up_psgcompr 0xC4A6
+DEF _spritetiles_down_bin 0xA624
+DEF _spritetiles_lr_bin 0xAAA4
+DEF _spritetiles_up_bin 0xB3A4
 LOAD output.ihx

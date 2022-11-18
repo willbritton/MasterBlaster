@@ -220,12 +220,12 @@
    0075 3Ar05r00      [13]  220 	ld	a,(#_player1_direction + 0)
    0078 B7            [ 4]  221 	or	a, a
    0079 28 14         [12]  222 	jr	Z,00102$
-                            223 ;Players/players.h:49: SMS_loadTiles(spritetiles_up_psgcompr, PLAYER1_SPRITE_POSITION, 32*6*6);
+                            223 ;Players/players.h:49: SMS_loadTiles(spritetiles_up_bin, PLAYER1_SPRITE_POSITION, 32*6*6);
    007B 21 80 04      [10]  224 	ld	hl,#0x0480
    007E E5            [11]  225 	push	hl
    007F 21 00 01      [10]  226 	ld	hl,#0x0100
    0082 E5            [11]  227 	push	hl
-   0083 21r00r00      [10]  228 	ld	hl,#_spritetiles_up_psgcompr
+   0083 21r00r00      [10]  228 	ld	hl,#_spritetiles_up_bin
    0086 E5            [11]  229 	push	hl
    0087 CDr00r00      [17]  230 	call	_SMS_loadTiles
    008A 21 06 00      [10]  231 	ld	hl,#6
@@ -248,12 +248,12 @@
    00A1 3Ar05r00      [13]  248 	ld	a,(#_player1_direction + 0)
    00A4 3D            [ 4]  249 	dec	a
    00A5 28 14         [12]  250 	jr	Z,00104$
-                            251 ;Players/players.h:58: SMS_loadTiles(spritetiles_down_psgcompr, PLAYER1_SPRITE_POSITION, 32*6*6);
+                            251 ;Players/players.h:58: SMS_loadTiles(spritetiles_down_bin, PLAYER1_SPRITE_POSITION, 32*6*6);
    00A7 21 80 04      [10]  252 	ld	hl,#0x0480
    00AA E5            [11]  253 	push	hl
    00AB 21 00 01      [10]  254 	ld	hl,#0x0100
    00AE E5            [11]  255 	push	hl
-   00AF 21r00r00      [10]  256 	ld	hl,#_spritetiles_down_psgcompr
+   00AF 21r00r00      [10]  256 	ld	hl,#_spritetiles_down_bin
    00B2 E5            [11]  257 	push	hl
    00B3 CDr00r00      [17]  258 	call	_SMS_loadTiles
    00B6 21 06 00      [10]  259 	ld	hl,#6
@@ -279,12 +279,12 @@
    00D6 FD 7E 00      [19]  279 	ld	a,0 (iy)
    00D9 D6 03         [ 7]  280 	sub	a, #0x03
    00DB 28 13         [12]  281 	jr	Z,00111$
-                            282 ;Players/players.h:68: SMS_loadTiles(spritetiles_lr_psgcompr, PLAYER1_SPRITE_POSITION, 32*6*12);
+                            282 ;Players/players.h:68: SMS_loadTiles(spritetiles_lr_bin, PLAYER1_SPRITE_POSITION, 32*6*12);
    00DD 21 00 09      [10]  283 	ld	hl,#0x0900
    00E0 E5            [11]  284 	push	hl
    00E1 26 01         [ 7]  285 	ld	h, #0x01
    00E3 E5            [11]  286 	push	hl
-   00E4 21r00r00      [10]  287 	ld	hl,#_spritetiles_lr_psgcompr
+   00E4 21r00r00      [10]  287 	ld	hl,#_spritetiles_lr_bin
    00E7 E5            [11]  288 	push	hl
    00E8 CDr00r00      [17]  289 	call	_SMS_loadTiles
    00EB 21 06 00      [10]  290 	ld	hl,#6
@@ -311,12 +311,12 @@
    010B FD 7E 00      [19]  311 	ld	a,0 (iy)
    010E D6 03         [ 7]  312 	sub	a, #0x03
    0110 28 13         [12]  313 	jr	Z,00114$
-                            314 ;Players/players.h:77: SMS_loadTiles(spritetiles_lr_psgcompr, PLAYER1_SPRITE_POSITION, 32*6*12);
+                            314 ;Players/players.h:77: SMS_loadTiles(spritetiles_lr_bin, PLAYER1_SPRITE_POSITION, 32*6*12);
    0112 21 00 09      [10]  315 	ld	hl,#0x0900
    0115 E5            [11]  316 	push	hl
    0116 26 01         [ 7]  317 	ld	h, #0x01
    0118 E5            [11]  318 	push	hl
-   0119 21r00r00      [10]  319 	ld	hl,#_spritetiles_lr_psgcompr
+   0119 21r00r00      [10]  319 	ld	hl,#_spritetiles_lr_bin
    011C E5            [11]  320 	push	hl
    011D CDr00r00      [17]  321 	call	_SMS_loadTiles
    0120 21 06 00      [10]  322 	ld	hl,#6
@@ -676,12 +676,12 @@
                             676 ;main.c:16: SMS_loadSpritePalette(spritepalette_bin);
    0334 21r00r00      [10]  677 	ld	hl,#_spritepalette_bin
    0337 CDr00r00      [17]  678 	call	_SMS_loadSpritePalette
-                            679 ;main.c:17: SMS_loadTiles(spritetiles_down_psgcompr, PLAYER1_SPRITE_POSITION, 32*6*6); 
+                            679 ;main.c:17: SMS_loadTiles(spritetiles_down_bin, PLAYER1_SPRITE_POSITION, 32*6*6); 
    033A 21 80 04      [10]  680 	ld	hl,#0x0480
    033D E5            [11]  681 	push	hl
    033E 21 00 01      [10]  682 	ld	hl,#0x0100
    0341 E5            [11]  683 	push	hl
-   0342 21r00r00      [10]  684 	ld	hl,#_spritetiles_down_psgcompr
+   0342 21r00r00      [10]  684 	ld	hl,#_spritetiles_down_bin
    0345 E5            [11]  685 	push	hl
    0346 CDr00r00      [17]  686 	call	_SMS_loadTiles
    0349 21 06 00      [10]  687 	ld	hl,#6

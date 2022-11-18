@@ -220,12 +220,12 @@ _Player1UpdatePosition::
 	ld	a,(#_player1_direction + 0)
 	or	a, a
 	jr	Z,00102$
-;Players/players.h:49: SMS_loadTiles(spritetiles_up_psgcompr, PLAYER1_SPRITE_POSITION, 32*6*6);
+;Players/players.h:49: SMS_loadTiles(spritetiles_up_bin, PLAYER1_SPRITE_POSITION, 32*6*6);
 	ld	hl,#0x0480
 	push	hl
 	ld	hl,#0x0100
 	push	hl
-	ld	hl,#_spritetiles_up_psgcompr
+	ld	hl,#_spritetiles_up_bin
 	push	hl
 	call	_SMS_loadTiles
 	ld	hl,#6
@@ -248,12 +248,12 @@ _Player1UpdatePosition::
 	ld	a,(#_player1_direction + 0)
 	dec	a
 	jr	Z,00104$
-;Players/players.h:58: SMS_loadTiles(spritetiles_down_psgcompr, PLAYER1_SPRITE_POSITION, 32*6*6);
+;Players/players.h:58: SMS_loadTiles(spritetiles_down_bin, PLAYER1_SPRITE_POSITION, 32*6*6);
 	ld	hl,#0x0480
 	push	hl
 	ld	hl,#0x0100
 	push	hl
-	ld	hl,#_spritetiles_down_psgcompr
+	ld	hl,#_spritetiles_down_bin
 	push	hl
 	call	_SMS_loadTiles
 	ld	hl,#6
@@ -279,12 +279,12 @@ _Player1UpdatePosition::
 	ld	a,0 (iy)
 	sub	a, #0x03
 	jr	Z,00111$
-;Players/players.h:68: SMS_loadTiles(spritetiles_lr_psgcompr, PLAYER1_SPRITE_POSITION, 32*6*12);
+;Players/players.h:68: SMS_loadTiles(spritetiles_lr_bin, PLAYER1_SPRITE_POSITION, 32*6*12);
 	ld	hl,#0x0900
 	push	hl
 	ld	h, #0x01
 	push	hl
-	ld	hl,#_spritetiles_lr_psgcompr
+	ld	hl,#_spritetiles_lr_bin
 	push	hl
 	call	_SMS_loadTiles
 	ld	hl,#6
@@ -311,12 +311,12 @@ _Player1UpdatePosition::
 	ld	a,0 (iy)
 	sub	a, #0x03
 	jr	Z,00114$
-;Players/players.h:77: SMS_loadTiles(spritetiles_lr_psgcompr, PLAYER1_SPRITE_POSITION, 32*6*12);
+;Players/players.h:77: SMS_loadTiles(spritetiles_lr_bin, PLAYER1_SPRITE_POSITION, 32*6*12);
 	ld	hl,#0x0900
 	push	hl
 	ld	h, #0x01
 	push	hl
-	ld	hl,#_spritetiles_lr_psgcompr
+	ld	hl,#_spritetiles_lr_bin
 	push	hl
 	call	_SMS_loadTiles
 	ld	hl,#6
@@ -676,12 +676,12 @@ _loadGraphics2vram::
 ;main.c:16: SMS_loadSpritePalette(spritepalette_bin);
 	ld	hl,#_spritepalette_bin
 	call	_SMS_loadSpritePalette
-;main.c:17: SMS_loadTiles(spritetiles_down_psgcompr, PLAYER1_SPRITE_POSITION, 32*6*6); 
+;main.c:17: SMS_loadTiles(spritetiles_down_bin, PLAYER1_SPRITE_POSITION, 32*6*6); 
 	ld	hl,#0x0480
 	push	hl
 	ld	hl,#0x0100
 	push	hl
-	ld	hl,#_spritetiles_down_psgcompr
+	ld	hl,#_spritetiles_down_bin
 	push	hl
 	call	_SMS_loadTiles
 	ld	hl,#6

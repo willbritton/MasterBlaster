@@ -70,9 +70,9 @@ Symbol Table
   1 _player1_x                                                     0002 GR
   1 _player1_y                                                     0003 GR
     _spritepalette_bin                                             **** GX
-    _spritetiles_down_psgcompr                                     **** GX
-    _spritetiles_lr_psgcompr                                       **** GX
-    _spritetiles_up_psgcompr                                       **** GX
+    _spritetiles_down_bin                                          **** GX
+    _spritetiles_lr_bin                                            **** GX
+    _spritetiles_up_bin                                            **** GX
   1 _volume_atenuation                                             0007 GR
 
 ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180), page 3.

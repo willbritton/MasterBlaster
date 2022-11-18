@@ -46,7 +46,7 @@ void Player1UpdatePosition()
     {
         if(player1_direction != UP)
         {
-            SMS_loadTiles(spritetiles_up_psgcompr, PLAYER1_SPRITE_POSITION, 32*6*6);
+            SMS_loadTiles(spritetiles_up_bin, PLAYER1_SPRITE_POSITION, 32*6*6);
         }
         player1_direction = UP;
         player1_y--;
@@ -55,7 +55,7 @@ void Player1UpdatePosition()
     {
         if(player1_direction != DOWN)
         {
-            SMS_loadTiles(spritetiles_down_psgcompr, PLAYER1_SPRITE_POSITION, 32*6*6);
+            SMS_loadTiles(spritetiles_down_bin, PLAYER1_SPRITE_POSITION, 32*6*6);
         }
         player1_direction = DOWN;
         player1_y++;
@@ -65,7 +65,7 @@ void Player1UpdatePosition()
     {
         if(player1_direction != LEFT && player1_direction != RIGHT)
         {
-            SMS_loadTiles(spritetiles_lr_psgcompr, PLAYER1_SPRITE_POSITION, 32*6*12);
+            SMS_loadTiles(spritetiles_lr_bin, PLAYER1_SPRITE_POSITION, 32*6*12);
         }
         player1_direction = LEFT;
         player1_x--;
@@ -74,7 +74,7 @@ void Player1UpdatePosition()
     {
         if(player1_direction != LEFT && player1_direction != RIGHT)
         {
-            SMS_loadTiles(spritetiles_lr_psgcompr, PLAYER1_SPRITE_POSITION, 32*6*12);
+            SMS_loadTiles(spritetiles_lr_bin, PLAYER1_SPRITE_POSITION, 32*6*12);
         }
         player1_direction = RIGHT;
         player1_x++;
