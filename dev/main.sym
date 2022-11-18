@@ -16,11 +16,12 @@ Symbol Table
     _PSGSFXGetStatus                                               **** GX
   0 _Player1Init                                                   004A GR
   0 _Player1Update                                                 005F GR
-  0 _Player1UpdateDraw                                             0115 GR
+  0 _Player1UpdateDraw                                             012F GR
   0 _Player1UpdatePosition                                         006E GR
     _ROM_bank_to_be_mapped_on_slot2                             =  FFFF G
     _SMS_SRAM                                                   =  8000 G
     _SMS_VDPturnOnFeature                                          **** GX
+    _SMS_VRAMmemcpy                                                **** GX
     _SMS_VRAMmemsetW                                               **** GX
     _SMS_addSprite                                                 **** GX
     _SMS_copySpritestoSAT                                          **** GX
@@ -28,8 +29,10 @@ Symbol Table
     _SMS_getKeysStatus                                             **** GX
     _SMS_init                                                      **** GX
     _SMS_initSprites                                               **** GX
+    _SMS_loadBGPalette                                             **** GX
     _SMS_loadPSGaidencompressedTiles                               **** GX
     _SMS_loadSpritePalette                                         **** GX
+    _SMS_loadTiles                                                 **** GX
     _SMS_queryPauseRequested                                       **** GX
     _SMS_resetPauseRequest                                         **** GX
     _SMS_setBGPaletteColor                                         **** GX
@@ -43,26 +46,29 @@ Symbol Table
   B ___SMS__SDSC_name                                              7FC6 GR
   D ___SMS__SDSC_signature                                         7FE0 GR
   9 ___SMS__SEGA_signature                                         7FF0 GR
-  0 __str_0                                                        038F R
-  0 __str_1                                                        039A R
-  0 __str_2                                                        03A9 R
+  0 __str_0                                                        03D6 R
+  0 __str_1                                                        03E1 R
+  0 __str_2                                                        03F0 R
+    _backgroundpalette_bin                                         **** GX
+    _backgroundtilemap_bin                                         **** GX
+    _backgroundtiles_psgcompr                                      **** GX
   0 _checkgamepause                                                0022 GR
   1 _frame_counter                                                 0006 GR
   1 _gamepause                                                     0001 GR
-  0 _loadGraphics2vram                                             02E2 GR
-  0 _main                                                          0316 GR
+  0 _loadGraphics2vram                                             02FC GR
+  0 _main                                                          035D GR
     _music_psg                                                     **** GX
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180), page 2.
+Hexadecimal [16-Bits]
+
+Symbol Table
+
   1 _numinterrupts                                                 0000 GR
     _pause_psg                                                     **** GX
   1 _player1_current_frame                                         0004 GR
   1 _player1_direction                                             0005 GR
   1 _player1_x                                                     0002 GR
   1 _player1_y                                                     0003 GR
-ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180), page 2.
-Hexadecimal [16-Bits]
-
-Symbol Table
-
     _spritepalette_bin                                             **** GX
     _spritetiles_down_psgcompr                                     **** GX
     _spritetiles_lr_psgcompr                                       **** GX
@@ -74,7 +80,7 @@ Hexadecimal [16-Bits]
 
 Area Table
 
-   0 _CODE                                      size  3DC   flags    0
+   0 _CODE                                      size  423   flags    0
    1 _DATA                                      size    8   flags    0
    2 _INITIALIZED                               size    0   flags    0
    3 _DABS                                      size    0   flags    8

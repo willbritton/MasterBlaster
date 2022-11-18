@@ -25,12 +25,14 @@
 	.globl _PSGPlayNoRepeat
 	.globl _PSGPlay
 	.globl _SMS_VRAMmemsetW
+	.globl _SMS_VRAMmemcpy
 	.globl _SMS_setLineCounter
 	.globl _SMS_setLineInterruptHandler
 	.globl _SMS_resetPauseRequest
 	.globl _SMS_queryPauseRequested
 	.globl _SMS_getKeysStatus
 	.globl _SMS_loadSpritePalette
+	.globl _SMS_loadBGPalette
 	.globl _SMS_setSpritePaletteColor
 	.globl _SMS_setBGPaletteColor
 	.globl _SMS_copySpritestoSAT
@@ -38,6 +40,7 @@
 	.globl _SMS_addSprite
 	.globl _SMS_initSprites
 	.globl _SMS_loadPSGaidencompressedTiles
+	.globl _SMS_loadTiles
 	.globl _SMS_waitForVBlank
 	.globl _SMS_VDPturnOnFeature
 	.globl _SMS_init
@@ -217,14 +220,17 @@ _Player1UpdatePosition::
 	ld	a,(#_player1_direction + 0)
 	or	a, a
 	jr	Z,00102$
-;Players/players.h:49: SMS_loadPSGaidencompressedTiles(spritetiles_up_psgcompr, PLAYER1_UP_SPRITE_TILES_POSITION); // Bomberman - up to player?
+;Players/players.h:49: SMS_loadTiles(spritetiles_up_psgcompr, PLAYER1_UP_SPRITE_TILES_POSITION, 192*6);
+	ld	hl,#0x0480
+	push	hl
 	ld	hl,#0x0100
 	push	hl
 	ld	hl,#_spritetiles_up_psgcompr
 	push	hl
-	call	_SMS_loadPSGaidencompressedTiles
-	pop	af
-	pop	af
+	call	_SMS_loadTiles
+	ld	hl,#6
+	add	hl,sp
+	ld	sp,hl
 00102$:
 ;Players/players.h:51: player1_direction = UP;
 	ld	hl,#_player1_direction + 0
@@ -242,14 +248,17 @@ _Player1UpdatePosition::
 	ld	a,(#_player1_direction + 0)
 	dec	a
 	jr	Z,00104$
-;Players/players.h:58: SMS_loadPSGaidencompressedTiles(spritetiles_down_psgcompr, PLAYER1_UP_SPRITE_TILES_POSITION); // Bomberman - up to player?
+;Players/players.h:58: SMS_loadTiles(spritetiles_down_psgcompr, PLAYER1_UP_SPRITE_TILES_POSITION, 192*6);
+	ld	hl,#0x0480
+	push	hl
 	ld	hl,#0x0100
 	push	hl
 	ld	hl,#_spritetiles_down_psgcompr
 	push	hl
-	call	_SMS_loadPSGaidencompressedTiles
-	pop	af
-	pop	af
+	call	_SMS_loadTiles
+	ld	hl,#6
+	add	hl,sp
+	ld	sp,hl
 00104$:
 ;Players/players.h:60: player1_direction = DOWN;
 	ld	hl,#_player1_direction + 0
@@ -270,14 +279,17 @@ _Player1UpdatePosition::
 	ld	a,0 (iy)
 	sub	a, #0x03
 	jr	Z,00111$
-;Players/players.h:68: SMS_loadPSGaidencompressedTiles(spritetiles_lr_psgcompr, PLAYER1_UP_SPRITE_TILES_POSITION); // Bomberman - up to player?
-	ld	hl,#0x0100
+;Players/players.h:68: SMS_loadTiles(spritetiles_lr_psgcompr, PLAYER1_UP_SPRITE_TILES_POSITION, 192*12);
+	ld	hl,#0x0900
+	push	hl
+	ld	h, #0x01
 	push	hl
 	ld	hl,#_spritetiles_lr_psgcompr
 	push	hl
-	call	_SMS_loadPSGaidencompressedTiles
-	pop	af
-	pop	af
+	call	_SMS_loadTiles
+	ld	hl,#6
+	add	hl,sp
+	ld	sp,hl
 00111$:
 ;Players/players.h:70: player1_direction = LEFT;
 	ld	hl,#_player1_direction + 0
@@ -299,14 +311,17 @@ _Player1UpdatePosition::
 	ld	a,0 (iy)
 	sub	a, #0x03
 	jr	Z,00114$
-;Players/players.h:77: SMS_loadPSGaidencompressedTiles(spritetiles_lr_psgcompr, PLAYER1_UP_SPRITE_TILES_POSITION); // Bomberman - up to player?
-	ld	hl,#0x0100
+;Players/players.h:77: SMS_loadTiles(spritetiles_lr_psgcompr, PLAYER1_UP_SPRITE_TILES_POSITION, 192*12);
+	ld	hl,#0x0900
+	push	hl
+	ld	h, #0x01
 	push	hl
 	ld	hl,#_spritetiles_lr_psgcompr
 	push	hl
-	call	_SMS_loadPSGaidencompressedTiles
-	pop	af
-	pop	af
+	call	_SMS_loadTiles
+	ld	hl,#6
+	add	hl,sp
+	ld	sp,hl
 00114$:
 ;Players/players.h:79: player1_direction = RIGHT;
 	ld	hl,#_player1_direction + 0
@@ -637,106 +652,131 @@ _loadGraphics2vram::
 	ld	hl,#6
 	add	hl,sp
 	ld	sp,hl
-;main.c:16: SMS_loadSpritePalette(spritepalette_bin);
-	ld	hl,#_spritepalette_bin
-	call	_SMS_loadSpritePalette
-;main.c:18: SMS_loadPSGaidencompressedTiles(spritetiles_down_psgcompr, PLAYER1_UP_SPRITE_TILES_POSITION); // Bomberman - up to player?
-	ld	hl,#0x0100
+;main.c:12: SMS_loadBGPalette(backgroundpalette_bin);
+	ld	hl,#_backgroundpalette_bin
+	call	_SMS_loadBGPalette
+;main.c:13: SMS_loadPSGaidencompressedTiles(backgroundtiles_psgcompr, 0);
+	ld	hl,#0x0000
 	push	hl
-	ld	hl,#_spritetiles_down_psgcompr
+	ld	hl,#_backgroundtiles_psgcompr
 	push	hl
 	call	_SMS_loadPSGaidencompressedTiles
 	pop	af
-;main.c:21: SMS_setSpritePaletteColor(0, RGB(0, 0, 0));
-	ld	hl, #0x0000
+;main.c:14: SMS_loadTileMap(0,0, backgroundtilemap_bin, backgroundtilemap_bin_size);
+	ld	hl, #0x0600
 	ex	(sp),hl
+	ld	hl,#_backgroundtilemap_bin
+	push	hl
+	ld	hl,#0x7800
+	push	hl
+	call	_SMS_VRAMmemcpy
+	ld	hl,#6
+	add	hl,sp
+	ld	sp,hl
+;main.c:16: SMS_loadSpritePalette(spritepalette_bin);
+	ld	hl,#_spritepalette_bin
+	call	_SMS_loadSpritePalette
+;main.c:17: SMS_loadTiles(spritetiles_down_psgcompr, PLAYER1_UP_SPRITE_TILES_POSITION, 32*8*6); 
+	ld	hl,#0x0600
+	push	hl
+	ld	h, #0x01
+	push	hl
+	ld	hl,#_spritetiles_down_psgcompr
+	push	hl
+	call	_SMS_loadTiles
+	ld	hl,#6
+	add	hl,sp
+	ld	sp,hl
+;main.c:19: SMS_setSpritePaletteColor(0, RGB(0, 0, 0));
+	ld	hl,#0x0000
+	push	hl
 	call	_SMS_setSpritePaletteColor
-;main.c:22: SMS_setBGPaletteColor(0, RGB(0, 2, 3));
+;main.c:20: SMS_setBGPaletteColor(0, RGB(0, 2, 3));
 	ld	hl, #0x3800
 	ex	(sp),hl
 	call	_SMS_setBGPaletteColor
 	pop	af
 	ret
-;main.c:25: void main (void)
+;main.c:23: void main (void)
 ;	---------------------------------
 ; Function main
 ; ---------------------------------
 _main::
-;main.c:27: frame_counter = 0;
+;main.c:25: frame_counter = 0;
 	ld	hl,#_frame_counter + 0
 	ld	(hl), #0x00
-;main.c:29: Player1Init();
+;main.c:27: Player1Init();
 	call	_Player1Init
-;main.c:30: InitConsole();
+;main.c:28: InitConsole();
 	call	_InitConsole
-;main.c:32: loadGraphics2vram();
+;main.c:30: loadGraphics2vram();
 	call	_loadGraphics2vram
-;main.c:33: SMS_displayOn();
+;main.c:31: SMS_displayOn();
 	ld	hl,#0x0140
 	call	_SMS_VDPturnOnFeature
-;main.c:35: PSGPlay(music_psg);
+;main.c:33: PSGPlay(music_psg);
 	ld	hl,#_music_psg
 	push	hl
 	call	_PSGPlay
 	pop	af
-;main.c:38: while(1)
+;main.c:36: while(1)
 00111$:
-;main.c:41: checkgamepause();
+;main.c:39: checkgamepause();
 	call	_checkgamepause
-;main.c:43: if(gamepause==0)
+;main.c:41: if(gamepause==0)
 	ld	a,(#_gamepause + 0)
 	or	a, a
 	jr	NZ,00108$
-;main.c:45: frame_counter++;
+;main.c:43: frame_counter++;
 	ld	iy,#_frame_counter
 	inc	0 (iy)
-;main.c:47: if((frame_counter%64) == 0)
+;main.c:45: if((frame_counter%64) == 0)
 	ld	a,0 (iy)
 	and	a, #0x3f
 	jr	NZ,00104$
-;main.c:49: volume_atenuation++;
+;main.c:47: volume_atenuation++;
 	ld	iy,#_volume_atenuation
 	inc	0 (iy)
-;main.c:50: if(volume_atenuation > 15)
+;main.c:48: if(volume_atenuation > 15)
 	ld	a,#0x0f
 	sub	a, 0 (iy)
 	jr	NC,00104$
-;main.c:52: volume_atenuation = 0;
+;main.c:50: volume_atenuation = 0;
 	ld	0 (iy),#0x00
 00104$:
-;main.c:56: SMS_initSprites();
+;main.c:54: SMS_initSprites();
 	call	_SMS_initSprites
-;main.c:58: Player1Update(frame_counter);
+;main.c:56: Player1Update(frame_counter);
 	ld	a,(_frame_counter)
 	push	af
 	inc	sp
 	call	_Player1Update
 	inc	sp
-;main.c:65: SMS_finalizeSprites();
+;main.c:63: SMS_finalizeSprites();
 	call	_SMS_finalizeSprites
-;main.c:66: SMS_waitForVBlank();
+;main.c:64: SMS_waitForVBlank();
 	call	_SMS_waitForVBlank
-;main.c:68: PSGFrame();
+;main.c:66: PSGFrame();
 	call	_PSGFrame
-;main.c:69: PSGSFXFrame();
+;main.c:67: PSGSFXFrame();
 	call	_PSGSFXFrame
-;main.c:71: SMS_copySpritestoSAT();
+;main.c:69: SMS_copySpritestoSAT();
 	call	_SMS_copySpritestoSAT
 	jr	00111$
 00108$:
-;main.c:78: PSGFrame();
+;main.c:76: PSGFrame();
 	call	_PSGFrame
-;main.c:80: if(PSGSFXGetStatus())
+;main.c:78: if(PSGSFXGetStatus())
 	call	_PSGSFXGetStatus
 	ld	a,l
 	or	a, a
 	jr	Z,00106$
-;main.c:82: PSGSFXFrame();
+;main.c:80: PSGSFXFrame();
 	call	_PSGSFXFrame
 00106$:
-;main.c:86: SMS_waitForVBlank();
+;main.c:84: SMS_waitForVBlank();
 	call	_SMS_waitForVBlank
-;main.c:89: numinterrupts=0;
+;main.c:87: numinterrupts=0;
 	ld	hl,#_numinterrupts + 0
 	ld	(hl), #0x00
 	jr	00111$

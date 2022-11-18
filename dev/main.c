@@ -9,15 +9,13 @@ void loadGraphics2vram(void)
   /* Clear VRAM */
   SMS_VRAMmemsetW(0, 0x0000, 0x4000);
 
-  //SMS_loadBGPalette(backgroundpalette_bin);
-  //SMS_loadPSGaidencompressedTiles(backgroundtiles_psgcompr, 0);
-  //SMS_loadTileMap(0,0, backgroundtilemap_bin, backgroundtilemap_bin_size);
+  SMS_loadBGPalette(backgroundpalette_bin);
+  SMS_loadPSGaidencompressedTiles(backgroundtiles_psgcompr, 0);
+  SMS_loadTileMap(0,0, backgroundtilemap_bin, backgroundtilemap_bin_size);
 
   SMS_loadSpritePalette(spritepalette_bin);
-  //SMS_loadPSGaidencompressedTiles(spritetiles_up_psgcompr, PLAYER1_UP_SPRITE_TILES_POSITION); // Bomberman - up to player?
-  SMS_loadPSGaidencompressedTiles(spritetiles_down_psgcompr, PLAYER1_UP_SPRITE_TILES_POSITION); // Bomberman - up to player?
-  //SMS_loadPSGaidencompressedTiles(spritetiles_lr_psgcompr, PLAYER1_LR_SPRITE_TILES_POSITION); // Bomberman - move to player?
-  
+  SMS_loadTiles(spritetiles_down_psgcompr, PLAYER1_UP_SPRITE_TILES_POSITION, 32*6*6); 
+
   SMS_setSpritePaletteColor(0, RGB(0, 0, 0));
   SMS_setBGPaletteColor(0, RGB(0, 2, 3));
 }

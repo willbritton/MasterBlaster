@@ -8,19 +8,22 @@ Symbol Table
     .__.CPU.                                                    =  0000 L
     .__.H$L.                                                    =  0000 L
   7 _backgroundpalette_bin                                         0000 GR
-  7 _backgroundtilemap_bin                                         0010 GR
-  7 _backgroundtiles_psgcompr                                      0610 GR
-  7 _enemybomb_psg                                                 1550 GR
-  7 _explosion_psg                                                 1568 GR
-  7 _music_psg                                                     1581 GR
-  7 _pause_psg                                                     2795 GR
-  7 _spritepalette_bin                                             27B8 GR
-  7 _spritepalette_lr_bin                                          27C0 GR
-  7 _spritetiles_down_psgcompr                                     2AF2 GR
-  7 _spritetiles_lr_psgcompr                                       2E1C GR
-  7 _spritetiles_psgcompr                                          27C8 GR
-  7 _spritetiles_up_psgcompr                                       344A GR
-
+  7 _backgroundtilemap_bin                                         000B GR
+  7 _backgroundtiles_bin                                           060B GR
+  7 _backgroundtiles_psgcompr                                      0ECB GR
+  7 _enemybomb_psg                                                 13AC GR
+  7 _explosion_psg                                                 13C4 GR
+  7 _music_psg                                                     13DD GR
+  7 _pause_psg                                                     25F1 GR
+  7 _spritepalette_bin                                             2614 GR
+  7 _spritepalette_lr_bin                                          261C GR
+  7 _spritetiles_down_bin                                          294E GR
+  7 _spritetiles_down_psgcompr                                     2DCE GR
+  7 _spritetiles_lr_bin                                            30F8 GR
+  7 _spritetiles_lr_psgcompr                                       39F8 GR
+  7 _spritetiles_psgcompr                                          2624 GR
+  7 _spritetiles_up_bin                                            4026 GR
+  7 _spritetiles_up_psgcompr                                       44A6 GR
 
 ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180), page 2.
 Hexadecimal [16-Bits]
@@ -34,7 +37,7 @@ Area Table
    4 _HOME                                      size    0   flags    0
    5 _GSINIT                                    size    0   flags    0
    6 _GSFINAL                                   size    0   flags    0
-   7 _BANK2                                     size 3744   flags    0
+   7 _BANK2                                     size 47A0   flags    0
    8 _INITIALIZER                               size    0   flags    0
    9 _CABS                                      size    0   flags    8
 

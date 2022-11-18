@@ -3,20 +3,20 @@ unsigned char player1_y;
 unsigned char player1_current_frame;
 unsigned char player1_direction;
 
+// Player 1
+#define PLAYER1_SPRITE_POSITION 256
+
 // Walk up
-#define PLAYER1_UP_SPRITE_TILES_POSITION 256
 #define PLAYER1_UP_NUMBER_FRAMES 6
 #define PLAYER1_UP_NUMBER_TILES_BY_FRAME 2
 #define PLAYER1_UP_NUMBER_TILES_FRAMES_BOTH_DIRECTIONS 12
 
 // Walk down
-#define PLAYER1_DOWN_SPRITE_TILES_POSITION 312
 #define PLAYER1_DOWN_NUMBER_FRAMES 6
 #define PLAYER1_DOWN_NUMBER_TILES_BY_FRAME 2
 #define PLAYER1_DOWN_NUMBER_TILES_FRAMES_BOTH_DIRECTIONS 12
 
 // Walk left / right
-#define PLAYER1_LR_SPRITE_TILES_POSITION 368
 #define PLAYER1_LR_NUMBER_FRAMES 6
 #define PLAYER1_LR_NUMBER_TILES_BY_FRAME 2
 #define PLAYER1_LR_NUMBER_TILES_FRAMES_BOTH_DIRECTIONS 24
@@ -46,7 +46,7 @@ void Player1UpdatePosition()
     {
         if(player1_direction != UP)
         {
-           SMS_loadPSGaidencompressedTiles(spritetiles_up_psgcompr, PLAYER1_UP_SPRITE_TILES_POSITION); // Bomberman - up to player?
+            SMS_loadTiles(spritetiles_up_psgcompr, PLAYER1_SPRITE_POSITION, 32*6*6);
         }
         player1_direction = UP;
         player1_y--;
@@ -55,7 +55,7 @@ void Player1UpdatePosition()
     {
         if(player1_direction != DOWN)
         {
-            SMS_loadPSGaidencompressedTiles(spritetiles_down_psgcompr, PLAYER1_UP_SPRITE_TILES_POSITION); // Bomberman - up to player?
+            SMS_loadTiles(spritetiles_down_psgcompr, PLAYER1_SPRITE_POSITION, 32*6*6);
         }
         player1_direction = DOWN;
         player1_y++;
@@ -65,7 +65,7 @@ void Player1UpdatePosition()
     {
         if(player1_direction != LEFT && player1_direction != RIGHT)
         {
-            SMS_loadPSGaidencompressedTiles(spritetiles_lr_psgcompr, PLAYER1_UP_SPRITE_TILES_POSITION); // Bomberman - up to player?
+            SMS_loadTiles(spritetiles_lr_psgcompr, PLAYER1_SPRITE_POSITION, 32*6*12);
         }
         player1_direction = LEFT;
         player1_x--;
@@ -74,7 +74,7 @@ void Player1UpdatePosition()
     {
         if(player1_direction != LEFT && player1_direction != RIGHT)
         {
-            SMS_loadPSGaidencompressedTiles(spritetiles_lr_psgcompr, PLAYER1_UP_SPRITE_TILES_POSITION); // Bomberman - up to player?
+            SMS_loadTiles(spritetiles_lr_psgcompr, PLAYER1_SPRITE_POSITION, 32*6*12);
         }
         player1_direction = RIGHT;
         player1_x++;
@@ -109,7 +109,7 @@ void Player1UpdateDraw(unsigned char time)
         for(j=0; j<3; j++)
         {
             for(i=0; i<2; i++) {
-                SMS_addSprite(player1_x+(i<<3), player1_y+(j<<3), PLAYER1_UP_SPRITE_TILES_POSITION + direction_offset + player1_current_frame * PLAYER1_UP_NUMBER_TILES_BY_FRAME + PLAYER1_UP_NUMBER_TILES_FRAMES_BOTH_DIRECTIONS *j + i);
+                SMS_addSprite(player1_x+(i<<3), player1_y+(j<<3), PLAYER1_SPRITE_POSITION + direction_offset + player1_current_frame * PLAYER1_UP_NUMBER_TILES_BY_FRAME + PLAYER1_UP_NUMBER_TILES_FRAMES_BOTH_DIRECTIONS *j + i);
             }
         }
     }
@@ -118,7 +118,7 @@ void Player1UpdateDraw(unsigned char time)
         for(j=0; j<3; j++)
         {
             for(i=0; i<2; i++) {
-                SMS_addSprite(player1_x+(i<<3), player1_y+(j<<3), PLAYER1_UP_SPRITE_TILES_POSITION + direction_offset + player1_current_frame * PLAYER1_DOWN_NUMBER_TILES_BY_FRAME + PLAYER1_DOWN_NUMBER_TILES_FRAMES_BOTH_DIRECTIONS *j + i);
+                SMS_addSprite(player1_x+(i<<3), player1_y+(j<<3), PLAYER1_SPRITE_POSITION + direction_offset + player1_current_frame * PLAYER1_DOWN_NUMBER_TILES_BY_FRAME + PLAYER1_DOWN_NUMBER_TILES_FRAMES_BOTH_DIRECTIONS *j + i);
             }
         }
     }
@@ -127,7 +127,7 @@ void Player1UpdateDraw(unsigned char time)
         for(j=0; j<3; j++)
         {
             for(i=0; i<2; i++) {
-                SMS_addSprite(player1_x+(i<<3), player1_y+(j<<3), PLAYER1_UP_SPRITE_TILES_POSITION + direction_offset + player1_current_frame * PLAYER1_LR_NUMBER_TILES_BY_FRAME + PLAYER1_LR_NUMBER_TILES_FRAMES_BOTH_DIRECTIONS *j + i);
+                SMS_addSprite(player1_x+(i<<3), player1_y+(j<<3), PLAYER1_SPRITE_POSITION + direction_offset + player1_current_frame * PLAYER1_LR_NUMBER_TILES_BY_FRAME + PLAYER1_LR_NUMBER_TILES_FRAMES_BOTH_DIRECTIONS *j + i);
             }
         }
     }
