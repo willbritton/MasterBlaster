@@ -220,7 +220,7 @@ _Player1UpdatePosition::
 	ld	a,(#_player1_direction + 0)
 	or	a, a
 	jr	Z,00102$
-;Players/players.h:49: SMS_loadTiles(spritetiles_up_psgcompr, PLAYER1_UP_SPRITE_TILES_POSITION, 192*6);
+;Players/players.h:49: SMS_loadTiles(spritetiles_up_psgcompr, PLAYER1_SPRITE_POSITION, 32*6*6);
 	ld	hl,#0x0480
 	push	hl
 	ld	hl,#0x0100
@@ -248,7 +248,7 @@ _Player1UpdatePosition::
 	ld	a,(#_player1_direction + 0)
 	dec	a
 	jr	Z,00104$
-;Players/players.h:58: SMS_loadTiles(spritetiles_down_psgcompr, PLAYER1_UP_SPRITE_TILES_POSITION, 192*6);
+;Players/players.h:58: SMS_loadTiles(spritetiles_down_psgcompr, PLAYER1_SPRITE_POSITION, 32*6*6);
 	ld	hl,#0x0480
 	push	hl
 	ld	hl,#0x0100
@@ -279,7 +279,7 @@ _Player1UpdatePosition::
 	ld	a,0 (iy)
 	sub	a, #0x03
 	jr	Z,00111$
-;Players/players.h:68: SMS_loadTiles(spritetiles_lr_psgcompr, PLAYER1_UP_SPRITE_TILES_POSITION, 192*12);
+;Players/players.h:68: SMS_loadTiles(spritetiles_lr_psgcompr, PLAYER1_SPRITE_POSITION, 32*6*12);
 	ld	hl,#0x0900
 	push	hl
 	ld	h, #0x01
@@ -311,7 +311,7 @@ _Player1UpdatePosition::
 	ld	a,0 (iy)
 	sub	a, #0x03
 	jr	Z,00114$
-;Players/players.h:77: SMS_loadTiles(spritetiles_lr_psgcompr, PLAYER1_UP_SPRITE_TILES_POSITION, 192*12);
+;Players/players.h:77: SMS_loadTiles(spritetiles_lr_psgcompr, PLAYER1_SPRITE_POSITION, 32*6*12);
 	ld	hl,#0x0900
 	push	hl
 	ld	h, #0x01
@@ -399,7 +399,7 @@ _Player1UpdateDraw::
 	ld	-2 (ix),a
 	ld	e,#0x00
 00144$:
-;Players/players.h:112: SMS_addSprite(player1_x+(i<<3), player1_y+(j<<3), PLAYER1_UP_SPRITE_TILES_POSITION + direction_offset + player1_current_frame * PLAYER1_UP_NUMBER_TILES_BY_FRAME + PLAYER1_UP_NUMBER_TILES_FRAMES_BOTH_DIRECTIONS *j + i);
+;Players/players.h:112: SMS_addSprite(player1_x+(i<<3), player1_y+(j<<3), PLAYER1_SPRITE_POSITION + direction_offset + player1_current_frame * PLAYER1_UP_NUMBER_TILES_BY_FRAME + PLAYER1_UP_NUMBER_TILES_FRAMES_BOTH_DIRECTIONS *j + i);
 	ld	a,(#_player1_current_frame + 0)
 	add	a, a
 	ld	l,a
@@ -466,7 +466,7 @@ _Player1UpdateDraw::
 	ld	-3 (ix),a
 	ld	b,#0x00
 00148$:
-;Players/players.h:121: SMS_addSprite(player1_x+(i<<3), player1_y+(j<<3), PLAYER1_UP_SPRITE_TILES_POSITION + direction_offset + player1_current_frame * PLAYER1_DOWN_NUMBER_TILES_BY_FRAME + PLAYER1_DOWN_NUMBER_TILES_FRAMES_BOTH_DIRECTIONS *j + i);
+;Players/players.h:121: SMS_addSprite(player1_x+(i<<3), player1_y+(j<<3), PLAYER1_SPRITE_POSITION + direction_offset + player1_current_frame * PLAYER1_DOWN_NUMBER_TILES_BY_FRAME + PLAYER1_DOWN_NUMBER_TILES_FRAMES_BOTH_DIRECTIONS *j + i);
 	ld	a,(#_player1_current_frame + 0)
 	add	a, a
 	ld	l,a
@@ -538,7 +538,7 @@ _Player1UpdateDraw::
 	ld	-3 (ix),a
 	ld	-4 (ix),#0x00
 00152$:
-;Players/players.h:130: SMS_addSprite(player1_x+(i<<3), player1_y+(j<<3), PLAYER1_UP_SPRITE_TILES_POSITION + direction_offset + player1_current_frame * PLAYER1_LR_NUMBER_TILES_BY_FRAME + PLAYER1_LR_NUMBER_TILES_FRAMES_BOTH_DIRECTIONS *j + i);
+;Players/players.h:130: SMS_addSprite(player1_x+(i<<3), player1_y+(j<<3), PLAYER1_SPRITE_POSITION + direction_offset + player1_current_frame * PLAYER1_LR_NUMBER_TILES_BY_FRAME + PLAYER1_LR_NUMBER_TILES_FRAMES_BOTH_DIRECTIONS *j + i);
 	ld	a,(#_player1_current_frame + 0)
 	add	a, a
 	ld	l,a
@@ -676,10 +676,10 @@ _loadGraphics2vram::
 ;main.c:16: SMS_loadSpritePalette(spritepalette_bin);
 	ld	hl,#_spritepalette_bin
 	call	_SMS_loadSpritePalette
-;main.c:17: SMS_loadTiles(spritetiles_down_psgcompr, PLAYER1_UP_SPRITE_TILES_POSITION, 32*8*6); 
-	ld	hl,#0x0600
+;main.c:17: SMS_loadTiles(spritetiles_down_psgcompr, PLAYER1_SPRITE_POSITION, 32*6*6); 
+	ld	hl,#0x0480
 	push	hl
-	ld	h, #0x01
+	ld	hl,#0x0100
 	push	hl
 	ld	hl,#_spritetiles_down_psgcompr
 	push	hl

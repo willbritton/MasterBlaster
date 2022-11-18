@@ -46,9 +46,9 @@ Symbol Table
   B ___SMS__SDSC_name                                              7FC6 GR
   D ___SMS__SDSC_signature                                         7FE0 GR
   9 ___SMS__SEGA_signature                                         7FF0 GR
-  0 __str_0                                                        03D6 R
-  0 __str_1                                                        03E1 R
-  0 __str_2                                                        03F0 R
+  0 __str_0                                                        03D7 R
+  0 __str_1                                                        03E2 R
+  0 __str_2                                                        03F1 R
     _backgroundpalette_bin                                         **** GX
     _backgroundtilemap_bin                                         **** GX
     _backgroundtiles_psgcompr                                      **** GX
@@ -56,7 +56,7 @@ Symbol Table
   1 _frame_counter                                                 0006 GR
   1 _gamepause                                                     0001 GR
   0 _loadGraphics2vram                                             02FC GR
-  0 _main                                                          035D GR
+  0 _main                                                          035E GR
     _music_psg                                                     **** GX
 ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180), page 2.
 Hexadecimal [16-Bits]
@@ -80,7 +80,7 @@ Hexadecimal [16-Bits]
 
 Area Table
 
-   0 _CODE                                      size  423   flags    0
+   0 _CODE                                      size  424   flags    0
    1 _DATA                                      size    8   flags    0
    2 _INITIALIZED                               size    0   flags    0
    3 _DABS                                      size    0   flags    8
