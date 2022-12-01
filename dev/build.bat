@@ -4,7 +4,7 @@ cls
 REM Bank 2
 
 REM Player walk up
-bmp2tile.exe .\assets\gfx\player_white_up.png ^
+..\utl\bmp2tile\BMP2Tile.exe assets\gfx\player_white_up.png ^
     -noremovedupes ^
     -nomirror ^
     -8x8 ^
@@ -12,22 +12,22 @@ bmp2tile.exe .\assets\gfx\player_white_up.png ^
     -savetiles ^
     Banks\bank2\spritetiles_up.bin ^
     -savepalette ^
-    Banks\bank2\spritepalette.bin ^
-    -exit
+    Banks\bank2\spritepalette.bin
+
 REM Player walk down
-bmp2tile.exe .\assets\gfx\player_white_down.png -noremovedupes -nomirror -8x8 -palsms -savetiles Banks\bank2\spritetiles_down.bin -savepalette Banks\bank2\spritepalette.bin -exit
+..\utl\bmp2tile\BMP2Tile.exe assets\gfx\player_white_down.png -noremovedupes -nomirror -8x8 -palsms -savetiles Banks\bank2\spritetiles_down.bin -savepalette Banks\bank2\spritepalette.bin
 REM Player walk left/right
-bmp2tile.exe .\assets\gfx\player_white_lr.png -noremovedupes -nomirror -8x8 -palsms -savetiles Banks\bank2\spritetiles_lr.bin -savepalette Banks\bank2\spritepalette_lr.bin -exit
+..\utl\bmp2tile\BMP2Tile.exe assets\gfx\player_white_lr.png -noremovedupes -nomirror -8x8 -palsms -savetiles Banks\bank2\spritetiles_lr.bin -savepalette Banks\bank2\spritepalette_lr.bin
 REM Background tiles
-bmp2tile.exe .\assets\gfx\background_final.png -savetiles Banks\bank2\backgroundtiles.psgcompr -mirror -removedupes -savepalette Banks\bank2\backgroundpalette.bin -savetilemap Banks\bank2\backgroundtilemap.bin -exit
+..\utl\bmp2tile\BMP2Tile.exe assets\gfx\background_final.png -savetiles Banks\bank2\backgroundtiles.psgcompr -mirror -removedupes -savepalette Banks\bank2\backgroundpalette.bin -savetilemap Banks\bank2\backgroundtilemap.bin
 
 
 REM Banks conversion
 cd Banks
-folder2c bank2 bank2 2
+..\..\utl\folder2c bank2 bank2 2
 
 REM Compile banks
-sdcc -c --no-std-crt0 -mz80 --Werror --opt-code-speed --constseg BANK2 bank2.c 
+sdcc -c --no-std-crt0 -mz80 --Werror --opt-code-speed --constseg BANK2 bank2.c
 
 cd ..
 
@@ -43,11 +43,11 @@ sdcc -o output.ihx --Werror --opt-code-speed -mz80 --no-std-crt0 --data-loc 0xC0
  Banks\bank2.rel
 
 REM Binary output
-ihx2sms output.ihx output.sms
+..\utl\ihx2sms output.ihx output.sms
 
 REM Copy the file to a more appropriate build folder location later
 REM echo Copy output
 REM copy output.sms ..\asm
 REM copy output.sms ..\MasterBlaster.sms
 
-REM output.sms
+output.sms

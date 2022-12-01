@@ -1,40 +1,40 @@
-ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180), page 1.
-Hexadecimal [16-Bits]
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180 / ZX-Next / eZ80), page 1.
+Hexadecimal [24-Bits]
 
 Symbol Table
 
-    .__.$$$.                                                    =  2710 L
-    .__.ABS.                                                    =  0000 G
-    .__.CPU.                                                    =  0000 L
-    .__.H$L.                                                    =  0000 L
-  7 _backgroundpalette_bin                                         0000 GR
-  7 _backgroundtilemap_bin                                         000B GR
-  7 _backgroundtiles_bin                                           060B GR
-  7 _backgroundtiles_psgcompr                                      0ECB GR
-  7 _enemybomb_psg                                                 13AC GR
-  7 _explosion_psg                                                 13C4 GR
-  7 _music_psg                                                     13DD GR
-  7 _pause_psg                                                     25F1 GR
-  7 _spritepalette_bin                                             2614 GR
-  7 _spritepalette_lr_bin                                          261C GR
-  7 _spritetiles_down_bin                                          2624 GR
-  7 _spritetiles_lr_bin                                            2AA4 GR
-  7 _spritetiles_up_bin                                            33A4 GR
+    .__.$$$.                                                    =  002710 L
+    .__.ABS.                                                    =  000000 G
+    .__.CPU.                                                    =  000000 L
+    .__.H$L.                                                    =  000000 L
+  7 _backgroundpalette_bin                                         000000 GR
+  7 _backgroundtilemap_bin                                         00000B GR
+  7 _backgroundtiles_bin                                           00060B GR
+  7 _backgroundtiles_psgcompr                                      000ECB GR
+  7 _enemybomb_psg                                                 0013AC GR
+  7 _explosion_psg                                                 0013C4 GR
+  7 _music_psg                                                     0013DD GR
+  7 _pause_psg                                                     0025F1 GR
+  7 _spritepalette_bin                                             002614 GR
+  7 _spritepalette_lr_bin                                          00261C GR
+  7 _spritetiles_down_bin                                          002624 GR
+  7 _spritetiles_lr_bin                                            002AA4 GR
+  7 _spritetiles_up_bin                                            0033A4 GR
 
 
-ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180), page 2.
-Hexadecimal [16-Bits]
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180 / ZX-Next / eZ80), page 2.
+Hexadecimal [24-Bits]
 
 Area Table
 
-   0 _CODE                                      size    0   flags    0
-   1 _DATA                                      size    0   flags    0
-   2 _INITIALIZED                               size    0   flags    0
-   3 _DABS                                      size    0   flags    8
-   4 _HOME                                      size    0   flags    0
-   5 _GSINIT                                    size    0   flags    0
-   6 _GSFINAL                                   size    0   flags    0
-   7 _BANK2                                     size 3824   flags    0
-   8 _INITIALIZER                               size    0   flags    0
-   9 _CABS                                      size    0   flags    8
+   0 _CODE                                      size      0   flags    0
+   1 _DATA                                      size      0   flags    0
+   2 _INITIALIZED                               size      0   flags    0
+   3 _DABS                                      size      0   flags    8
+   4 _HOME                                      size      0   flags    0
+   5 _GSINIT                                    size      0   flags    0
+   6 _GSFINAL                                   size      0   flags    0
+   7 _BANK2                                     size   3824   flags    0
+   8 _INITIALIZER                               size      0   flags    0
+   9 _CABS                                      size      0   flags    8
 
