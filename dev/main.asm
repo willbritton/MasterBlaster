@@ -37,10 +37,9 @@
 	.globl _SMS_setBGPaletteColor
 	.globl _SMS_copySpritestoSAT
 	.globl _SMS_finalizeSprites
-	.globl _SMS_addSprite
+	.globl _SMS_addSprite_f
 	.globl _SMS_initSprites
-	.globl _SMS_loadPSGaidencompressedTiles
-	.globl _SMS_loadTiles
+	.globl _SMS_loadPSGaidencompressedTilesatAddr
 	.globl _SMS_waitForVBlank
 	.globl _SMS_VDPturnOnFeature
 	.globl _SMS_init
@@ -54,6 +53,8 @@
 	.globl _numinterrupts
 	.globl _SMS_SRAM
 	.globl _SRAM_bank_to_be_mapped_on_slot2
+	.globl _ROM_bank_to_be_mapped_on_slot0
+	.globl _ROM_bank_to_be_mapped_on_slot1
 	.globl _ROM_bank_to_be_mapped_on_slot2
 	.globl _Player1Update
 	.globl _Player1UpdatePosition
@@ -66,6 +67,8 @@
 ;--------------------------------------------------------
 	.area _DATA
 _ROM_bank_to_be_mapped_on_slot2	=	0xffff
+_ROM_bank_to_be_mapped_on_slot1	=	0xfffe
+_ROM_bank_to_be_mapped_on_slot0	=	0xfffd
 _SRAM_bank_to_be_mapped_on_slot2	=	0xfffc
 _SMS_SRAM	=	0x8000
 _numinterrupts::
@@ -128,7 +131,9 @@ _InitConsole::
 	ld	hl, #_InterruptHandler
 	call	_SMS_setLineInterruptHandler
 ;Core\funcs.h:21: SMS_setLineCounter (192);
-	ld	a, #0xc0
+	ld	l, #0xc0
+;	spillPairReg hl
+;	spillPairReg hl
 	call	_SMS_setLineCounter
 ;Core\funcs.h:22: SMS_enableLineInterrupt();
 	ld	hl, #0x0010
@@ -216,9 +221,9 @@ _Player1UpdatePosition::
 ;Players/players.h:49: SMS_loadTiles(spritetiles_up_bin, PLAYER1_SPRITE_POSITION, 32*6*6);
 	ld	hl, #0x0480
 	push	hl
-	ld	de, #0x0100
-	ld	hl, #_spritetiles_up_bin
-	call	_SMS_loadTiles
+	ld	de, #_spritetiles_up_bin
+	ld	hl, #0x6000
+	call	_SMS_VRAMmemcpy
 00102$:
 ;Players/players.h:51: player1_direction = UP;
 	ld	hl, #_player1_direction
@@ -239,9 +244,9 @@ _Player1UpdatePosition::
 ;Players/players.h:58: SMS_loadTiles(spritetiles_down_bin, PLAYER1_SPRITE_POSITION, 32*6*6);
 	ld	hl, #0x0480
 	push	hl
-	ld	de, #0x0100
-	ld	hl, #_spritetiles_down_bin
-	call	_SMS_loadTiles
+	ld	de, #_spritetiles_down_bin
+	ld	hl, #0x6000
+	call	_SMS_VRAMmemcpy
 00104$:
 ;Players/players.h:60: player1_direction = DOWN;
 	ld	hl, #_player1_direction
@@ -263,9 +268,9 @@ _Player1UpdatePosition::
 ;Players/players.h:68: SMS_loadTiles(spritetiles_lr_bin, PLAYER1_SPRITE_POSITION, 32*6*12);
 	ld	hl, #0x0900
 	push	hl
-	ld	de, #0x0100
-	ld	hl, #_spritetiles_lr_bin
-	call	_SMS_loadTiles
+	ld	de, #_spritetiles_lr_bin
+	ld	h, #0x60
+	call	_SMS_VRAMmemcpy
 00111$:
 ;Players/players.h:70: player1_direction = LEFT;
 	ld	hl, #_player1_direction
@@ -288,9 +293,9 @@ _Player1UpdatePosition::
 ;Players/players.h:77: SMS_loadTiles(spritetiles_lr_bin, PLAYER1_SPRITE_POSITION, 32*6*12);
 	ld	hl, #0x0900
 	push	hl
-	ld	de, #0x0100
-	ld	hl, #_spritetiles_lr_bin
-	call	_SMS_loadTiles
+	ld	de, #_spritetiles_lr_bin
+	ld	h, #0x60
+	call	_SMS_VRAMmemcpy
 00114$:
 ;Players/players.h:79: player1_direction = RIGHT;
 	ld	hl, #_player1_direction
@@ -308,11 +313,12 @@ _Player1UpdateDraw::
 	push	ix
 	ld	ix,#0
 	add	ix,sp
-	push	af
-	push	af
+	ld	hl, #-14
+	add	hl, sp
+	ld	sp, hl
 	ld	-3 (ix), a
 ;Players/players.h:87: unsigned char direction_offset = 0;
-	ld	c, #0x00
+	ld	-14 (ix), #0x00
 ;Players/players.h:89: if(player1_direction == LEFT)
 	ld	a, (_player1_direction+0)
 	sub	a, #0x02
@@ -320,40 +326,40 @@ _Player1UpdateDraw::
 	jr	Z, 00290$
 	xor	a, a
 00290$:
-	ld	b, a
+	ld	c, a
 	or	a, a
 	jr	Z, 00110$
 ;Players/players.h:91: direction_offset = PLAYER1_LR_NUMBER_TILES_FRAMES_BOTH_DIRECTIONS >> 1;
-	ld	c, #0x0c
+	ld	-14 (ix), #0x0c
 	jp	00111$
 00110$:
 ;Players/players.h:93: else if(player1_direction == RIGHT)
 	ld	a, (_player1_direction+0)
-;Players/players.h:95: direction_offset = 0;
-	sub	a,#0x03
+	sub	a, #0x03
 	jr	NZ, 00107$
-	ld	c,a
+;Players/players.h:95: direction_offset = 0;
+	ld	-14 (ix), #0x00
 	jp	00111$
 00107$:
 ;Players/players.h:97: else if(player1_direction == DOWN)
 	ld	a, (_player1_direction+0)
-;Players/players.h:99: direction_offset = 0;
 	dec	a
 	jr	NZ, 00104$
-	ld	c,a
+;Players/players.h:99: direction_offset = 0;
+	ld	-14 (ix), #0x00
 	jp	00111$
 00104$:
 ;Players/players.h:101: else if(player1_direction == UP)
 	ld	a, (_player1_direction+0)
-;Players/players.h:103: direction_offset = 0;
-	or	a,a
+	or	a, a
 	jr	NZ, 00111$
-	ld	c,a
+;Players/players.h:103: direction_offset = 0;
+	ld	-14 (ix), #0x00
 00111$:
 ;Players/players.h:107: if(player1_direction == UP)
 	ld	a, (_player1_direction+0)
 	or	a, a
-	jr	NZ, 00125$
+	jp	NZ, 00125$
 ;Players/players.h:109: for(j=0; j<3; j++)
 	ld	-2 (ix), #0x00
 ;Players/players.h:111: for(i=0; i<2; i++) {
@@ -361,60 +367,101 @@ _Player1UpdateDraw::
 	ld	-1 (ix), #0x00
 00144$:
 ;Players/players.h:112: SMS_addSprite(player1_x+(i<<3), player1_y+(j<<3), PLAYER1_SPRITE_POSITION + direction_offset + player1_current_frame * PLAYER1_UP_NUMBER_TILES_BY_FRAME + PLAYER1_UP_NUMBER_TILES_FRAMES_BOTH_DIRECTIONS *j + i);
-	ld	a, (_player1_current_frame+0)
-	ld	-4 (ix), a
-	add	a, a
-	ld	e, c
-	add	a, e
-	ld	e, a
-	ld	a, -2 (ix)
-	push	de
-	ld	e, a
-	add	a, a
-	add	a, e
-	add	a, a
-	add	a, a
-	pop	de
-	add	a, e
-	ld	e, -1 (ix)
-	add	a, e
-	ld	d, a
-	ld	a, -2 (ix)
-	add	a, a
-	add	a, a
-	add	a, a
-	ld	l, a
-;	spillPairReg hl
-;	spillPairReg hl
-	ld	a, (_player1_y+0)
-	add	a, l
-	ld	l, a
-;	spillPairReg hl
-;	spillPairReg hl
-	ld	a, e
-	add	a, a
-	add	a, a
-	add	a, a
-	ld	e, a
 	ld	a, (_player1_x+0)
-	add	a, e
+	ld	-9 (ix), a
+	ld	-8 (ix), #0x00
+	ld	a, -1 (ix)
+	ld	-13 (ix), a
+	ld	-12 (ix), #0x00
+	ld	a, -13 (ix)
+	ld	-5 (ix), a
+	ld	a, -12 (ix)
+	ld	-4 (ix), a
+	ld	b, #0x03
+00295$:
+	sla	-5 (ix)
+	rl	-4 (ix)
+	djnz	00295$
+	ld	a, -9 (ix)
+	add	a, -5 (ix)
+	ld	-7 (ix), a
+	ld	a, -8 (ix)
+	adc	a, -4 (ix)
+	ld	-6 (ix), a
+	ld	a, -7 (ix)
+	ld	-5 (ix), a
+	ld	-4 (ix), #0x00
+	ld	a, -5 (ix)
+	ld	-10 (ix), a
+	ld	-11 (ix), #0x00
+	ld	a, -14 (ix)
+	ld	-5 (ix), a
+	ld	-4 (ix), #0x00
+	ld	a, -5 (ix)
+	ld	-7 (ix), a
+	ld	a, -4 (ix)
+	inc	a
+	ld	-6 (ix), a
+	ld	a, (_player1_current_frame+0)
+	ld	-5 (ix), a
+	ld	-4 (ix), #0x00
+	sla	-5 (ix)
+	rl	-4 (ix)
+	ld	a, -7 (ix)
+	add	a, -5 (ix)
+	ld	-9 (ix), a
+	ld	a, -6 (ix)
+	adc	a, -4 (ix)
+	ld	-8 (ix), a
+	ld	a, -2 (ix)
+	ld	-7 (ix), a
+	ld	-6 (ix), #0x00
+	ld	c, a
+	ld	b, #0x00
+	ld	l, c
+	ld	h, b
+	add	hl, hl
+	add	hl, bc
+	add	hl, hl
+	add	hl, hl
+	ld	-5 (ix), l
+	ld	-4 (ix), h
+	ld	a, -9 (ix)
+	add	a, -5 (ix)
+	ld	c, a
+	ld	a, -8 (ix)
+	adc	a, -4 (ix)
 	ld	b, a
-	push	bc
-	push	de
-	inc	sp
-	ld	a, b
-	call	_SMS_addSprite
-	pop	bc
+	ld	l, -13 (ix)
+	ld	h, -12 (ix)
+	add	hl, bc
+	ld	a, l
+	ld	c, #0x00
+	or	a, -11 (ix)
+	ld	e, a
+	ld	a, c
+	or	a, -10 (ix)
+	ld	d, a
+	ld	a, (_player1_y+0)
+	ld	b, #0x00
+	ld	l, -7 (ix)
+	ld	h, -6 (ix)
+	add	hl, hl
+	add	hl, hl
+	add	hl, hl
+	ld	c, a
+	add	hl, bc
+	call	_SMS_addSprite_f
 ;Players/players.h:111: for(i=0; i<2; i++) {
 	inc	-1 (ix)
 	ld	a, -1 (ix)
 	sub	a, #0x02
-	jr	C, 00144$
+	jp	C, 00144$
 ;Players/players.h:109: for(j=0; j<3; j++)
 	inc	-2 (ix)
 	ld	a, -2 (ix)
 	sub	a, #0x03
-	jr	C, 00163$
+	jp	C, 00163$
 	jp	00126$
 00125$:
 ;Players/players.h:116: else if(player1_direction == DOWN)
@@ -428,49 +475,83 @@ _Player1UpdateDraw::
 	ld	-1 (ix), #0x00
 00148$:
 ;Players/players.h:121: SMS_addSprite(player1_x+(i<<3), player1_y+(j<<3), PLAYER1_SPRITE_POSITION + direction_offset + player1_current_frame * PLAYER1_DOWN_NUMBER_TILES_BY_FRAME + PLAYER1_DOWN_NUMBER_TILES_FRAMES_BOTH_DIRECTIONS *j + i);
-	ld	a, (_player1_current_frame+0)
-	add	a, a
-	ld	e, c
-	add	a, e
-	ld	e, a
-	ld	a, -2 (ix)
-	push	de
-	ld	e, a
-	add	a, a
-	add	a, e
-	add	a, a
-	add	a, a
-	pop	de
-	add	a, e
-	ld	e, -1 (ix)
-	add	a, e
-	ld	d, a
-	ld	a, -2 (ix)
-	add	a, a
-	add	a, a
-	add	a, a
-	ld	l, a
-;	spillPairReg hl
-;	spillPairReg hl
-	ld	a, (_player1_y+0)
-	add	a, l
-	ld	l, a
-;	spillPairReg hl
-;	spillPairReg hl
-	ld	a, e
-	add	a, a
-	add	a, a
-	add	a, a
-	ld	e, a
 	ld	a, (_player1_x+0)
-	add	a, e
-	ld	b, a
-	push	bc
+	ld	e, a
+	ld	d, #0x00
+	ld	c, -1 (ix)
+	ld	b, #0x00
+	ld	l, c
+	ld	h, b
+	add	hl, hl
+	add	hl, hl
+	add	hl, hl
+	add	hl, de
+;	spillPairReg hl
+;	spillPairReg hl
+	ld	-4 (ix), l
+	ld	-5 (ix), #0x00
+;	spillPairReg hl
+;	spillPairReg hl
+;	spillPairReg hl
+;	spillPairReg hl
+	ld	e, -14 (ix)
+	xor	a, a
+	inc	a
+	ld	d, a
+	ld	a, (_player1_current_frame+0)
+	ld	l, a
+;	spillPairReg hl
+;	spillPairReg hl
+	ld	h, #0x00
+;	spillPairReg hl
+;	spillPairReg hl
+	add	hl, hl
+	add	hl, de
+	push	hl
+	pop	iy
+	ld	e, -2 (ix)
+	ld	d, #0x00
 	push	de
-	inc	sp
-	ld	a, b
-	call	_SMS_addSprite
+	ld	l, e
+	ld	h, d
+	add	hl, hl
+	add	hl, de
+	add	hl, hl
+	add	hl, hl
+	pop	de
+	push	bc
+	ld	c, l
+	ld	b, h
+	add	iy, bc
 	pop	bc
+	push	iy
+	pop	hl
+	add	hl, bc
+	ld	h, #0x00
+;	spillPairReg hl
+;	spillPairReg hl
+	ld	a, -5 (ix)
+	or	a, l
+	ld	c, a
+	ld	a, -4 (ix)
+	or	a, h
+	ld	b, a
+	ld	a, (_player1_y+0)
+	ld	l, a
+;	spillPairReg hl
+;	spillPairReg hl
+	ld	h, #0x00
+;	spillPairReg hl
+;	spillPairReg hl
+	ex	de, hl
+	add	hl, hl
+	add	hl, hl
+	add	hl, hl
+	ex	de, hl
+	add	hl, de
+	ld	e, c
+	ld	d, b
+	call	_SMS_addSprite_f
 ;Players/players.h:120: for(i=0; i<2; i++) {
 	inc	-1 (ix)
 	ld	a, -1 (ix)
@@ -484,73 +565,116 @@ _Player1UpdateDraw::
 	jp	00126$
 00122$:
 ;Players/players.h:125: else if(player1_direction == LEFT || player1_direction == RIGHT)
-	ld	a, b
+	ld	a, c
 	or	a, a
 	jr	NZ, 00175$
 	ld	a, (_player1_direction+0)
 	sub	a, #0x03
-	jr	NZ, 00126$
+	jp	NZ,00126$
 ;Players/players.h:127: for(j=0; j<3; j++)
 00175$:
-	ld	b, #0x00
+	ld	-2 (ix), #0x00
 ;Players/players.h:129: for(i=0; i<2; i++) {
 00173$:
 	ld	-1 (ix), #0x00
 00152$:
 ;Players/players.h:130: SMS_addSprite(player1_x+(i<<3), player1_y+(j<<3), PLAYER1_SPRITE_POSITION + direction_offset + player1_current_frame * PLAYER1_LR_NUMBER_TILES_BY_FRAME + PLAYER1_LR_NUMBER_TILES_FRAMES_BOTH_DIRECTIONS *j + i);
-	ld	a, (_player1_current_frame+0)
-	add	a, a
-	ld	e, c
-	add	a, e
-	ld	d, a
-	ld	a, b
-	ld	e, a
-	add	a, a
-	add	a, e
-	add	a, a
-	add	a, a
-	add	a, a
-	add	a, d
-	ld	e, -1 (ix)
-	add	a, e
-	ld	-2 (ix), a
-	ld	a, b
-	add	a, a
-	add	a, a
-	add	a, a
-	ld	l, a
-;	spillPairReg hl
-;	spillPairReg hl
-	ld	a, (_player1_y+0)
-	add	a, l
-	ld	l, a
-;	spillPairReg hl
-;	spillPairReg hl
-	ld	a, e
-	add	a, a
-	add	a, a
-	add	a, a
-	ld	e, a
 	ld	a, (_player1_x+0)
-	add	a, e
-	ld	e, a
-	push	bc
-	ld	a, -2 (ix)
-	push	af
-	inc	sp
-	ld	a, e
-	call	_SMS_addSprite
-	pop	bc
+	ld	c, a
+	ld	b, #0x00
+	ld	a, -1 (ix)
+	ld	-7 (ix), a
+	ld	-6 (ix), #0x00
+	ld	l, a
+	ld	h, #0x00
+	add	hl, hl
+	add	hl, hl
+	add	hl, hl
+	add	hl, bc
+;	spillPairReg hl
+;	spillPairReg hl
+	ld	b, l
+	ld	c, #0x00
+	ld	e, -14 (ix)
+;	spillPairReg hl
+;	spillPairReg hl
+	xor	a, a
+	inc	a
+	ld	d, a
+	ld	a, (_player1_current_frame+0)
+	ld	h, #0x00
+;	spillPairReg hl
+;	spillPairReg hl
+	ld	l, a
+	add	hl, hl
+	add	hl, de
+	ld	-5 (ix), l
+	ld	-4 (ix), h
+	ld	e, -2 (ix)
+	ld	d, #0x00
+	push	de
+	ld	l, e
+	ld	h, d
+	add	hl, hl
+	add	hl, de
+	add	hl, hl
+	add	hl, hl
+	add	hl, hl
+	pop	de
+	ld	a, l
+	add	a, -5 (ix)
+	ld	l, a
+;	spillPairReg hl
+;	spillPairReg hl
+	ld	a, h
+	adc	a, -4 (ix)
+	ld	h, a
+;	spillPairReg hl
+;	spillPairReg hl
+	ld	a, l
+	add	a, -7 (ix)
+	ld	l, a
+;	spillPairReg hl
+;	spillPairReg hl
+	ld	a, h
+	adc	a, -6 (ix)
+;	spillPairReg hl
+;	spillPairReg hl
+	ld	h, #0x00
+;	spillPairReg hl
+;	spillPairReg hl
+	ld	a, c
+	or	a, l
+	ld	c, a
+	ld	a, b
+	or	a, h
+	ld	b, a
+	ld	a, (_player1_y+0)
+	ld	l, a
+;	spillPairReg hl
+;	spillPairReg hl
+	ld	h, #0x00
+;	spillPairReg hl
+;	spillPairReg hl
+	ex	de, hl
+	add	hl, hl
+	add	hl, hl
+	add	hl, hl
+	ex	de, hl
+	add	hl, de
+	ld	e, c
+	ld	d, b
+	call	_SMS_addSprite_f
 ;Players/players.h:129: for(i=0; i<2; i++) {
 	inc	-1 (ix)
 	ld	a, -1 (ix)
 	sub	a, #0x02
 	jr	C, 00152$
 ;Players/players.h:127: for(j=0; j<3; j++)
-	inc	b
-	ld	a, b
+	inc	-2 (ix)
+	ld	a, -2 (ix)
 	sub	a, #0x03
-	jr	C, 00173$
+	jp	C, 00173$
 00126$:
 ;Players/players.h:135: if((time%8) == 0) {
 	ld	a, -3 (ix)
@@ -618,9 +742,9 @@ _loadGraphics2vram::
 	ld	hl, #_backgroundpalette_bin
 	call	_SMS_loadBGPalette
 ;main.c:13: SMS_loadPSGaidencompressedTiles(backgroundtiles_psgcompr, 0);
-	ld	de, #0x0000
+	ld	de, #0x4000
 	ld	hl, #_backgroundtiles_psgcompr
-	call	_SMS_loadPSGaidencompressedTiles
+	call	_SMS_loadPSGaidencompressedTilesatAddr
 ;main.c:14: SMS_loadTileMap(0,0, backgroundtilemap_bin, backgroundtilemap_bin_size);
 	ld	hl, #0x0600
 	push	hl
@@ -633,9 +757,9 @@ _loadGraphics2vram::
 ;main.c:17: SMS_loadTiles(spritetiles_down_bin, PLAYER1_SPRITE_POSITION, 32*6*6); 
 	ld	hl, #0x0480
 	push	hl
-	ld	de, #0x0100
-	ld	hl, #_spritetiles_down_bin
-	call	_SMS_loadTiles
+	ld	de, #_spritetiles_down_bin
+	ld	hl, #0x6000
+	call	_SMS_VRAMmemcpy
 ;main.c:19: SMS_setSpritePaletteColor(0, RGB(0, 0, 0));
 ;	spillPairReg hl
 ;	spillPairReg hl

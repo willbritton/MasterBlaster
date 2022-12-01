@@ -9,17 +9,16 @@ Symbol Table
     .__.H$L.                                                    =  000000 L
   7 _backgroundpalette_bin                                         000000 GR
   7 _backgroundtilemap_bin                                         00000B GR
-  7 _backgroundtiles_bin                                           00060B GR
-  7 _backgroundtiles_psgcompr                                      000ECB GR
-  7 _enemybomb_psg                                                 0013AC GR
-  7 _explosion_psg                                                 0013C4 GR
-  7 _music_psg                                                     0013DD GR
-  7 _pause_psg                                                     0025F1 GR
-  7 _spritepalette_bin                                             002614 GR
-  7 _spritepalette_lr_bin                                          00261C GR
-  7 _spritetiles_down_bin                                          002624 GR
-  7 _spritetiles_lr_bin                                            002AA4 GR
-  7 _spritetiles_up_bin                                            0033A4 GR
+  7 _backgroundtiles_psgcompr                                      00060B GR
+  7 _enemybomb_psg                                                 000AEC GR
+  7 _explosion_psg                                                 000B04 GR
+  7 _music_psg                                                     000B1D GR
+  7 _pause_psg                                                     001D31 GR
+  7 _spritepalette_bin                                             001D54 GR
+  7 _spritepalette_lr_bin                                          001D5C GR
+  7 _spritetiles_down_bin                                          001D64 GR
+  7 _spritetiles_lr_bin                                            0021E4 GR
+  7 _spritetiles_up_bin                                            002AE4 GR
 
 
 ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180 / ZX-Next / eZ80), page 2.
@@ -34,7 +33,7 @@ Area Table
    4 _HOME                                      size      0   flags    0
    5 _GSINIT                                    size      0   flags    0
    6 _GSFINAL                                   size      0   flags    0
-   7 _BANK2                                     size   3824   flags    0
+   7 _BANK2                                     size   2F64   flags    0
    8 _INITIALIZER                               size      0   flags    0
    9 _CABS                                      size      0   flags    8
 
