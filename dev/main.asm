@@ -45,10 +45,12 @@
 	.globl _SMS_init
 	.globl _volume_atenuation
 	.globl _frame_counter
-	.globl _player1_direction
-	.globl _player1_current_frame
-	.globl _player1_y
-	.globl _player1_x
+	.globl _player_direction_offset
+	.globl _player_direction
+	.globl _player_current_frame
+	.globl _player_y
+	.globl _player_x
+	.globl _sprite_size
 	.globl _gamepause
 	.globl _numinterrupts
 	.globl _SMS_SRAM
@@ -75,13 +77,17 @@ _numinterrupts::
 	.ds 1
 _gamepause::
 	.ds 1
-_player1_x::
+_sprite_size::
+	.ds 2
+_player_x::
 	.ds 1
-_player1_y::
+_player_y::
 	.ds 1
-_player1_current_frame::
+_player_current_frame::
 	.ds 1
-_player1_direction::
+_player_direction::
+	.ds 1
+_player_direction_offset::
 	.ds 1
 _frame_counter::
 	.ds 1
@@ -172,140 +178,175 @@ _checkgamepause::
 	ld	hl, #_music_psg
 ;Core\funcs.h:39: }
 	jp	_PSGPlay
-;Players/players.h:29: void Player1Init()
+;Players/players.h:26: void Player1Init()
 ;	---------------------------------
 ; Function Player1Init
 ; ---------------------------------
 _Player1Init::
-;Players/players.h:31: player1_direction = DOWN;
-	ld	hl, #_player1_direction
-	ld	(hl), #0x01
-;Players/players.h:32: player1_x = 128-8;
-	ld	hl, #_player1_x
+;Players/players.h:28: sprite_size = 32*6*12;
+	ld	hl, #0x0900
+	ld	(_sprite_size), hl
+;Players/players.h:29: player_x = 128-8;
+	ld	hl, #_player_x
 	ld	(hl), #0x78
-;Players/players.h:33: player1_y = 96-12;
-	ld	hl, #_player1_y
+;Players/players.h:30: player_y = 96-12;
+	ld	hl, #_player_y
 	ld	(hl), #0x54
-;Players/players.h:34: player1_current_frame = 0;
-	ld	hl, #_player1_current_frame
+;Players/players.h:31: player_direction = DOWN;
+	ld	hl, #_player_direction
+	ld	(hl), #0x01
+;Players/players.h:32: player_current_frame = 0;
+	ld	hl, #_player_current_frame
 	ld	(hl), #0x00
-;Players/players.h:35: }
+;Players/players.h:33: player_direction_offset = 0;
+	ld	hl, #_player_direction_offset
+	ld	(hl), #0x00
+;Players/players.h:34: }
 	ret
-;Players/players.h:37: void Player1Update(unsigned char time)
+;Players/players.h:36: void Player1Update(unsigned char time)
 ;	---------------------------------
 ; Function Player1Update
 ; ---------------------------------
 _Player1Update::
 	ld	c, a
-;Players/players.h:39: Player1UpdatePosition();
+;Players/players.h:38: Player1UpdatePosition();
 	push	bc
 	call	_Player1UpdatePosition
 	pop	bc
-;Players/players.h:40: Player1UpdateDraw(time);
+;Players/players.h:39: Player1UpdateDraw(time);
 	ld	a, c
-;Players/players.h:41: }
+;Players/players.h:40: }
 	jp	_Player1UpdateDraw
-;Players/players.h:43: void Player1UpdatePosition()
+;Players/players.h:42: void Player1UpdatePosition()
 ;	---------------------------------
 ; Function Player1UpdatePosition
 ; ---------------------------------
 _Player1UpdatePosition::
-;Players/players.h:45: if(SMS_getKeysStatus() & PORT_A_KEY_UP)
+;Players/players.h:44: if(SMS_getKeysStatus() & PORT_A_KEY_UP)
 	call	_SMS_getKeysStatus
 	bit	0, e
-	jr	Z, 00108$
-;Players/players.h:47: if(player1_direction != UP)
-	ld	a, (_player1_direction+0)
+	jr	Z, 00122$
+;Players/players.h:46: if(player_direction != UP)
+	ld	a, (_player_direction+0)
 	or	a, a
 	jr	Z, 00102$
-;Players/players.h:49: SMS_loadTiles(spritetiles_up_bin, PLAYER1_SPRITE_POSITION, 32*6*6);
-	ld	hl, #0x0480
+;Players/players.h:48: SMS_loadTiles(spritetiles_up_bin, PLAYER1_SPRITE_POSITION, sprite_size);
+	ld	hl, (_sprite_size)
 	push	hl
 	ld	de, #_spritetiles_up_bin
 	ld	hl, #0x6000
 	call	_SMS_VRAMmemcpy
-00102$:
-;Players/players.h:51: player1_direction = UP;
-	ld	hl, #_player1_direction
+;Players/players.h:49: player_direction = UP;
+	ld	hl, #_player_direction
 	ld	(hl), #0x00
-;Players/players.h:52: player1_y--;
-	ld	hl, #_player1_y
+;Players/players.h:50: player_current_frame = 0;
+	ld	hl, #_player_current_frame
+	ld	(hl), #0x00
+;Players/players.h:51: player_direction_offset = 0;
+	ld	hl, #_player_direction_offset
+	ld	(hl), #0x00
+00102$:
+;Players/players.h:53: player_y--;
+	ld	hl, #_player_y
 	dec	(hl)
-	jp	00109$
-00108$:
-;Players/players.h:54: else if(SMS_getKeysStatus() & PORT_A_KEY_DOWN)
+	ret
+00122$:
+;Players/players.h:55: else if(SMS_getKeysStatus() & PORT_A_KEY_DOWN)
 	call	_SMS_getKeysStatus
 	bit	1, e
-	jr	Z, 00109$
-;Players/players.h:56: if(player1_direction != DOWN)
-	ld	a, (_player1_direction+0)
+	jr	Z, 00119$
+;Players/players.h:57: if(player_direction != DOWN)
+	ld	a, (_player_direction+0)
 	dec	a
 	jr	Z, 00104$
-;Players/players.h:58: SMS_loadTiles(spritetiles_down_bin, PLAYER1_SPRITE_POSITION, 32*6*6);
-	ld	hl, #0x0480
+;Players/players.h:59: SMS_loadTiles(spritetiles_down_bin, PLAYER1_SPRITE_POSITION, sprite_size);
+	ld	hl, (_sprite_size)
 	push	hl
 	ld	de, #_spritetiles_down_bin
 	ld	hl, #0x6000
 	call	_SMS_VRAMmemcpy
-00104$:
-;Players/players.h:60: player1_direction = DOWN;
-	ld	hl, #_player1_direction
+;Players/players.h:60: player_direction = DOWN;
+	ld	hl, #_player_direction
 	ld	(hl), #0x01
-;Players/players.h:61: player1_y++;
-	ld	hl, #_player1_y
+;Players/players.h:61: player_current_frame = 0;
+	ld	hl, #_player_current_frame
+	ld	(hl), #0x00
+;Players/players.h:62: player_direction_offset = 0;
+	ld	hl, #_player_direction_offset
+	ld	(hl), #0x00
+00104$:
+;Players/players.h:64: player_y++;
+	ld	hl, #_player_y
 	inc	(hl)
-00109$:
-;Players/players.h:64: if(SMS_getKeysStatus() & PORT_A_KEY_LEFT)
-	call	_SMS_getKeysStatus
-	bit	2, e
-	jr	Z, 00119$
-;Players/players.h:66: if(player1_direction != LEFT && player1_direction != RIGHT)
-	ld	a,(_player1_direction+0)
-	cp	a,#0x02
-	jr	Z, 00111$
-	sub	a, #0x03
-	jr	Z, 00111$
-;Players/players.h:68: SMS_loadTiles(spritetiles_lr_bin, PLAYER1_SPRITE_POSITION, 32*6*12);
-	ld	hl, #0x0900
-	push	hl
-	ld	de, #_spritetiles_lr_bin
-	ld	h, #0x60
-	call	_SMS_VRAMmemcpy
-00111$:
-;Players/players.h:70: player1_direction = LEFT;
-	ld	hl, #_player1_direction
-	ld	(hl), #0x02
-;Players/players.h:71: player1_x--;
-	ld	hl, #_player1_x
-	dec	(hl)
 	ret
 00119$:
-;Players/players.h:73: else if(SMS_getKeysStatus() & PORT_A_KEY_RIGHT)
+;Players/players.h:66: else if(SMS_getKeysStatus() & PORT_A_KEY_LEFT)
+	call	_SMS_getKeysStatus
+	bit	2, e
+	jr	Z, 00116$
+;Players/players.h:68: if(player_direction != LEFT)
+;Players/players.h:70: if(player_direction != RIGHT)
+	ld	a,(_player_direction+0)
+	cp	a,#0x02
+	jr	Z, 00108$
+	sub	a, #0x03
+	jr	Z, 00106$
+;Players/players.h:72: SMS_loadTiles(spritetiles_lr_bin, PLAYER1_SPRITE_POSITION, sprite_size);
+	ld	hl, (_sprite_size)
+	push	hl
+	ld	de, #_spritetiles_lr_bin
+	ld	hl, #0x6000
+	call	_SMS_VRAMmemcpy
+00106$:
+;Players/players.h:74: player_direction = LEFT;
+	ld	hl, #_player_direction
+	ld	(hl), #0x02
+;Players/players.h:75: player_current_frame = 0;
+	ld	hl, #_player_current_frame
+	ld	(hl), #0x00
+;Players/players.h:76: player_direction_offset = PLAYER_LR_NUMBER_TILES_FRAMES_BOTH_DIRECTIONS >> 1;
+	ld	hl, #_player_direction_offset
+	ld	(hl), #0x0c
+00108$:
+;Players/players.h:78: player_x--;
+	ld	hl, #_player_x
+	dec	(hl)
+	ret
+00116$:
+;Players/players.h:80: else if(SMS_getKeysStatus() & PORT_A_KEY_RIGHT)
 	call	_SMS_getKeysStatus
 	bit	3, e
 	ret	Z
-;Players/players.h:75: if(player1_direction != LEFT && player1_direction != RIGHT)
-	ld	a,(_player1_direction+0)
-	cp	a,#0x02
-	jr	Z, 00114$
-	sub	a, #0x03
-	jr	Z, 00114$
-;Players/players.h:77: SMS_loadTiles(spritetiles_lr_bin, PLAYER1_SPRITE_POSITION, 32*6*12);
-	ld	hl, #0x0900
+;Players/players.h:82: if(player_direction != RIGHT)
+;Players/players.h:84: if(player_direction != LEFT)
+	ld	a,(_player_direction+0)
+	cp	a,#0x03
+	jr	Z, 00112$
+	sub	a, #0x02
+	jr	Z, 00110$
+;Players/players.h:86: SMS_loadTiles(spritetiles_lr_bin, PLAYER1_SPRITE_POSITION, sprite_size);
+	ld	hl, (_sprite_size)
 	push	hl
 	ld	de, #_spritetiles_lr_bin
-	ld	h, #0x60
+	ld	hl, #0x6000
 	call	_SMS_VRAMmemcpy
-00114$:
-;Players/players.h:79: player1_direction = RIGHT;
-	ld	hl, #_player1_direction
+00110$:
+;Players/players.h:88: player_direction = RIGHT;
+	ld	hl, #_player_direction
 	ld	(hl), #0x03
-;Players/players.h:80: player1_x++;
-	ld	hl, #_player1_x
+;Players/players.h:89: player_current_frame = 0;
+	ld	hl, #_player_current_frame
+	ld	(hl), #0x00
+;Players/players.h:90: player_direction_offset = 0;
+	ld	hl, #_player_direction_offset
+	ld	(hl), #0x00
+00112$:
+;Players/players.h:92: player_x++;
+	ld	hl, #_player_x
 	inc	(hl)
-;Players/players.h:82: }
+;Players/players.h:94: }
 	ret
-;Players/players.h:84: void Player1UpdateDraw(unsigned char time)
+;Players/players.h:96: void Player1UpdateDraw(unsigned char time)
 ;	---------------------------------
 ; Function Player1UpdateDraw
 ; ---------------------------------
@@ -313,169 +354,81 @@ _Player1UpdateDraw::
 	push	ix
 	ld	ix,#0
 	add	ix,sp
-	ld	hl, #-14
+	ld	hl, #-6
 	add	hl, sp
 	ld	sp, hl
-	ld	-3 (ix), a
-;Players/players.h:87: unsigned char direction_offset = 0;
-	ld	-14 (ix), #0x00
-;Players/players.h:89: if(player1_direction == LEFT)
-	ld	a, (_player1_direction+0)
-	sub	a, #0x02
-	ld	a, #0x01
-	jr	Z, 00290$
-	xor	a, a
-00290$:
-	ld	c, a
+;Players/players.h:100: if((time%8) == 0) {
+	and	a, #0x07
+	jr	NZ, 00121$
+;Players/players.h:101: player_current_frame++;
+	ld	iy, #_player_current_frame
+	inc	0 (iy)
+;Players/players.h:103: if(player_direction == UP)
+	ld	a, (_player_direction+0)
 	or	a, a
-	jr	Z, 00110$
-;Players/players.h:91: direction_offset = PLAYER1_LR_NUMBER_TILES_FRAMES_BOTH_DIRECTIONS >> 1;
-	ld	-14 (ix), #0x0c
-	jp	00111$
-00110$:
-;Players/players.h:93: else if(player1_direction == RIGHT)
-	ld	a, (_player1_direction+0)
-	sub	a, #0x03
-	jr	NZ, 00107$
-;Players/players.h:95: direction_offset = 0;
-	ld	-14 (ix), #0x00
-	jp	00111$
-00107$:
-;Players/players.h:97: else if(player1_direction == DOWN)
-	ld	a, (_player1_direction+0)
+	jr	NZ, 00118$
+;Players/players.h:105: if(player_current_frame == PLAYER_UD_NUMBER_FRAMES) {
+	ld	a, (_player_current_frame+0)
+	sub	a, #0x06
+	jr	NZ, 00121$
+;Players/players.h:106: player_current_frame = 0;
+	ld	0 (iy), #0x00
+	jp	00121$
+00118$:
+;Players/players.h:109: else if(player_direction == DOWN)
+	ld	a, (_player_direction+0)
 	dec	a
-	jr	NZ, 00104$
-;Players/players.h:99: direction_offset = 0;
-	ld	-14 (ix), #0x00
-	jp	00111$
-00104$:
-;Players/players.h:101: else if(player1_direction == UP)
-	ld	a, (_player1_direction+0)
-	or	a, a
-	jr	NZ, 00111$
-;Players/players.h:103: direction_offset = 0;
-	ld	-14 (ix), #0x00
-00111$:
-;Players/players.h:107: if(player1_direction == UP)
-	ld	a, (_player1_direction+0)
-	or	a, a
-	jp	NZ, 00125$
-;Players/players.h:109: for(j=0; j<3; j++)
-	ld	-2 (ix), #0x00
-;Players/players.h:111: for(i=0; i<2; i++) {
-00163$:
-	ld	-1 (ix), #0x00
-00144$:
-;Players/players.h:112: SMS_addSprite(player1_x+(i<<3), player1_y+(j<<3), PLAYER1_SPRITE_POSITION + direction_offset + player1_current_frame * PLAYER1_UP_NUMBER_TILES_BY_FRAME + PLAYER1_UP_NUMBER_TILES_FRAMES_BOTH_DIRECTIONS *j + i);
-	ld	a, (_player1_x+0)
-	ld	-9 (ix), a
-	ld	-8 (ix), #0x00
-	ld	a, -1 (ix)
-	ld	-13 (ix), a
-	ld	-12 (ix), #0x00
-	ld	a, -13 (ix)
-	ld	-5 (ix), a
-	ld	a, -12 (ix)
-	ld	-4 (ix), a
-	ld	b, #0x03
-00295$:
-	sla	-5 (ix)
-	rl	-4 (ix)
-	djnz	00295$
-	ld	a, -9 (ix)
-	add	a, -5 (ix)
-	ld	-7 (ix), a
-	ld	a, -8 (ix)
-	adc	a, -4 (ix)
-	ld	-6 (ix), a
-	ld	a, -7 (ix)
-	ld	-5 (ix), a
-	ld	-4 (ix), #0x00
-	ld	a, -5 (ix)
-	ld	-10 (ix), a
-	ld	-11 (ix), #0x00
-	ld	a, -14 (ix)
-	ld	-5 (ix), a
-	ld	-4 (ix), #0x00
-	ld	a, -5 (ix)
-	ld	-7 (ix), a
-	ld	a, -4 (ix)
-	inc	a
-	ld	-6 (ix), a
-	ld	a, (_player1_current_frame+0)
-	ld	-5 (ix), a
-	ld	-4 (ix), #0x00
-	sla	-5 (ix)
-	rl	-4 (ix)
-	ld	a, -7 (ix)
-	add	a, -5 (ix)
-	ld	-9 (ix), a
-	ld	a, -6 (ix)
-	adc	a, -4 (ix)
-	ld	-8 (ix), a
-	ld	a, -2 (ix)
-	ld	-7 (ix), a
-	ld	-6 (ix), #0x00
-	ld	c, a
-	ld	b, #0x00
-	ld	l, c
-	ld	h, b
-	add	hl, hl
-	add	hl, bc
-	add	hl, hl
-	add	hl, hl
-	ld	-5 (ix), l
-	ld	-4 (ix), h
-	ld	a, -9 (ix)
-	add	a, -5 (ix)
-	ld	c, a
-	ld	a, -8 (ix)
-	adc	a, -4 (ix)
-	ld	b, a
-	ld	l, -13 (ix)
-	ld	h, -12 (ix)
-	add	hl, bc
-	ld	a, l
-	ld	c, #0x00
-	or	a, -11 (ix)
-	ld	e, a
-	ld	a, c
-	or	a, -10 (ix)
-	ld	d, a
-	ld	a, (_player1_y+0)
-	ld	b, #0x00
-	ld	l, -7 (ix)
-	ld	h, -6 (ix)
-	add	hl, hl
-	add	hl, hl
-	add	hl, hl
-	ld	c, a
-	add	hl, bc
-	call	_SMS_addSprite_f
-;Players/players.h:111: for(i=0; i<2; i++) {
-	inc	-1 (ix)
-	ld	a, -1 (ix)
+	jr	NZ, 00115$
+;Players/players.h:111: if(player_current_frame == PLAYER_UD_NUMBER_FRAMES) {
+	ld	a, (_player_current_frame+0)
+	sub	a, #0x06
+	jr	NZ, 00121$
+;Players/players.h:112: player_current_frame = 0;
+	ld	hl, #_player_current_frame
+	ld	(hl), #0x00
+	jp	00121$
+00115$:
+;Players/players.h:115: else if(player_direction == LEFT)
+	ld	a, (_player_direction+0)
 	sub	a, #0x02
-	jp	C, 00144$
-;Players/players.h:109: for(j=0; j<3; j++)
-	inc	-2 (ix)
-	ld	a, -2 (ix)
+	jr	NZ, 00112$
+;Players/players.h:117: if(player_current_frame == PLAYER_LR_NUMBER_FRAMES) {
+	ld	a, (_player_current_frame+0)
+	sub	a, #0x06
+	jr	NZ, 00121$
+;Players/players.h:118: player_current_frame = 0;
+	ld	hl, #_player_current_frame
+	ld	(hl), #0x00
+	jp	00121$
+00112$:
+;Players/players.h:121: else if(player_direction == RIGHT)
+	ld	a, (_player_direction+0)
 	sub	a, #0x03
-	jp	C, 00163$
-	jp	00126$
-00125$:
-;Players/players.h:116: else if(player1_direction == DOWN)
-	ld	a, (_player1_direction+0)
+	jr	NZ, 00121$
+;Players/players.h:123: if(player_current_frame == PLAYER_LR_NUMBER_FRAMES) {
+	ld	a, (_player_current_frame+0)
+	sub	a, #0x06
+	jr	NZ, 00121$
+;Players/players.h:124: player_current_frame = 0;
+	ld	hl, #_player_current_frame
+	ld	(hl), #0x00
+00121$:
+;Players/players.h:129: if(player_direction == UP || player_direction == DOWN)
+	ld	a, (_player_direction+0)
+	or	a, a
+	jr	Z, 00155$
+	ld	a, (_player_direction+0)
 	dec	a
-	jr	NZ, 00122$
-;Players/players.h:118: for(j=0; j<3; j++)
+	jp	NZ,00130$
+;Players/players.h:131: for(j=0; j<3; j++)
+00155$:
 	ld	-2 (ix), #0x00
-;Players/players.h:120: for(i=0; i<2; i++) {
-00168$:
+;Players/players.h:133: for(i=0; i<2; i++) {
+00153$:
 	ld	-1 (ix), #0x00
-00148$:
-;Players/players.h:121: SMS_addSprite(player1_x+(i<<3), player1_y+(j<<3), PLAYER1_SPRITE_POSITION + direction_offset + player1_current_frame * PLAYER1_DOWN_NUMBER_TILES_BY_FRAME + PLAYER1_DOWN_NUMBER_TILES_FRAMES_BOTH_DIRECTIONS *j + i);
-	ld	a, (_player1_x+0)
+00133$:
+;Players/players.h:134: SMS_addSprite(player_x+(i<<3), player_y+(j<<3), PLAYER1_SPRITE_POSITION + player_direction_offset + player_current_frame * PLAYER_UD_NUMBER_TILES_BY_FRAME + PLAYER_UD_NUMBER_TILES_FRAMES_BOTH_DIRECTIONS *j + i);
+	ld	a, (_player_x+0)
 	ld	e, a
 	ld	d, #0x00
 	ld	c, -1 (ix)
@@ -488,17 +441,18 @@ _Player1UpdateDraw::
 	add	hl, de
 ;	spillPairReg hl
 ;	spillPairReg hl
-	ld	-4 (ix), l
-	ld	-5 (ix), #0x00
+	ld	-3 (ix), l
+	ld	-4 (ix), #0x00
+	ld	a, (_player_direction_offset+0)
 ;	spillPairReg hl
 ;	spillPairReg hl
 ;	spillPairReg hl
 ;	spillPairReg hl
-	ld	e, -14 (ix)
+	ld	e, a
 	xor	a, a
 	inc	a
 	ld	d, a
-	ld	a, (_player1_current_frame+0)
+	ld	a, (_player_current_frame+0)
 	ld	l, a
 ;	spillPairReg hl
 ;	spillPairReg hl
@@ -530,13 +484,13 @@ _Player1UpdateDraw::
 	ld	h, #0x00
 ;	spillPairReg hl
 ;	spillPairReg hl
-	ld	a, -5 (ix)
+	ld	a, -4 (ix)
 	or	a, l
 	ld	c, a
-	ld	a, -4 (ix)
+	ld	a, -3 (ix)
 	or	a, h
 	ld	b, a
-	ld	a, (_player1_y+0)
+	ld	a, (_player_y+0)
 	ld	l, a
 ;	spillPairReg hl
 ;	spillPairReg hl
@@ -552,41 +506,40 @@ _Player1UpdateDraw::
 	ld	e, c
 	ld	d, b
 	call	_SMS_addSprite_f
-;Players/players.h:120: for(i=0; i<2; i++) {
+;Players/players.h:133: for(i=0; i<2; i++) {
 	inc	-1 (ix)
 	ld	a, -1 (ix)
 	sub	a, #0x02
-	jr	C, 00148$
-;Players/players.h:118: for(j=0; j<3; j++)
+	jr	C, 00133$
+;Players/players.h:131: for(j=0; j<3; j++)
 	inc	-2 (ix)
 	ld	a, -2 (ix)
 	sub	a, #0x03
-	jr	C, 00168$
-	jp	00126$
-00122$:
-;Players/players.h:125: else if(player1_direction == LEFT || player1_direction == RIGHT)
-	ld	a, c
-	or	a, a
-	jr	NZ, 00175$
-	ld	a, (_player1_direction+0)
+	jr	C, 00153$
+	jp	00141$
+00130$:
+;Players/players.h:138: else if(player_direction == LEFT || player_direction == RIGHT)
+	ld	a,(_player_direction+0)
+	cp	a,#0x02
+	jr	Z, 00160$
 	sub	a, #0x03
-	jp	NZ,00126$
-;Players/players.h:127: for(j=0; j<3; j++)
-00175$:
+	jp	NZ,00141$
+;Players/players.h:140: for(j=0; j<3; j++)
+00160$:
 	ld	-2 (ix), #0x00
-;Players/players.h:129: for(i=0; i<2; i++) {
-00173$:
+;Players/players.h:142: for(i=0; i<2; i++) {
+00158$:
 	ld	-1 (ix), #0x00
-00152$:
-;Players/players.h:130: SMS_addSprite(player1_x+(i<<3), player1_y+(j<<3), PLAYER1_SPRITE_POSITION + direction_offset + player1_current_frame * PLAYER1_LR_NUMBER_TILES_BY_FRAME + PLAYER1_LR_NUMBER_TILES_FRAMES_BOTH_DIRECTIONS *j + i);
-	ld	a, (_player1_x+0)
+00137$:
+;Players/players.h:143: SMS_addSprite(player_x+(i<<3), player_y+(j<<3), PLAYER1_SPRITE_POSITION + player_direction_offset + player_current_frame * PLAYER_LR_NUMBER_TILES_BY_FRAME + PLAYER_LR_NUMBER_TILES_FRAMES_BOTH_DIRECTIONS *j + i);
+	ld	a, (_player_x+0)
 	ld	c, a
 	ld	b, #0x00
 	ld	a, -1 (ix)
-	ld	-7 (ix), a
-	ld	-6 (ix), #0x00
-	ld	l, a
-	ld	h, #0x00
+	ld	-6 (ix), a
+	ld	-5 (ix), #0x00
+	pop	hl
+	push	hl
 	add	hl, hl
 	add	hl, hl
 	add	hl, hl
@@ -595,21 +548,19 @@ _Player1UpdateDraw::
 ;	spillPairReg hl
 	ld	b, l
 	ld	c, #0x00
-	ld	e, -14 (ix)
-;	spillPairReg hl
-;	spillPairReg hl
-	xor	a, a
-	inc	a
-	ld	d, a
-	ld	a, (_player1_current_frame+0)
+	ld	a, (_player_direction_offset+0)
+	ld	d, #0x00
+	ld	e, a
+	inc	d
+	ld	a, (_player_current_frame+0)
 	ld	h, #0x00
 ;	spillPairReg hl
 ;	spillPairReg hl
 	ld	l, a
 	add	hl, hl
 	add	hl, de
-	ld	-5 (ix), l
-	ld	-4 (ix), h
+	ld	-4 (ix), l
+	ld	-3 (ix), h
 	ld	e, -2 (ix)
 	ld	d, #0x00
 	push	de
@@ -622,22 +573,22 @@ _Player1UpdateDraw::
 	add	hl, hl
 	pop	de
 	ld	a, l
-	add	a, -5 (ix)
+	add	a, -4 (ix)
 	ld	l, a
 ;	spillPairReg hl
 ;	spillPairReg hl
 	ld	a, h
-	adc	a, -4 (ix)
+	adc	a, -3 (ix)
 	ld	h, a
 ;	spillPairReg hl
 ;	spillPairReg hl
 	ld	a, l
-	add	a, -7 (ix)
+	add	a, -6 (ix)
 	ld	l, a
 ;	spillPairReg hl
 ;	spillPairReg hl
 	ld	a, h
-	adc	a, -6 (ix)
+	adc	a, -5 (ix)
 ;	spillPairReg hl
 ;	spillPairReg hl
 	ld	h, #0x00
@@ -649,7 +600,7 @@ _Player1UpdateDraw::
 	ld	a, b
 	or	a, h
 	ld	b, a
-	ld	a, (_player1_y+0)
+	ld	a, (_player_y+0)
 	ld	l, a
 ;	spillPairReg hl
 ;	spillPairReg hl
@@ -665,65 +616,18 @@ _Player1UpdateDraw::
 	ld	e, c
 	ld	d, b
 	call	_SMS_addSprite_f
-;Players/players.h:129: for(i=0; i<2; i++) {
+;Players/players.h:142: for(i=0; i<2; i++) {
 	inc	-1 (ix)
 	ld	a, -1 (ix)
 	sub	a, #0x02
-	jr	C, 00152$
-;Players/players.h:127: for(j=0; j<3; j++)
+	jr	C, 00137$
+;Players/players.h:140: for(j=0; j<3; j++)
 	inc	-2 (ix)
 	ld	a, -2 (ix)
 	sub	a, #0x03
-	jp	C, 00173$
-00126$:
-;Players/players.h:135: if((time%8) == 0) {
-	ld	a, -3 (ix)
-	and	a, #0x07
-	jr	NZ, 00156$
-;Players/players.h:136: player1_current_frame++;
-	ld	iy, #_player1_current_frame
-	inc	0 (iy)
-;Players/players.h:138: if(player1_direction == UP)
-	ld	a, (_player1_direction+0)
-	or	a, a
-	jr	NZ, 00140$
-;Players/players.h:140: if(player1_current_frame == PLAYER1_UP_NUMBER_FRAMES) {
-	ld	a, (_player1_current_frame+0)
-	sub	a, #0x06
-	jr	NZ, 00156$
-;Players/players.h:141: player1_current_frame = 0;
-	ld	0 (iy), #0x00
-	jp	00156$
-00140$:
-;Players/players.h:144: else if(player1_direction == DOWN)
-	ld	a, (_player1_direction+0)
-	dec	a
-	jr	NZ, 00137$
-;Players/players.h:146: if(player1_current_frame == PLAYER1_DOWN_NUMBER_FRAMES) {
-	ld	a, (_player1_current_frame+0)
-	sub	a, #0x06
-	jr	NZ, 00156$
-;Players/players.h:147: player1_current_frame = 0;
-	ld	hl, #_player1_current_frame
-	ld	(hl), #0x00
-	jp	00156$
-00137$:
-;Players/players.h:150: else if(player1_direction == LEFT || player1_direction == RIGHT)
-	ld	a,(_player1_direction+0)
-	cp	a,#0x02
-	jr	Z, 00133$
-	sub	a, #0x03
-	jr	NZ, 00156$
-00133$:
-;Players/players.h:152: if(player1_current_frame == PLAYER1_LR_NUMBER_FRAMES) {
-	ld	a, (_player1_current_frame+0)
-	sub	a, #0x06
-	jr	NZ, 00156$
-;Players/players.h:153: player1_current_frame = 0;
-	ld	hl, #_player1_current_frame
-	ld	(hl), #0x00
-00156$:
-;Players/players.h:157: }
+	jp	C, 00158$
+00141$:
+;Players/players.h:147: }
 	ld	sp, ix
 	pop	ix
 	ret
