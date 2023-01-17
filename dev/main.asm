@@ -15,6 +15,23 @@
 	.globl ___SMS__SEGA_signature
 	.globl _main
 	.globl _loadGraphics2vram
+	.globl _UpdateAnimation
+	.globl _InitAnimation
+	.globl _CreateAnimation
+	.globl _SMS_VRAMmemsetW
+	.globl _SMS_VRAMmemcpy
+	.globl _SMS_loadSpritePalette
+	.globl _SMS_loadBGPalette
+	.globl _SMS_setSpritePaletteColor
+	.globl _SMS_setBGPaletteColor
+	.globl _SMS_copySpritestoSAT
+	.globl _SMS_finalizeSprites
+	.globl _SMS_initSprites
+	.globl _SMS_loadPSGaidencompressedTilesatAddr
+	.globl _SMS_crt0_RST18
+	.globl _SMS_crt0_RST08
+	.globl _SMS_waitForVBlank
+	.globl _SMS_VDPturnOnFeature
 	.globl _Player1Init
 	.globl _checkgamepause
 	.globl _InitConsole
@@ -24,27 +41,15 @@
 	.globl _PSGSFXGetStatus
 	.globl _PSGPlayNoRepeat
 	.globl _PSGPlay
-	.globl _SMS_VRAMmemsetW
-	.globl _SMS_VRAMmemcpy
-	.globl _SMS_setLineCounter
-	.globl _SMS_setLineInterruptHandler
-	.globl _SMS_resetPauseRequest
-	.globl _SMS_queryPauseRequested
-	.globl _SMS_getKeysStatus
-	.globl _SMS_loadSpritePalette
-	.globl _SMS_loadBGPalette
-	.globl _SMS_setSpritePaletteColor
-	.globl _SMS_setBGPaletteColor
-	.globl _SMS_copySpritestoSAT
-	.globl _SMS_finalizeSprites
-	.globl _SMS_addSprite_f
-	.globl _SMS_initSprites
-	.globl _SMS_loadPSGaidencompressedTilesatAddr
-	.globl _SMS_waitForVBlank
-	.globl _SMS_VDPturnOnFeature
-	.globl _SMS_init
+	.globl _MAX_FRAMES
+	.globl _anim
 	.globl _volume_atenuation
 	.globl _frame_counter
+	.globl _SMS_SRAM
+	.globl _SRAM_bank_to_be_mapped_on_slot2
+	.globl _ROM_bank_to_be_mapped_on_slot0
+	.globl _ROM_bank_to_be_mapped_on_slot1
+	.globl _ROM_bank_to_be_mapped_on_slot2
 	.globl _player_direction_offset
 	.globl _player_direction
 	.globl _player_current_frame
@@ -53,11 +58,6 @@
 	.globl _sprite_size
 	.globl _gamepause
 	.globl _numinterrupts
-	.globl _SMS_SRAM
-	.globl _SRAM_bank_to_be_mapped_on_slot2
-	.globl _ROM_bank_to_be_mapped_on_slot0
-	.globl _ROM_bank_to_be_mapped_on_slot1
-	.globl _ROM_bank_to_be_mapped_on_slot2
 	.globl _Player1Update
 	.globl _Player1UpdatePosition
 	.globl _Player1UpdateDraw
@@ -68,11 +68,6 @@
 ; ram data
 ;--------------------------------------------------------
 	.area _DATA
-_ROM_bank_to_be_mapped_on_slot2	=	0xffff
-_ROM_bank_to_be_mapped_on_slot1	=	0xfffe
-_ROM_bank_to_be_mapped_on_slot0	=	0xfffd
-_SRAM_bank_to_be_mapped_on_slot2	=	0xfffc
-_SMS_SRAM	=	0x8000
 _numinterrupts::
 	.ds 1
 _gamepause::
@@ -89,14 +84,23 @@ _player_direction::
 	.ds 1
 _player_direction_offset::
 	.ds 1
+_ROM_bank_to_be_mapped_on_slot2	=	0xffff
+_ROM_bank_to_be_mapped_on_slot1	=	0xfffe
+_ROM_bank_to_be_mapped_on_slot0	=	0xfffd
+_SRAM_bank_to_be_mapped_on_slot2	=	0xfffc
+_SMS_SRAM	=	0x8000
 _frame_counter::
 	.ds 1
 _volume_atenuation::
 	.ds 1
+_anim::
+	.ds 2
 ;--------------------------------------------------------
 ; ram data
 ;--------------------------------------------------------
 	.area _INITIALIZED
+_MAX_FRAMES::
+	.ds 1
 ;--------------------------------------------------------
 ; absolute external ram data
 ;--------------------------------------------------------
@@ -631,129 +635,312 @@ _Player1UpdateDraw::
 	ld	sp, ix
 	pop	ix
 	ret
-;main.c:7: void loadGraphics2vram(void)
+;Tiles/animation.h:16: Animation* CreateAnimation()
+;	---------------------------------
+; Function CreateAnimation
+; ---------------------------------
+_CreateAnimation::
+	ld	hl, #-37
+	add	hl, sp
+	ld	sp, hl
+;Tiles/animation.h:19: return &anim;
+	ld	hl, #0
+	add	hl, sp
+	ex	de, hl
+;Tiles/animation.h:20: }
+	ld	hl, #37
+	add	hl, sp
+	ld	sp, hl
+	ret
+;Tiles/animation.h:22: void InitAnimation(Animation* anim,
+;	---------------------------------
+; Function InitAnimation
+; ---------------------------------
+_InitAnimation::
+;Tiles/animation.h:56: }
+	pop	hl
+	pop	af
+	pop	af
+	inc	sp
+	jp	(hl)
+;Tiles/animation.h:58: void UpdateAnimation(Animation* animation, unsigned char time)
+;	---------------------------------
+; Function UpdateAnimation
+; ---------------------------------
+_UpdateAnimation::
+	push	ix
+	ld	ix,#0
+	add	ix,sp
+	push	af
+	ld	c, l
+	ld	b, h
+;Tiles/animation.h:60: if((time % animation->mAnimationSpeed) == 0)
+	push	bc
+	pop	iy
+	ld	l, 34 (iy)
+;	spillPairReg hl
+	push	bc
+	ld	a, 4 (ix)
+	call	__moduchar
+	pop	bc
+	ld	a, e
+	or	a, a
+	jr	NZ, 00108$
+;Tiles/animation.h:62: animation->mCurrentFrame++;
+	ld	hl, #0x0023
+	add	hl, bc
+	ex	de, hl
+	ld	a, (de)
+	inc	a
+	ld	-1 (ix), a
+	ld	(de), a
+;Tiles/animation.h:64: if(animation->mCurrentFrame > animation->mNumFrames)
+	push	bc
+	pop	iy
+;	spillPairReg hl
+	ld	a, 36 (iy)
+	sub	a, -1 (ix)
+	jr	NC, 00103$
+;Tiles/animation.h:66: animation->mCurrentFrame = 0;
+	xor	a, a
+	ld	(de), a
+;Tiles/animation.h:69: SMS_setTileatXY(animation->mMapPosX, animation->mMapPosX, animation->mFrames[animation->mCurrentFrame]);
+00103$:
+	ld	l, c
+;	spillPairReg hl
+;	spillPairReg hl
+	ld	h, b
+;	spillPairReg hl
+;	spillPairReg hl
+	push	bc
+	ld	bc, #0x0020
+	add	hl, bc
+	pop	bc
+	ld	a, (hl)
+	ld	l, a
+;	spillPairReg hl
+;	spillPairReg hl
+	ld	h, #0x00
+;	spillPairReg hl
+;	spillPairReg hl
+	add	hl, hl
+	add	hl, hl
+	add	hl, hl
+	add	hl, hl
+	add	hl, hl
+	ex	(sp), hl
+	ld	h, #0x00
+;	spillPairReg hl
+;	spillPairReg hl
+	add	a, -2 (ix)
+	ld	l, a
+;	spillPairReg hl
+;	spillPairReg hl
+	ld	a, h
+	adc	a, -1 (ix)
+	ld	h, a
+	add	hl, hl
+	ld	a, h
+	or	a, #0x78
+	ld	h, a
+;	spillPairReg hl
+;	spillPairReg hl
+	push	bc
+	rst	#0x08
+	pop	bc
+	ld	a, (de)
+	ld	l, a
+	ld	h, #0x00
+	add	hl, bc
+	ld	l, (hl)
+;	spillPairReg hl
+	ld	h, #0x00
+;	spillPairReg hl
+;	spillPairReg hl
+	rst	#0x18
+00108$:
+;Tiles/animation.h:71: }
+	ld	sp, ix
+	pop	ix
+	pop	hl
+	inc	sp
+	jp	(hl)
+;main.c:10: void loadGraphics2vram(void)
 ;	---------------------------------
 ; Function loadGraphics2vram
 ; ---------------------------------
 _loadGraphics2vram::
-;main.c:10: SMS_VRAMmemsetW(0, 0x0000, 0x4000);
+	push	af
+	push	af
+;main.c:13: SMS_VRAMmemsetW(0, 0x0000, 0x4000);
 	ld	hl, #0x4000
 	push	hl
 	ld	de, #0x0000
 	ld	h, l
 	call	_SMS_VRAMmemsetW
-;main.c:12: SMS_loadBGPalette(backgroundpalette_bin);
+;main.c:16: SMS_loadBGPalette(backgroundpalette_bin);
 	ld	hl, #_backgroundpalette_bin
 	call	_SMS_loadBGPalette
-;main.c:13: SMS_loadPSGaidencompressedTiles(backgroundtiles_psgcompr, 0);
+;main.c:17: SMS_loadPSGaidencompressedTiles(backgroundtiles_psgcompr, 0);
 	ld	de, #0x4000
 	ld	hl, #_backgroundtiles_psgcompr
 	call	_SMS_loadPSGaidencompressedTilesatAddr
-;main.c:14: SMS_loadTileMap(0,0, backgroundtilemap_bin, backgroundtilemap_bin_size);
+;main.c:18: SMS_loadTileMap(0,0, backgroundtilemap_bin, backgroundtilemap_bin_size);
 	ld	hl, #0x0600
 	push	hl
 	ld	de, #_backgroundtilemap_bin
 	ld	h, #0x78
 	call	_SMS_VRAMmemcpy
-;main.c:16: SMS_loadSpritePalette(spritepalette_bin);
+;main.c:19: SMS_setBGPaletteColor(0, RGB(0, 2, 3));
+	ld	l, #0x38
+;	spillPairReg hl
+;	spillPairReg hl
+	xor	a, a
+	call	_SMS_setBGPaletteColor
+;main.c:22: SMS_loadSpritePalette(spritepalette_bin);
 	ld	hl, #_spritepalette_bin
 	call	_SMS_loadSpritePalette
-;main.c:17: SMS_loadTiles(spritetiles_down_bin, PLAYER1_SPRITE_POSITION, 32*6*6); 
+;main.c:23: SMS_loadTiles(spritetiles_down_bin, PLAYER1_SPRITE_POSITION, 32*6*6);
 	ld	hl, #0x0480
 	push	hl
 	ld	de, #_spritetiles_down_bin
 	ld	hl, #0x6000
 	call	_SMS_VRAMmemcpy
-;main.c:19: SMS_setSpritePaletteColor(0, RGB(0, 0, 0));
+;main.c:24: SMS_setSpritePaletteColor(0, RGB(0, 0, 0));
 ;	spillPairReg hl
 ;	spillPairReg hl
 	xor	a, a
 	ld	l, a
 	call	_SMS_setSpritePaletteColor
-;main.c:20: SMS_setBGPaletteColor(0, RGB(0, 2, 3));
-	ld	l, #0x38
+;main.c:27: unsigned char frames[4] = {18, 17, 16, 15};
+	ld	hl, #0
+	add	hl, sp
+	ex	de, hl
+	ld	a, #0x12
+	ld	(de), a
+	ld	l, e
 ;	spillPairReg hl
 ;	spillPairReg hl
-	xor	a, a
-;main.c:21: }
-	jp	_SMS_setBGPaletteColor
-;main.c:23: void main (void)
+	ld	h, d
+;	spillPairReg hl
+;	spillPairReg hl
+	inc	hl
+	ld	(hl), #0x11
+	ld	l, e
+;	spillPairReg hl
+;	spillPairReg hl
+	ld	h, d
+;	spillPairReg hl
+;	spillPairReg hl
+	inc	hl
+	inc	hl
+	ld	(hl), #0x10
+	ld	l, e
+;	spillPairReg hl
+;	spillPairReg hl
+	ld	h, d
+;	spillPairReg hl
+;	spillPairReg hl
+	inc	hl
+	inc	hl
+	inc	hl
+	ld	(hl), #0x0f
+;main.c:28: anim = CreateAnimation();
+	push	de
+	call	_CreateAnimation
+	ex	de, hl
+	pop	de
+	ld	(_anim), hl
+;main.c:29: InitAnimation(anim, 2, 2, frames, 1);
+	ld	a, #0x01
+	push	af
+	inc	sp
+	push	de
+	ld	hl, #0x202
+	push	hl
+	ld	hl, (_anim)
+	call	_InitAnimation
+;main.c:30: }
+	pop	af
+	pop	af
+	ret
+;main.c:32: void main (void)
 ;	---------------------------------
 ; Function main
 ; ---------------------------------
 _main::
-;main.c:25: frame_counter = 0;
+;main.c:34: frame_counter = 0;
 	ld	hl, #_frame_counter
 	ld	(hl), #0x00
-;main.c:27: Player1Init();
+;main.c:36: Player1Init();
 	call	_Player1Init
-;main.c:28: InitConsole();
+;main.c:37: InitConsole();
 	call	_InitConsole
-;main.c:30: loadGraphics2vram();
+;main.c:39: loadGraphics2vram();
 	call	_loadGraphics2vram
-;main.c:31: SMS_displayOn();
+;main.c:40: SMS_displayOn();
 	ld	hl, #0x0140
 	call	_SMS_VDPturnOnFeature
-;main.c:33: PSGPlay(music_psg);
+;main.c:42: PSGPlay(music_psg);
 	ld	hl, #_music_psg
 	call	_PSGPlay
-;main.c:36: while(1)
+;main.c:45: while(1)
 00111$:
-;main.c:39: checkgamepause();
+;main.c:48: checkgamepause();
 	call	_checkgamepause
-;main.c:41: if(gamepause==0)
+;main.c:50: if(gamepause==0)
 	ld	a, (_gamepause+0)
 	or	a, a
 	jr	NZ, 00108$
-;main.c:43: frame_counter++;
+;main.c:52: frame_counter++;
 	ld	hl, #_frame_counter
 	inc	(hl)
-;main.c:45: if((frame_counter%64) == 0)
+;main.c:54: if((frame_counter%64) == 0)
 	ld	a, (_frame_counter+0)
 	and	a, #0x3f
 	jr	NZ, 00104$
-;main.c:47: volume_atenuation++;
+;main.c:56: volume_atenuation++;
 	ld	iy, #_volume_atenuation
 	inc	0 (iy)
-;main.c:48: if(volume_atenuation > 15)
+;main.c:57: if(volume_atenuation > 15)
 	ld	a, #0x0f
 	sub	a, 0 (iy)
 	jr	NC, 00104$
-;main.c:50: volume_atenuation = 0;
+;main.c:59: volume_atenuation = 0;
 	ld	0 (iy), #0x00
 00104$:
-;main.c:54: SMS_initSprites();
+;main.c:69: SMS_initSprites();
 	call	_SMS_initSprites
-;main.c:56: Player1Update(frame_counter);
+;main.c:71: Player1Update(frame_counter);
 	ld	a, (_frame_counter+0)
 	call	_Player1Update
-;main.c:63: SMS_finalizeSprites();
+;main.c:78: SMS_finalizeSprites();
 	call	_SMS_finalizeSprites
-;main.c:64: SMS_waitForVBlank();
+;main.c:79: SMS_waitForVBlank();
 	call	_SMS_waitForVBlank
-;main.c:66: PSGFrame();
+;main.c:81: PSGFrame();
 	call	_PSGFrame
-;main.c:67: PSGSFXFrame();
+;main.c:82: PSGSFXFrame();
 	call	_PSGSFXFrame
-;main.c:69: SMS_copySpritestoSAT();
+;main.c:84: SMS_copySpritestoSAT();
 	call	_SMS_copySpritestoSAT
 	jp	00111$
 00108$:
-;main.c:76: PSGFrame();
+;main.c:91: PSGFrame();
 	call	_PSGFrame
-;main.c:78: if(PSGSFXGetStatus())
+;main.c:93: if(PSGSFXGetStatus())
 	call	_PSGSFXGetStatus
 	or	a, a
 	jr	Z, 00106$
-;main.c:80: PSGSFXFrame();
+;main.c:95: PSGSFXFrame();
 	call	_PSGSFXFrame
 00106$:
-;main.c:84: SMS_waitForVBlank();
+;main.c:99: SMS_waitForVBlank();
 	call	_SMS_waitForVBlank
-;main.c:87: numinterrupts=0;
+;main.c:102: numinterrupts=0;
 	ld	hl, #_numinterrupts
 	ld	(hl), #0x00
-;main.c:90: }
+;main.c:105: }
 	jp	00111$
 	.area _CODE
 __str_0:
@@ -766,6 +953,8 @@ __str_2:
 	.ascii "Grab a friend and jump into endless bombastic fun!"
 	.db 0x00
 	.area _INITIALIZER
+__xinit__MAX_FRAMES:
+	.db #0x20	; 32
 	.area _CABS (ABS)
 	.org 0x7FF0
 ___SMS__SEGA_signature:

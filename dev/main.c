@@ -1,23 +1,32 @@
 #include "main.h"
 #include "Players/players.h"
+#include "Tiles/animation.h"
 
 unsigned char frame_counter;
 unsigned char volume_atenuation;
 
+Animation* anim;
+
 void loadGraphics2vram(void)
 {
-  /* Clear VRAM */
+  /* clear VRAM */
   SMS_VRAMmemsetW(0, 0x0000, 0x4000);
 
+  // backgound
   SMS_loadBGPalette(backgroundpalette_bin);
   SMS_loadPSGaidencompressedTiles(backgroundtiles_psgcompr, 0);
   SMS_loadTileMap(0,0, backgroundtilemap_bin, backgroundtilemap_bin_size);
-
-  SMS_loadSpritePalette(spritepalette_bin);
-  SMS_loadTiles(spritetiles_down_bin, PLAYER1_SPRITE_POSITION, 32*6*6); 
-
-  SMS_setSpritePaletteColor(0, RGB(0, 0, 0));
   SMS_setBGPaletteColor(0, RGB(0, 2, 3));
+
+  // sprites
+  SMS_loadSpritePalette(spritepalette_bin);
+  SMS_loadTiles(spritetiles_down_bin, PLAYER1_SPRITE_POSITION, 32*6*6);
+  SMS_setSpritePaletteColor(0, RGB(0, 0, 0));
+
+  // anim C testing
+  unsigned char frames[4] = {18, 17, 16, 15};
+  anim = CreateAnimation();
+  InitAnimation(anim, 2, 2, frames, 1);
 }
 
 void main (void)
@@ -50,6 +59,12 @@ void main (void)
           volume_atenuation = 0;
         }
       }
+
+      // UpdateAnimation(anim, frame_counter);
+
+
+
+
 
       SMS_initSprites();
       

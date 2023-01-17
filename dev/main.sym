@@ -7,8 +7,11 @@ Symbol Table
     .__.ABS.                                                    =  000000 G
     .__.CPU.                                                    =  000000 L
     .__.H$L.                                                    =  000000 L
+  0 _CreateAnimation                                               0002B9 GR
+  0 _InitAnimation                                                 0002C9 GR
   0 _InitConsole                                                   000001 GR
   0 _InterruptHandler                                              000000 GR
+  2 _MAX_FRAMES                                                    000000 GR
     _PSGFrame                                                      ****** GX
     _PSGPlay                                                       ****** GX
     _PSGPlayNoRepeat                                               ****** GX
@@ -27,6 +30,8 @@ Symbol Table
     _SMS_VRAMmemsetW                                               ****** GX
     _SMS_addSprite_f                                               ****** GX
     _SMS_copySpritestoSAT                                          ****** GX
+    _SMS_crt0_RST08                                                ****** GX
+    _SMS_crt0_RST18                                                ****** GX
     _SMS_finalizeSprites                                           ****** GX
     _SMS_getKeysStatus                                             ****** GX
     _SMS_init                                                      ****** GX
@@ -42,27 +47,31 @@ Symbol Table
     _SMS_setSpritePaletteColor                                     ****** GX
     _SMS_waitForVBlank                                             ****** GX
     _SRAM_bank_to_be_mapped_on_slot2                            =  00FFFC G
+  0 _UpdateAnimation                                               0002CE GR
   A ___SMS__SDSC_author                                            007FD5 GR
   C ___SMS__SDSC_descr                                             007F93 GR
   B ___SMS__SDSC_name                                              007FC6 GR
   D ___SMS__SDSC_signature                                         007FE0 GR
   9 ___SMS__SEGA_signature                                         007FF0 GR
-  0 __str_0                                                        00036F R
-  0 __str_1                                                        00037A R
-  0 __str_2                                                        000389 R
+    __moduchar                                                     ****** GX
+  0 __str_0                                                        000425 R
+  0 __str_1                                                        000430 R
+  0 __str_2                                                        00043F R
+  7 __xinit__MAX_FRAMES                                            000000 R
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180 / ZX-Next / eZ80), page 2.
+Hexadecimal [24-Bits]
+
+Symbol Table
+
+  1 _anim                                                          00000B GR
     _backgroundpalette_bin                                         ****** GX
     _backgroundtilemap_bin                                         ****** GX
     _backgroundtiles_psgcompr                                      ****** GX
   0 _checkgamepause                                                00001E GR
   1 _frame_counter                                                 000009 GR
   1 _gamepause                                                     000001 GR
-  0 _loadGraphics2vram                                             0002B9 GR
-  0 _main                                                          0002FD GR
-ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180 / ZX-Next / eZ80), page 2.
-Hexadecimal [24-Bits]
-
-Symbol Table
-
+  0 _loadGraphics2vram                                             000338 GR
+  0 _main                                                          0003B3 GR
     _music_psg                                                     ****** GX
   1 _numinterrupts                                                 000000 GR
     _pause_psg                                                     ****** GX
@@ -83,14 +92,14 @@ Hexadecimal [24-Bits]
 
 Area Table
 
-   0 _CODE                                      size    3BC   flags    0
-   1 _DATA                                      size      B   flags    0
-   2 _INITIALIZED                               size      0   flags    0
+   0 _CODE                                      size    472   flags    0
+   1 _DATA                                      size      D   flags    0
+   2 _INITIALIZED                               size      1   flags    0
    3 _DABS                                      size      0   flags    8
    4 _HOME                                      size      0   flags    0
    5 _GSINIT                                    size      0   flags    0
    6 _GSFINAL                                   size      0   flags    0
-   7 _INITIALIZER                               size      0   flags    0
+   7 _INITIALIZER                               size      1   flags    0
    8 _CABS                                      size      0   flags    8
    9 _CABS0                                     size     10   flags    8
    A _CABS1                                     size      B   flags    8
