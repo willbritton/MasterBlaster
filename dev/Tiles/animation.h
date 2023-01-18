@@ -1,4 +1,5 @@
 #include "..\..\lib\SMSlib.h"
+#include <stdlib.h>
 
 unsigned char MAX_FRAMES = 32;
 
@@ -13,15 +14,9 @@ typedef struct Animation
     unsigned char mNumFrames;
 } Animation;
 
-Animation* CreateAnimation()
+void DeleteAnimation(Animation *anim)
 {
-    Animation anim;
-    return &anim;
-}
-
-void DisposeAnimation(Animation* anim)
-{
-    delete &anim;
+    free(anim);
 }
 
 void InitAnimation(Animation* anim,
@@ -30,14 +25,6 @@ void InitAnimation(Animation* anim,
     unsigned char frames[],
     unsigned char animationSpeed)
 {
-    // As soon as I touch these, things blow up
-    // anim->mMapPosX = 2;
-    // anim->mMapPosY = 2;
-    // anim->mAnimationSpeed = 1;
-
-
-
-    /*
     anim->mAnimationSpeed = animationSpeed;
     anim->mCurrentFrame = 0;
 
@@ -57,7 +44,17 @@ void InitAnimation(Animation* anim,
         anim->mFrames[i] = frames[i];
         i++;
     }
-    */
+}
+
+Animation* CreateAnimation(unsigned char mapPosX,
+    unsigned char mapPosY,
+    unsigned char frames[],
+    unsigned char animationSpeed)
+{
+    struct Animation *anim = malloc(sizeof (struct Animation));
+    InitAnimation(anim, mapPosX, mapPosY, frames, animationSpeed);
+
+    return anim;
 }
 
 void UpdateAnimation(Animation* animation, unsigned char time)

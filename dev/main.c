@@ -24,9 +24,8 @@ void loadGraphics2vram(void)
   SMS_setSpritePaletteColor(0, RGB(0, 0, 0));
 
   // anim C testing
-  unsigned char frames[4] = {18, 17, 16, 15};
-  anim = CreateAnimation();
-  InitAnimation(anim, 2, 2, frames, 1);
+  unsigned char frames[9] = {18, 17, 16, 15, 14, 13, 12, 11, 10};
+  anim = CreateAnimation(2, 2, frames, 32);
 }
 
 void main (void)
@@ -60,12 +59,11 @@ void main (void)
         }
       }
 
-      // UpdateAnimation(anim, frame_counter);
+      // update background
+      UpdateAnimation(anim, frame_counter);
 
 
-
-
-
+      // update sprites
       SMS_initSprites();
       
       Player1Update(frame_counter);

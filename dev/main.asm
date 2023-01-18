@@ -16,8 +16,11 @@
 	.globl _main
 	.globl _loadGraphics2vram
 	.globl _UpdateAnimation
-	.globl _InitAnimation
 	.globl _CreateAnimation
+	.globl _InitAnimation
+	.globl _DeleteAnimation
+	.globl _free
+	.globl _malloc
 	.globl _SMS_VRAMmemsetW
 	.globl _SMS_VRAMmemcpy
 	.globl _SMS_loadSpritePalette
@@ -635,35 +638,145 @@ _Player1UpdateDraw::
 	ld	sp, ix
 	pop	ix
 	ret
-;Tiles/animation.h:16: Animation* CreateAnimation()
+;Tiles/animation.h:17: void DeleteAnimation(Animation *anim)
 ;	---------------------------------
-; Function CreateAnimation
+; Function DeleteAnimation
 ; ---------------------------------
-_CreateAnimation::
-	ld	hl, #-37
-	add	hl, sp
-	ld	sp, hl
-;Tiles/animation.h:19: return &anim;
-	ld	hl, #0
-	add	hl, sp
-	ex	de, hl
+_DeleteAnimation::
+;Tiles/animation.h:19: free(anim);
 ;Tiles/animation.h:20: }
-	ld	hl, #37
-	add	hl, sp
-	ld	sp, hl
-	ret
+	jp	_free
 ;Tiles/animation.h:22: void InitAnimation(Animation* anim,
 ;	---------------------------------
 ; Function InitAnimation
 ; ---------------------------------
 _InitAnimation::
-;Tiles/animation.h:56: }
+	push	ix
+	ld	ix,#0
+	add	ix,sp
+	push	af
+	dec	sp
+	ld	c, l
+	ld	b, h
+;Tiles/animation.h:28: anim->mAnimationSpeed = animationSpeed;
+	ld	hl, #0x0022
+	add	hl, bc
+	ld	a, 8 (ix)
+	ld	(hl), a
+;Tiles/animation.h:29: anim->mCurrentFrame = 0;
+	ld	hl, #0x0023
+	add	hl, bc
+	ld	(hl), #0x00
+;Tiles/animation.h:31: anim->mMapPosX = mapPosX;
+	ld	hl, #0x0020
+	add	hl, bc
+	ld	a, 4 (ix)
+	ld	(hl), a
+;Tiles/animation.h:32: anim->mMapPosY = mapPosY;
+	ld	hl, #0x0021
+	add	hl, bc
+	ld	a, 5 (ix)
+	ld	(hl), a
+;Tiles/animation.h:34: anim->mNumFrames = sizeof(frames) / sizeof(unsigned char);
+	ld	hl, #0x0024
+	add	hl, bc
+	ex	de, hl
+	ld	a, #0x02
+;Tiles/animation.h:36: if(anim->mNumFrames > MAX_FRAMES)
+	ld	(de), a
+	ld	-1 (ix), a
+	ld	a, (#_MAX_FRAMES)
+	sub	a, -1 (ix)
+	jr	NC, 00110$
+;Tiles/animation.h:38: anim->mNumFrames = MAX_FRAMES;
+	ld	a, (_MAX_FRAMES+0)
+	ld	(de), a
+;Tiles/animation.h:42: while(i < anim->mNumFrames)
+00110$:
+	ld	-1 (ix), #0x00
+00103$:
+	ld	a, (de)
+	ld	l, a
+;	spillPairReg hl
+;	spillPairReg hl
+	ld	a, -1 (ix)
+	sub	a, l
+	jr	NC, 00106$
+;Tiles/animation.h:44: anim->mFrames[i] = frames[i];
+	ld	a, c
+	add	a, -1 (ix)
+	ld	-3 (ix), a
+	ld	a, b
+	adc	a, #0x00
+	ld	-2 (ix), a
+	ld	a, 6 (ix)
+	add	a, -1 (ix)
+	ld	l, a
+;	spillPairReg hl
+;	spillPairReg hl
+	ld	a, 7 (ix)
+	adc	a, #0x00
+	ld	h, a
+	ld	a, (hl)
+	pop	hl
+	push	hl
+	ld	(hl), a
+;Tiles/animation.h:45: i++;
+	inc	-1 (ix)
+	jp	00103$
+00106$:
+;Tiles/animation.h:47: }
+	ld	sp, ix
+	pop	ix
 	pop	hl
 	pop	af
 	pop	af
 	inc	sp
 	jp	(hl)
-;Tiles/animation.h:58: void UpdateAnimation(Animation* animation, unsigned char time)
+;Tiles/animation.h:49: Animation* CreateAnimation(unsigned char mapPosX,
+;	---------------------------------
+; Function CreateAnimation
+; ---------------------------------
+_CreateAnimation::
+	push	ix
+	ld	ix,#0
+	add	ix,sp
+	ld	h, a
+;	spillPairReg hl
+;	spillPairReg hl
+;Tiles/animation.h:54: struct Animation *anim = malloc(sizeof (struct Animation));
+	push	hl
+	ld	hl, #0x0025
+	call	_malloc
+	pop	hl
+;Tiles/animation.h:55: InitAnimation(anim, mapPosX, mapPosY, frames, animationSpeed);
+	push	de
+	ld	a, 6 (ix)
+	push	af
+	inc	sp
+	ld	c, 4 (ix)
+	ld	b, 5 (ix)
+	push	bc
+	ld	a, l
+	push	af
+	inc	sp
+	push	hl
+	inc	sp
+;	spillPairReg hl
+;	spillPairReg hl
+	ex	de,hl
+;	spillPairReg hl
+;	spillPairReg hl
+	call	_InitAnimation
+	pop	de
+;Tiles/animation.h:57: return anim;
+;Tiles/animation.h:58: }
+	pop	ix
+	pop	hl
+	pop	af
+	inc	sp
+	jp	(hl)
+;Tiles/animation.h:60: void UpdateAnimation(Animation* animation, unsigned char time)
 ;	---------------------------------
 ; Function UpdateAnimation
 ; ---------------------------------
@@ -674,7 +787,7 @@ _UpdateAnimation::
 	push	af
 	ld	c, l
 	ld	b, h
-;Tiles/animation.h:60: if((time % animation->mAnimationSpeed) == 0)
+;Tiles/animation.h:62: if((time % animation->mAnimationSpeed) == 0)
 	push	bc
 	pop	iy
 	ld	l, 34 (iy)
@@ -686,7 +799,7 @@ _UpdateAnimation::
 	ld	a, e
 	or	a, a
 	jr	NZ, 00108$
-;Tiles/animation.h:62: animation->mCurrentFrame++;
+;Tiles/animation.h:64: animation->mCurrentFrame++;
 	ld	hl, #0x0023
 	add	hl, bc
 	ex	de, hl
@@ -694,17 +807,17 @@ _UpdateAnimation::
 	inc	a
 	ld	-1 (ix), a
 	ld	(de), a
-;Tiles/animation.h:64: if(animation->mCurrentFrame > animation->mNumFrames)
+;Tiles/animation.h:66: if(animation->mCurrentFrame > animation->mNumFrames)
 	push	bc
 	pop	iy
 ;	spillPairReg hl
 	ld	a, 36 (iy)
 	sub	a, -1 (ix)
 	jr	NC, 00103$
-;Tiles/animation.h:66: animation->mCurrentFrame = 0;
+;Tiles/animation.h:68: animation->mCurrentFrame = 0;
 	xor	a, a
 	ld	(de), a
-;Tiles/animation.h:69: SMS_setTileatXY(animation->mMapPosX, animation->mMapPosX, animation->mFrames[animation->mCurrentFrame]);
+;Tiles/animation.h:71: SMS_setTileatXY(animation->mMapPosX, animation->mMapPosX, animation->mFrames[animation->mCurrentFrame]);
 00103$:
 	ld	l, c
 ;	spillPairReg hl
@@ -759,7 +872,7 @@ _UpdateAnimation::
 ;	spillPairReg hl
 	rst	#0x18
 00108$:
-;Tiles/animation.h:71: }
+;Tiles/animation.h:73: }
 	ld	sp, ix
 	pop	ix
 	pop	hl
@@ -770,8 +883,9 @@ _UpdateAnimation::
 ; Function loadGraphics2vram
 ; ---------------------------------
 _loadGraphics2vram::
-	push	af
-	push	af
+	ld	hl, #-9
+	add	hl, sp
+	ld	sp, hl
 ;main.c:13: SMS_VRAMmemsetW(0, 0x0000, 0x4000);
 	ld	hl, #0x4000
 	push	hl
@@ -812,7 +926,7 @@ _loadGraphics2vram::
 	xor	a, a
 	ld	l, a
 	call	_SMS_setSpritePaletteColor
-;main.c:27: unsigned char frames[4] = {18, 17, 16, 15};
+;main.c:27: unsigned char frames[9] = {18, 17, 16, 15, 14, 13, 12, 11, 10};
 	ld	hl, #0
 	add	hl, sp
 	ex	de, hl
@@ -845,102 +959,120 @@ _loadGraphics2vram::
 	inc	hl
 	inc	hl
 	ld	(hl), #0x0f
-;main.c:28: anim = CreateAnimation();
-	push	de
-	call	_CreateAnimation
-	ex	de, hl
-	pop	de
-	ld	(_anim), hl
-;main.c:29: InitAnimation(anim, 2, 2, frames, 1);
-	ld	a, #0x01
+	ld	hl, #0x0004
+	add	hl, de
+	ld	(hl), #0x0e
+	ld	hl, #0x0005
+	add	hl, de
+	ld	(hl), #0x0d
+	ld	hl, #0x0006
+	add	hl, de
+	ld	(hl), #0x0c
+	ld	hl, #0x0007
+	add	hl, de
+	ld	(hl), #0x0b
+	ld	hl, #0x0008
+	add	hl, de
+	ld	(hl), #0x0a
+;main.c:28: anim = CreateAnimation(2, 2, frames, 32);
+	ld	a, #0x20
 	push	af
 	inc	sp
 	push	de
-	ld	hl, #0x202
-	push	hl
-	ld	hl, (_anim)
-	call	_InitAnimation
-;main.c:30: }
-	pop	af
-	pop	af
+;	spillPairReg hl
+;	spillPairReg hl
+	ld	a,#0x02
+	ld	l,a
+	call	_CreateAnimation
+	ld	(_anim), de
+;main.c:29: }
+	ld	hl, #9
+	add	hl, sp
+	ld	sp, hl
 	ret
-;main.c:32: void main (void)
+;main.c:31: void main (void)
 ;	---------------------------------
 ; Function main
 ; ---------------------------------
 _main::
-;main.c:34: frame_counter = 0;
+;main.c:33: frame_counter = 0;
 	ld	hl, #_frame_counter
 	ld	(hl), #0x00
-;main.c:36: Player1Init();
+;main.c:35: Player1Init();
 	call	_Player1Init
-;main.c:37: InitConsole();
+;main.c:36: InitConsole();
 	call	_InitConsole
-;main.c:39: loadGraphics2vram();
+;main.c:38: loadGraphics2vram();
 	call	_loadGraphics2vram
-;main.c:40: SMS_displayOn();
+;main.c:39: SMS_displayOn();
 	ld	hl, #0x0140
 	call	_SMS_VDPturnOnFeature
-;main.c:42: PSGPlay(music_psg);
+;main.c:41: PSGPlay(music_psg);
 	ld	hl, #_music_psg
 	call	_PSGPlay
-;main.c:45: while(1)
+;main.c:44: while(1)
 00111$:
-;main.c:48: checkgamepause();
+;main.c:47: checkgamepause();
 	call	_checkgamepause
-;main.c:50: if(gamepause==0)
+;main.c:49: if(gamepause==0)
 	ld	a, (_gamepause+0)
 	or	a, a
 	jr	NZ, 00108$
-;main.c:52: frame_counter++;
+;main.c:51: frame_counter++;
 	ld	hl, #_frame_counter
 	inc	(hl)
-;main.c:54: if((frame_counter%64) == 0)
+;main.c:53: if((frame_counter%64) == 0)
 	ld	a, (_frame_counter+0)
 	and	a, #0x3f
 	jr	NZ, 00104$
-;main.c:56: volume_atenuation++;
+;main.c:55: volume_atenuation++;
 	ld	iy, #_volume_atenuation
 	inc	0 (iy)
-;main.c:57: if(volume_atenuation > 15)
+;main.c:56: if(volume_atenuation > 15)
 	ld	a, #0x0f
 	sub	a, 0 (iy)
 	jr	NC, 00104$
-;main.c:59: volume_atenuation = 0;
+;main.c:58: volume_atenuation = 0;
 	ld	0 (iy), #0x00
 00104$:
-;main.c:69: SMS_initSprites();
+;main.c:63: UpdateAnimation(anim, frame_counter);
+	ld	a, (_frame_counter+0)
+	push	af
+	inc	sp
+	ld	hl, (_anim)
+	call	_UpdateAnimation
+;main.c:67: SMS_initSprites();
 	call	_SMS_initSprites
-;main.c:71: Player1Update(frame_counter);
+;main.c:69: Player1Update(frame_counter);
 	ld	a, (_frame_counter+0)
 	call	_Player1Update
-;main.c:78: SMS_finalizeSprites();
+;main.c:76: SMS_finalizeSprites();
 	call	_SMS_finalizeSprites
-;main.c:79: SMS_waitForVBlank();
+;main.c:77: SMS_waitForVBlank();
 	call	_SMS_waitForVBlank
-;main.c:81: PSGFrame();
+;main.c:79: PSGFrame();
 	call	_PSGFrame
-;main.c:82: PSGSFXFrame();
+;main.c:80: PSGSFXFrame();
 	call	_PSGSFXFrame
-;main.c:84: SMS_copySpritestoSAT();
+;main.c:82: SMS_copySpritestoSAT();
 	call	_SMS_copySpritestoSAT
 	jp	00111$
 00108$:
-;main.c:91: PSGFrame();
+;main.c:89: PSGFrame();
 	call	_PSGFrame
-;main.c:93: if(PSGSFXGetStatus())
+;main.c:91: if(PSGSFXGetStatus())
 	call	_PSGSFXGetStatus
 	or	a, a
 	jr	Z, 00106$
-;main.c:95: PSGSFXFrame();
+;main.c:93: PSGSFXFrame();
 	call	_PSGSFXFrame
 00106$:
-;main.c:99: SMS_waitForVBlank();
+;main.c:97: SMS_waitForVBlank();
 	call	_SMS_waitForVBlank
-;main.c:102: numinterrupts=0;
+;main.c:100: numinterrupts=0;
 	ld	hl, #_numinterrupts
 	ld	(hl), #0x00
-;main.c:105: }
+;main.c:103: }
 	jp	00111$
 	.area _CODE
 __str_0:
