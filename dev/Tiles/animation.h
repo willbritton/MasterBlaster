@@ -1,16 +1,30 @@
-#include "..\..\lib\SMSlib.h"
 #include <stdlib.h>
+#include "../../lib/SMSlib.h"
+#include "../Core/defines.h"
+#include "frame.h"
 
 unsigned char MAX_FRAMES = 32;
 
+/*
+    @param Frame frames[32]
+    @param unsigned char mapPosX
+    @param unsigned char mapPosY
+    @param unsigned char animationSpeed
+    @param unsigned char currentFrame
+    @param unsigned char numFrames
+    @param unsigned char width
+    @param unsigned char height
+*/
 typedef struct Animation
 {
-    int mFrames[32];
-    unsigned char mMapPosX;
-    unsigned char mMapPosY;
-    unsigned char mAnimationSpeed;
-    unsigned char mCurrentFrame;
-    unsigned char mNumFrames;
+    Frame frames[32];
+    unsigned char mapPosX;
+    unsigned char mapPosY;
+    unsigned char animationSpeed;
+    unsigned char currentFrame;
+    unsigned char numFrames;
+    unsigned char width;
+    unsigned char height;
 } Animation;
 
 void DeleteAnimation(Animation *anim)
@@ -20,59 +34,93 @@ void DeleteAnimation(Animation *anim)
 }
 
 void InitAnimation(Animation* anim,
-    int frames[],
+    Frame frames[],
     unsigned char numFrames,
     unsigned char mapPosX,
     unsigned char mapPosY,
-    unsigned char animationSpeed)
+    unsigned char animationSpeed,
+    unsigned char width,
+    unsigned char height)
 {
-    anim->mCurrentFrame = 0;
-    anim->mNumFrames = numFrames;
-    anim->mMapPosX = mapPosX;
-    anim->mMapPosY = mapPosY;
-    anim->mAnimationSpeed = animationSpeed;
+    anim->currentFrame = 0;
+    anim->numFrames = numFrames;
+    anim->mapPosX = mapPosX;
+    anim->mapPosY = mapPosY;
+    anim->animationSpeed = animationSpeed;
+    anim->width = width;
+    anim->height = height;
 
-    if(anim->mNumFrames > MAX_FRAMES)
+    if(anim->numFrames > MAX_FRAMES)
     {
-        anim->mNumFrames = MAX_FRAMES;
+        anim->numFrames = MAX_FRAMES;
     }
 
-    for(unsigned char i = 0; i < anim->mNumFrames; i++)
+    for(unsigned char i = 0; i < anim->numFrames; i++)
     {
-        anim->mFrames[i] = frames[i];
+        anim->frames[i] = frames[i];
+    }
+}
+
+void UpdateAnimation(Animation* animation, unsigned char time)
+{
+    if((time % animation->animationSpeed) == 0)
+    {
+        animation->currentFrame++;
+
+        if(animation->currentFrame > animation->numFrames)
+        {
+            animation->currentFrame = 0;
+        }
+
+        unsigned int flags = 0;
+
+        if(animation->frames[animation->currentFrame].flipX)
+        {
+            flags |= TILE_FLIPPED_X;
+        }
+
+        if(animation->frames[animation->currentFrame].flipY)
+        {
+            flags |= TILE_FLIPPED_X;
+        }
+
+        if(animation->frames[animation->currentFrame].useSpritePalette)
+        {
+            flags |= TILE_USE_SPRITE_PALETTE;
+        }
+
+        if(animation->frames[animation->currentFrame].priority)
+        {
+            flags |= TILE_PRIORITY;
+        }
+
+        if(animation->height > 1 || animation->width > 1)
+        {
+            // TODO: add the ability to send a rect of tiles
+            // void SMS_loadTileMapArea (unsigned char x, unsigned char y,  unsigned int *src, unsigned char width, unsigned char height);
+        }
+        else
+        {
+            SMS_setTileatXY(animation->mapPosX, animation->mapPosX, animation->frames[animation->currentFrame].tileId | flags);
+        }
     }
 }
 
 Animation* CreateAnimation(
-    int frames[],
+    Frame frames[],
     unsigned char numFrames,
     unsigned char mapPosX,
     unsigned char mapPosY,
-    unsigned char animationSpeed)
+    unsigned char animationSpeed,
+    unsigned char width,
+    unsigned char height)
 {
     struct Animation* anim = malloc(sizeof (struct Animation));
 
     if (anim == NULL)
         return NULL;
 
-    InitAnimation(anim, frames, numFrames, mapPosX, mapPosY, animationSpeed);
+    InitAnimation(anim, frames, numFrames, mapPosX, mapPosY, animationSpeed, width, height);
 
     return anim;
-}
-
-void UpdateAnimation(Animation* animation, unsigned char time)
-{
-    if((time % animation->mAnimationSpeed) == 0)
-    {
-        animation->mCurrentFrame++;
-
-        if(animation->mCurrentFrame > animation->mNumFrames)
-        {
-            animation->mCurrentFrame = 0;
-        }
-
-        SMS_setTileatXY(animation->mMapPosX, animation->mMapPosX, animation->mFrames[animation->mCurrentFrame]);
-
-        // void SMS_loadTileMapArea (unsigned char x, unsigned char y,  unsigned int *src, unsigned char width, unsigned char height);
-    }
 }

@@ -1,6 +1,7 @@
 #include "main.h"
 #include "Players/players.h"
 #include "Tiles/animation.h"
+#include "Stages/stage1.h"
 
 unsigned char frame_counter;
 unsigned char volume_atenuation;
@@ -13,19 +14,59 @@ void loadGraphics2vram(void)
   SMS_VRAMmemsetW(0, 0x0000, 0x4000);
 
   // backgound
-  SMS_loadBGPalette(backgroundpalette_bin);
+  SMS_loadBGPalette(background_palette_bin);
+
   SMS_loadPSGaidencompressedTiles(backgroundtiles_psgcompr, 0);
   SMS_loadTileMap(0,0, backgroundtilemap_bin, backgroundtilemap_bin_size);
-  SMS_setBGPaletteColor(0, RGB(0, 2, 3));
+  //SMS_setBGPaletteColor(0, RGB(0, 2, 3));
+
+  // items
+  SMS_loadPSGaidencompressedTiles(items_tiles_psgcompr, 18);
+
+  // explosions
+  // SMS_loadPSGaidencompressedTiles(explosions_tiles_psgcompr, 41);
+
 
   // sprites
   SMS_loadSpritePalette(spritepalette_bin);
   SMS_loadTiles(spritetiles_down_bin, PLAYER1_SPRITE_POSITION, 32*6*6);
-  SMS_setSpritePaletteColor(0, RGB(0, 0, 0));
+  //SMS_setSpritePaletteColor(0, RGB(0, 0, 0));
 
-  // anim C testing
-  int frames[20] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20};
-  anim = CreateAnimation(frames, 20, 2, 2, 32);
+  // Anim C testing
+  Frame frames[] =
+  {
+    {11, 0, 0, 0, 1},
+    {11, 1, 0, 0, 1},
+    {11, 0, 0, 0, 1},
+    {11, 1, 0, 0, 1},
+    {11, 0, 0, 0, 1},
+    {11, 1, 0, 0, 1},
+    {11, 0, 0, 0, 1},
+    {11, 1, 0, 0, 1},
+    {11, 0, 0, 1, 1},
+    {11, 0, 1, 1, 1},
+    {11, 0, 0, 1, 1},
+    {11, 0, 1, 1, 1},
+    {11, 0, 0, 1, 1},
+    {11, 0, 1, 1, 1},
+    {11, 0, 0, 1, 1},
+    {11, 0, 1, 1, 1},
+    {12},
+    {13},
+    {14},
+    {15},
+    {16},
+    {17},
+    {18},
+    {19},
+    {20}
+  };
+
+  unsigned char numFrames = sizeof(frames) / sizeof(Frame);
+  anim = CreateAnimation(frames, numFrames, 2, 2, 32, 1, 1);
+
+  // Init stage
+  InitStage();
 }
 
 void main (void)

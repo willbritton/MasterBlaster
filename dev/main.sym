@@ -7,10 +7,11 @@ Symbol Table
     .__.ABS.                                                    =  000000 G
     .__.CPU.                                                    =  000000 L
     .__.H$L.                                                    =  000000 L
-  0 _CreateAnimation                                               000356 GR
+  0 _CreateAnimation                                               000363 GR
   0 _DeleteAnimation                                               0002B9 GR
   0 _InitAnimation                                                 0002BF GR
   0 _InitConsole                                                   000001 GR
+  0 _InitStage                                                     00059F GR
   0 _InterruptHandler                                              000000 GR
   2 _MAX_FRAMES                                                    000000 GR
     _PSGFrame                                                      ****** GX
@@ -31,8 +32,6 @@ Symbol Table
     _SMS_VRAMmemsetW                                               ****** GX
     _SMS_addSprite_f                                               ****** GX
     _SMS_copySpritestoSAT                                          ****** GX
-    _SMS_crt0_RST08                                                ****** GX
-    _SMS_crt0_RST18                                                ****** GX
     _SMS_finalizeSprites                                           ****** GX
     _SMS_getKeysStatus                                             ****** GX
     _SMS_init                                                      ****** GX
@@ -40,40 +39,40 @@ Symbol Table
     _SMS_loadBGPalette                                             ****** GX
     _SMS_loadPSGaidencompressedTilesatAddr                         ****** GX
     _SMS_loadSpritePalette                                         ****** GX
+    _SMS_loadTileMapArea                                           ****** GX
     _SMS_queryPauseRequested                                       ****** GX
     _SMS_resetPauseRequest                                         ****** GX
-    _SMS_setBGPaletteColor                                         ****** GX
     _SMS_setLineCounter                                            ****** GX
     _SMS_setLineInterruptHandler                                   ****** GX
-    _SMS_setSpritePaletteColor                                     ****** GX
     _SMS_waitForVBlank                                             ****** GX
     _SRAM_bank_to_be_mapped_on_slot2                            =  00FFFC G
-  0 _UpdateAnimation                                               00038B GR
+  0 _UpdateAnimation                                               0003A0 GR
   A ___SMS__SDSC_author                                            007FD5 GR
   C ___SMS__SDSC_descr                                             007F93 GR
   B ___SMS__SDSC_name                                              007FC6 GR
   D ___SMS__SDSC_signature                                         007FE0 GR
   9 ___SMS__SEGA_signature                                         007FF0 GR
     __moduchar                                                     ****** GX
-  0 __str_0                                                        00058D R
-  0 __str_1                                                        000598 R
-  0 __str_2                                                        0005A7 R
+  0 __str_0                                                        000A8C R
+  0 __str_1                                                        000A97 R
+  0 __str_2                                                        000AA6 R
+  7 __xinit__MAX_FRAMES                                            000000 R
+  1 _anim                                                          00000B GR
 ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180 / ZX-Next / eZ80), page 2.
 Hexadecimal [24-Bits]
 
 Symbol Table
 
-  7 __xinit__MAX_FRAMES                                            000000 R
-  1 _anim                                                          00000B GR
-    _backgroundpalette_bin                                         ****** GX
+    _background_palette_bin                                        ****** GX
     _backgroundtilemap_bin                                         ****** GX
     _backgroundtiles_psgcompr                                      ****** GX
   0 _checkgamepause                                                00001E GR
   1 _frame_counter                                                 000009 GR
     _free                                                          ****** GX
   1 _gamepause                                                     000001 GR
-  0 _loadGraphics2vram                                             0003F7 GR
-  0 _main                                                          000510 GR
+    _items_tiles_psgcompr                                          ****** GX
+  0 _loadGraphics2vram                                             0006B4 GR
+  0 _main                                                          000A0F GR
     _malloc                                                        ****** GX
     _music_psg                                                     ****** GX
   1 _numinterrupts                                                 000000 GR
@@ -90,12 +89,13 @@ Symbol Table
     _spritetiles_up_bin                                            ****** GX
   1 _volume_atenuation                                             00000A GR
 
+
 ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180 / ZX-Next / eZ80), page 3.
 Hexadecimal [24-Bits]
 
 Area Table
 
-   0 _CODE                                      size    5DA   flags    0
+   0 _CODE                                      size    AD9   flags    0
    1 _DATA                                      size      D   flags    0
    2 _INITIALIZED                               size      1   flags    0
    3 _DABS                                      size      0   flags    8

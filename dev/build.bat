@@ -3,24 +3,41 @@ cls
 
 REM Bank 2
 
+REM === SPRITES ===
 REM Player walk up
 ..\utl\bmp2tile\BMP2Tile.exe assets\gfx\player_white_up.png ^
-    -noremovedupes ^
-    -nomirror ^
-    -8x8 ^
-    -palsms ^
-    -savetiles ^
-    Banks\bank2\spritetiles_up.bin ^
-    -savepalette ^
-    Banks\bank2\spritepalette.bin
+    -noremovedupes -nomirror -8x8 -palsms ^
+    -savetiles Banks\bank2\spritetiles_up.bin ^
+    -savepalette Banks\bank2\spritepalette.bin
 
 REM Player walk down
-..\utl\bmp2tile\BMP2Tile.exe assets\gfx\player_white_down.png -noremovedupes -nomirror -8x8 -palsms -savetiles Banks\bank2\spritetiles_down.bin -savepalette Banks\bank2\spritepalette.bin
-REM Player walk left/right
-..\utl\bmp2tile\BMP2Tile.exe assets\gfx\player_white_lr.png -noremovedupes -nomirror -8x8 -palsms -savetiles Banks\bank2\spritetiles_lr.bin -savepalette Banks\bank2\spritepalette_lr.bin
-REM Background tiles
-..\utl\bmp2tile\BMP2Tile.exe assets\gfx\background_final.png -savetiles Banks\bank2\backgroundtiles.psgcompr -mirror -removedupes -savepalette Banks\bank2\backgroundpalette.bin -savetilemap Banks\bank2\backgroundtilemap.bin
+..\utl\bmp2tile\BMP2Tile.exe assets\gfx\player_white_down.png ^
+    -noremovedupes -nomirror -8x8 -palsms ^
+    -savetiles Banks\bank2\spritetiles_down.bin ^
+    -savepalette Banks\bank2\spritepalette.bin
 
+REM Player walk left/right
+..\utl\bmp2tile\BMP2Tile.exe assets\gfx\player_white_lr.png ^
+    -noremovedupes -nomirror -8x8 -palsms --fullpalette ^
+    -savetiles Banks\bank2\spritetiles_lr.bin ^
+    -savepalette Banks\bank2\spritepalette_lr.bin
+
+REM === BACKGROUND ===
+REM background palette
+..\utl\bmp2tile\BMP2Tile.exe assets\gfx\background_palette.png ^
+    -mirror -removedupes -8x8 -palsms -fullpalette ^
+    -savepalette Banks\bank2\background_palette.bin
+
+REM Background tiles
+..\utl\bmp2tile\BMP2Tile.exe assets\gfx\background_full.png ^
+    -mirror -removedupes -8x8 -palsms ^
+    -savetiles Banks\bank2\backgroundtiles.psgcompr ^
+    -savetilemap Banks\bank2\backgroundtilemap.bin
+
+REM Items tiles
+..\utl\bmp2tile\BMP2Tile.exe assets\gfx\items.png ^
+    -mirror -removedupes -8x8 -palsms ^
+    -savetiles Banks\bank2\items_tiles.psgcompr
 
 REM Banks conversion
 cd Banks
