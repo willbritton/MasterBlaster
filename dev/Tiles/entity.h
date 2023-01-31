@@ -14,7 +14,7 @@ Entity* Entity_Create(MetaTile* metatile[], unsigned char numFrames)
     Entity* entity = malloc(sizeof(struct Entity));
     // entity->metatile = malloc(sizeof(struct MetaTile) * 32);
     entity->currentFrame = 0;
-    entity->frameRate = 30;
+    entity->frameRate = 16;
     entity->numFrames = numFrames;
 
 
