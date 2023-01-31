@@ -9,12 +9,14 @@ typedef struct Entity {
     unsigned int currentFrame;
 } Entity;
 
-Entity* Entity_Create(MetaTile* metatile[]) 
+Entity* Entity_Create(MetaTile* metatile[], unsigned char numFrames) 
 {
     Entity* entity = malloc(sizeof(struct Entity));
     // entity->metatile = malloc(sizeof(struct MetaTile) * 32);
     entity->currentFrame = 0;
     entity->frameRate = 30;
+    entity->numFrames = numFrames;
+
 
     unsigned char i;
     for(i = 0; i < metatile[i]->numTiles; ++i)

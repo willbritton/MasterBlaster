@@ -60,7 +60,7 @@ void loadGraphics2vram(void)
     metatile2
   };
 
-  entity = Entity_Create(metatilelist);
+  entity = Entity_Create(metatilelist, 2);
   // Entity_Update(entity, frame_counter);
   Entity_Draw(entity, 6, 6);
 

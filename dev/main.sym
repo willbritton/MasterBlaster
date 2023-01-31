@@ -10,11 +10,11 @@ Symbol Table
   0 _CreateTile                                                    000336 GR
   0 _DeleteTile                                                    000382 GR
   0 _Entity_Create                                                 000469 GR
-  0 _Entity_Delete                                                 0004BC GR
-  0 _Entity_Draw                                                   000520 GR
-  0 _Entity_GetCurrentFrame                                        000514 GR
-  0 _Entity_GetFrameRate                                           00051A GR
-  0 _Entity_Update                                                 0004C2 GR
+  0 _Entity_Delete                                                 0004C6 GR
+  0 _Entity_Draw                                                   00052A GR
+  0 _Entity_GetCurrentFrame                                        00051E GR
+  0 _Entity_GetFrameRate                                           000524 GR
+  0 _Entity_Update                                                 0004CC GR
   0 _InitConsole                                                   000001 GR
   0 _InterruptHandler                                              000000 GR
   0 _MetaTile_Create                                               000388 GR
@@ -63,9 +63,9 @@ Hexadecimal [24-Bits]
 
 Symbol Table
 
-  0 __str_0                                                        000754 R
-  0 __str_1                                                        00075F R
-  0 __str_2                                                        00076E R
+  0 __str_0                                                        000762 R
+  0 __str_1                                                        00076D R
+  0 __str_2                                                        00077C R
     _background_palette_bin                                        ****** GX
     _backgroundtilemap_bin                                         ****** GX
     _backgroundtiles_psgcompr                                      ****** GX
@@ -75,8 +75,8 @@ Symbol Table
     _free                                                          ****** GX
   1 _gamepause                                                     000001 GR
     _items_tiles_psgcompr                                          ****** GX
-  0 _loadGraphics2vram                                             000547 GR
-  0 _main                                                          0006D6 GR
+  0 _loadGraphics2vram                                             000551 GR
+  0 _main                                                          0006E4 GR
     _malloc                                                        ****** GX
     _music_psg                                                     ****** GX
   1 _numinterrupts                                                 000000 GR
@@ -98,7 +98,7 @@ Hexadecimal [24-Bits]
 
 Area Table
 
-   0 _CODE                                      size    7A1   flags    0
+   0 _CODE                                      size    7AF   flags    0
    1 _DATA                                      size      D   flags    0
    2 _INITIALIZED                               size      0   flags    0
    3 _DABS                                      size      0   flags    8

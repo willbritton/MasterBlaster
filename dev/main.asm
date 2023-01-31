@@ -1014,7 +1014,7 @@ _MetaTile_Draw::
 	pop	hl
 	pop	af
 	jp	(hl)
-;Tiles/entity.h:12: Entity* Entity_Create(MetaTile* metatile[]) 
+;Tiles/entity.h:12: Entity* Entity_Create(MetaTile* metatile[], unsigned char numFrames) 
 ;	---------------------------------
 ; Function Entity_Create
 ; ---------------------------------
@@ -1039,7 +1039,12 @@ _Entity_Create::
 	ld	hl, #0x0040
 	add	hl, de
 	ld	(hl), #0x1e
-;Tiles/entity.h:20: for(i = 0; i < metatile[i]->numTiles; ++i)
+;Tiles/entity.h:18: entity->numFrames = numFrames;
+	ld	hl, #0x0041
+	add	hl, de
+	ld	a, 4 (ix)
+	ld	(hl), a
+;Tiles/entity.h:22: for(i = 0; i < metatile[i]->numTiles; ++i)
 	ld	-1 (ix), #0x00
 00103$:
 	ld	l, -1 (ix)
@@ -1069,7 +1074,7 @@ _Entity_Create::
 	ld	a,-1 (ix)
 	sub	a,(hl)
 	jr	NC, 00101$
-;Tiles/entity.h:22: entity->metatile[i] = metatile[i];
+;Tiles/entity.h:24: entity->metatile[i] = metatile[i];
 	ld	a, -1 (ix)
 	add	a, a
 	ld	l, a
@@ -1078,28 +1083,30 @@ _Entity_Create::
 	ld	(hl), c
 	inc	hl
 	ld	(hl), b
-;Tiles/entity.h:20: for(i = 0; i < metatile[i]->numTiles; ++i)
+;Tiles/entity.h:22: for(i = 0; i < metatile[i]->numTiles; ++i)
 	inc	-1 (ix)
 	jp	00103$
 00101$:
-;Tiles/entity.h:25: return entity;
-;Tiles/entity.h:26: }
+;Tiles/entity.h:27: return entity;
+;Tiles/entity.h:28: }
 	ld	sp, ix
 	pop	ix
-	ret
-;Tiles/entity.h:28: void Entity_Delete(Entity* entity)
+	pop	hl
+	inc	sp
+	jp	(hl)
+;Tiles/entity.h:30: void Entity_Delete(Entity* entity)
 ;	---------------------------------
 ; Function Entity_Delete
 ; ---------------------------------
 _Entity_Delete::
-;Tiles/entity.h:30: if(entity != NULL)
+;Tiles/entity.h:32: if(entity != NULL)
 	ld	a, h
 	or	a, l
-;Tiles/entity.h:31: free(entity);
+;Tiles/entity.h:33: free(entity);
 	jp	NZ,_free
-;Tiles/entity.h:32: }
+;Tiles/entity.h:34: }
 	ret
-;Tiles/entity.h:34: void Entity_Update(Entity* entity, unsigned int time)
+;Tiles/entity.h:36: void Entity_Update(Entity* entity, unsigned int time)
 ;	---------------------------------
 ; Function Entity_Update
 ; ---------------------------------
@@ -1111,7 +1118,7 @@ _Entity_Update::
 	ex	(sp), hl
 	ld	c, e
 	ld	b, d
-;Tiles/entity.h:36: if((time % entity->frameRate) == 0)
+;Tiles/entity.h:38: if((time % entity->frameRate) == 0)
 	pop	de
 	push	de
 	ld	hl, #64
@@ -1124,7 +1131,7 @@ _Entity_Update::
 	ld	h, b
 ;	spillPairReg hl
 ;	spillPairReg hl
-;Tiles/entity.h:38: entity->currentFrame++;
+;Tiles/entity.h:40: entity->currentFrame++;
 	call	__moduint
 	ld	a, -2 (ix)
 	add	a, #0x42
@@ -1132,11 +1139,11 @@ _Entity_Update::
 	ld	a, -1 (ix)
 	adc	a, #0x00
 	ld	b, a
-;Tiles/entity.h:36: if((time % entity->frameRate) == 0)
+;Tiles/entity.h:38: if((time % entity->frameRate) == 0)
 	ld	a, d
 	or	a, e
 	jr	NZ, 00102$
-;Tiles/entity.h:38: entity->currentFrame++;
+;Tiles/entity.h:40: entity->currentFrame++;
 	ld	l, c
 	ld	h, b
 	ld	e, (hl)
@@ -1149,7 +1156,7 @@ _Entity_Update::
 	inc	hl
 	ld	(hl), d
 00102$:
-;Tiles/entity.h:41: if(entity->currentFrame > entity->numFrames)
+;Tiles/entity.h:43: if(entity->currentFrame > entity->numFrames)
 	ld	l, c
 	ld	h, b
 	ld	e, (hl)
@@ -1169,39 +1176,39 @@ _Entity_Update::
 	ld	h, a
 	sbc	hl, de
 	jr	NC, 00105$
-;Tiles/entity.h:43: entity->currentFrame = 0;
+;Tiles/entity.h:45: entity->currentFrame = 0;
 	xor	a, a
 	ld	(bc), a
 	inc	bc
 	ld	(bc), a
 00105$:
-;Tiles/entity.h:45: }
+;Tiles/entity.h:47: }
 	ld	sp, ix
 	pop	ix
 	ret
-;Tiles/entity.h:47: unsigned char Entity_GetCurrentFrame(Entity* entity)
+;Tiles/entity.h:49: unsigned char Entity_GetCurrentFrame(Entity* entity)
 ;	---------------------------------
 ; Function Entity_GetCurrentFrame
 ; ---------------------------------
 _Entity_GetCurrentFrame::
-;Tiles/entity.h:49: return entity->currentFrame;
+;Tiles/entity.h:51: return entity->currentFrame;
 	ld	de, #0x0042
 	add	hl, de
 	ld	a, (hl)
-;Tiles/entity.h:50: }
+;Tiles/entity.h:52: }
 	ret
-;Tiles/entity.h:52: unsigned char Entity_GetFrameRate(Entity* entity)
+;Tiles/entity.h:54: unsigned char Entity_GetFrameRate(Entity* entity)
 ;	---------------------------------
 ; Function Entity_GetFrameRate
 ; ---------------------------------
 _Entity_GetFrameRate::
-;Tiles/entity.h:54: return entity->frameRate;
+;Tiles/entity.h:56: return entity->frameRate;
 	ld	de, #0x0040
 	add	hl, de
 	ld	a, (hl)
-;Tiles/entity.h:55: }
+;Tiles/entity.h:57: }
 	ret
-;Tiles/entity.h:57: void Entity_Draw
+;Tiles/entity.h:59: void Entity_Draw
 ;	---------------------------------
 ; Function Entity_Draw
 ; ---------------------------------
@@ -1210,7 +1217,7 @@ _Entity_Draw::
 	ld	ix,#0
 	add	ix,sp
 	ex	de, hl
-;Tiles/entity.h:63: MetaTile_Draw(entity->metatile[entity->currentFrame], x, y);
+;Tiles/entity.h:65: MetaTile_Draw(entity->metatile[entity->currentFrame], x, y);
 	push	de
 	pop	iy
 	ld	l, 66 (iy)
@@ -1230,7 +1237,7 @@ _Entity_Draw::
 ;	spillPairReg hl
 ;	spillPairReg hl
 	call	_MetaTile_Draw
-;Tiles/entity.h:64: }
+;Tiles/entity.h:66: }
 	pop	ix
 	pop	hl
 	pop	af
@@ -1379,8 +1386,11 @@ _loadGraphics2vram::
 	ld	-3 (ix), d
 	ld	-2 (ix), c
 	ld	-1 (ix), b
-;main.c:63: entity = Entity_Create(metatilelist);
-	ld	hl, #64
+;main.c:63: entity = Entity_Create(metatilelist, 2);
+	ld	a, #0x02
+	push	af
+	inc	sp
+	ld	hl, #65
 	add	hl, sp
 	call	_Entity_Create
 	ld	(_entity), de
