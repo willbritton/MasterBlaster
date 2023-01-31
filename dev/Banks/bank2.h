@@ -35,7 +35,7 @@ extern const unsigned char	spritepalette_bin[];
 #define				spritepalette_bin_bank 2
 
 extern const unsigned char	spritepalette_lr_bin[];
-#define				spritepalette_lr_bin_size 16
+#define				spritepalette_lr_bin_size 8
 #define				spritepalette_lr_bin_bank 2
 
 extern const unsigned char	spritetiles_down_bin[];

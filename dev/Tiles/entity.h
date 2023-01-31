@@ -1,47 +1,64 @@
 #include <stdlib.h>
 #include <stdbool.h>
+#include "metatile.h"
 
-typedef struct Entity
-{
-    unsigned char width;
-    unsigned char height;
-    bool collidable;
+typedef struct Entity {
+    MetaTile* metatile[32];
+    unsigned char frameRate;
+    unsigned char numFrames;
+    unsigned int currentFrame;
 } Entity;
 
-void DeleteEntity(Entity *entity)
+Entity* Entity_Create(MetaTile* metatile[]) 
+{
+    Entity* entity = malloc(sizeof(struct Entity));
+    // entity->metatile = malloc(sizeof(struct MetaTile) * 32);
+    entity->currentFrame = 0;
+    entity->frameRate = 30;
+
+    unsigned char i;
+    for(i = 0; i < metatile[i]->numTiles; ++i)
+    {
+        entity->metatile[i] = metatile[i];
+    }
+
+    return entity;
+}
+
+void Entity_Delete(Entity* entity)
 {
     if(entity != NULL)
         free(entity);
 }
 
-void InitEntity(Entity* entity,
-    unsigned char width,
-    unsigned char height,
-    bool collidable)
+void Entity_Update(Entity* entity, unsigned int time)
 {
-    entity->width = width;
-    entity->height = height;
-    entity->collidable = collidable;
-}
-
-void UpdateEntity(void)
-{
-
-}
-
-void DrawEntity(void)
-{
-
-}
-
-Entity* CreateEntity( void )
-{
-    struct Entity* entity = malloc(sizeof (struct Entity));
+    if((time % entity->frameRate) == 0)
+    {
+        entity->currentFrame++;
+    }
     
-    if (entity == NULL)
-        return NULL;
+    if(entity->currentFrame > entity->numFrames)
+    {
+        entity->currentFrame = 0;
+    }
+}
 
-    InitEntity(entity, 1, 1, false);
+unsigned char Entity_GetCurrentFrame(Entity* entity)
+{
+    return entity->currentFrame;
+}
 
-    return entity;
+unsigned char Entity_GetFrameRate(Entity* entity)
+{
+    return entity->frameRate;
+}
+
+void Entity_Draw
+(
+    Entity* entity,
+    unsigned char x,
+    unsigned char y
+) {
+    MetaTile_Draw(entity->metatile[entity->currentFrame], x, y);
 }

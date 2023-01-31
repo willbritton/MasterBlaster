@@ -7,13 +7,18 @@ Symbol Table
     .__.ABS.                                                    =  000000 G
     .__.CPU.                                                    =  000000 L
     .__.H$L.                                                    =  000000 L
-  0 _CreateAnimation                                               000363 GR
-  0 _DeleteAnimation                                               0002B9 GR
-  0 _InitAnimation                                                 0002BF GR
+  0 _CreateTile                                                    000336 GR
+  0 _DeleteTile                                                    000382 GR
+  0 _Entity_Create                                                 000469 GR
+  0 _Entity_Delete                                                 0004BC GR
+  0 _Entity_Draw                                                   000520 GR
+  0 _Entity_GetCurrentFrame                                        000514 GR
+  0 _Entity_GetFrameRate                                           00051A GR
+  0 _Entity_Update                                                 0004C2 GR
   0 _InitConsole                                                   000001 GR
-  0 _InitStage                                                     00059F GR
   0 _InterruptHandler                                              000000 GR
-  2 _MAX_FRAMES                                                    000000 GR
+  0 _MetaTile_Create                                               000388 GR
+  0 _MetaTile_Draw                                                 0003FF GR
     _PSGFrame                                                      ****** GX
     _PSGPlay                                                       ****** GX
     _PSGPlayNoRepeat                                               ****** GX
@@ -46,33 +51,32 @@ Symbol Table
     _SMS_setLineInterruptHandler                                   ****** GX
     _SMS_waitForVBlank                                             ****** GX
     _SRAM_bank_to_be_mapped_on_slot2                            =  00FFFC G
-  0 _UpdateAnimation                                               0003A0 GR
+  0 _Tile_Update                                                   0002B9 GR
   A ___SMS__SDSC_author                                            007FD5 GR
   C ___SMS__SDSC_descr                                             007F93 GR
   B ___SMS__SDSC_name                                              007FC6 GR
   D ___SMS__SDSC_signature                                         007FE0 GR
   9 ___SMS__SEGA_signature                                         007FF0 GR
-    __moduchar                                                     ****** GX
-  0 __str_0                                                        000A8C R
-  0 __str_1                                                        000A97 R
-  0 __str_2                                                        000AA6 R
-  7 __xinit__MAX_FRAMES                                            000000 R
-  1 _anim                                                          00000B GR
+    __moduint                                                      ****** GX
 ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180 / ZX-Next / eZ80), page 2.
 Hexadecimal [24-Bits]
 
 Symbol Table
 
+  0 __str_0                                                        000754 R
+  0 __str_1                                                        00075F R
+  0 __str_2                                                        00076E R
     _background_palette_bin                                        ****** GX
     _backgroundtilemap_bin                                         ****** GX
     _backgroundtiles_psgcompr                                      ****** GX
   0 _checkgamepause                                                00001E GR
+  1 _entity                                                        00000B GR
   1 _frame_counter                                                 000009 GR
     _free                                                          ****** GX
   1 _gamepause                                                     000001 GR
     _items_tiles_psgcompr                                          ****** GX
-  0 _loadGraphics2vram                                             0006B4 GR
-  0 _main                                                          000A0F GR
+  0 _loadGraphics2vram                                             000547 GR
+  0 _main                                                          0006D6 GR
     _malloc                                                        ****** GX
     _music_psg                                                     ****** GX
   1 _numinterrupts                                                 000000 GR
@@ -89,20 +93,19 @@ Symbol Table
     _spritetiles_up_bin                                            ****** GX
   1 _volume_atenuation                                             00000A GR
 
-
 ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180 / ZX-Next / eZ80), page 3.
 Hexadecimal [24-Bits]
 
 Area Table
 
-   0 _CODE                                      size    AD9   flags    0
+   0 _CODE                                      size    7A1   flags    0
    1 _DATA                                      size      D   flags    0
-   2 _INITIALIZED                               size      1   flags    0
+   2 _INITIALIZED                               size      0   flags    0
    3 _DABS                                      size      0   flags    8
    4 _HOME                                      size      0   flags    0
    5 _GSINIT                                    size      0   flags    0
    6 _GSFINAL                                   size      0   flags    0
-   7 _INITIALIZER                               size      1   flags    0
+   7 _INITIALIZER                               size      0   flags    0
    8 _CABS                                      size      0   flags    8
    9 _CABS0                                     size     10   flags    8
    A _CABS1                                     size      B   flags    8

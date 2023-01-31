@@ -17,9 +17,9 @@ Symbol Table
   7 _pause_psg                                                     001C58 GR
   7 _spritepalette_bin                                             001C7B GR
   7 _spritepalette_lr_bin                                          001C83 GR
-  7 _spritetiles_down_bin                                          001C93 GR
-  7 _spritetiles_lr_bin                                            002113 GR
-  7 _spritetiles_up_bin                                            002A13 GR
+  7 _spritetiles_down_bin                                          001C8B GR
+  7 _spritetiles_lr_bin                                            00210B GR
+  7 _spritetiles_up_bin                                            002A0B GR
 
 
 ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180 / ZX-Next / eZ80), page 2.
@@ -34,7 +34,7 @@ Area Table
    4 _HOME                                      size      0   flags    0
    5 _GSINIT                                    size      0   flags    0
    6 _GSFINAL                                   size      0   flags    0
-   7 _BANK2                                     size   2E93   flags    0
+   7 _BANK2                                     size   2E8B   flags    0
    8 _INITIALIZER                               size      0   flags    0
    9 _CABS                                      size      0   flags    8
 

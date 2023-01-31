@@ -7371,14 +7371,6 @@ _spritepalette_lr_bin:
 	.db #0x21	; 33
 	.db #0x1b	; 27
 	.db #0x3f	; 63
-	.db #0x00	; 0
-	.db #0x00	; 0
-	.db #0x00	; 0
-	.db #0x00	; 0
-	.db #0x00	; 0
-	.db #0x00	; 0
-	.db #0x00	; 0
-	.db #0x00	; 0
 _spritetiles_down_bin:
 	.db #0x07	; 7
 	.db #0x00	; 0

@@ -1,12 +1,12 @@
 #include "main.h"
 #include "Players/players.h"
-#include "Tiles/animation.h"
-#include "Stages/stage1.h"
+#include "Tiles/entity.h"
+//#include "Stages/stage1.h"
 
 unsigned char frame_counter;
 unsigned char volume_atenuation;
 
-Animation* anim;
+Entity* entity;
 
 void loadGraphics2vram(void)
 {
@@ -32,41 +32,40 @@ void loadGraphics2vram(void)
   SMS_loadTiles(spritetiles_down_bin, PLAYER1_SPRITE_POSITION, 32*6*6);
   //SMS_setSpritePaletteColor(0, RGB(0, 0, 0));
 
-  // Anim C testing
-  Frame frames[] =
+  // tilelist
+  Tile tilelist1[] = 
   {
-    {11, 0, 0, 0, 1},
-    {11, 1, 0, 0, 1},
-    {11, 0, 0, 0, 1},
-    {11, 1, 0, 0, 1},
-    {11, 0, 0, 0, 1},
-    {11, 1, 0, 0, 1},
-    {11, 0, 0, 0, 1},
-    {11, 1, 0, 0, 1},
-    {11, 0, 0, 1, 1},
-    {11, 0, 1, 1, 1},
-    {11, 0, 0, 1, 1},
-    {11, 0, 1, 1, 1},
-    {11, 0, 0, 1, 1},
-    {11, 0, 1, 1, 1},
-    {11, 0, 0, 1, 1},
-    {11, 0, 1, 1, 1},
-    {12},
-    {13},
-    {14},
-    {15},
-    {16},
-    {17},
-    {18},
-    {19},
-    {20}
+    // frame 1
+    {11, 0, 0, 0, 0, 1},
+    {10, 0, 0, 0, 0, 1},
+    {11, 0, 0, 0, 0, 1},
+    {10, 0, 0, 0, 0, 1},
   };
 
-  unsigned char numFrames = sizeof(frames) / sizeof(Frame);
-  anim = CreateAnimation(frames, numFrames, 2, 2, 32, 1, 1);
+  Tile tilelist2[] = 
+  {
+    // frame 2
+    {20, 0, 0, 0, 0, 1},
+    {21, 0, 0, 0, 0, 1},
+    {20, 0, 0, 0, 0, 1},
+    {21, 0, 0, 0, 0, 1}
+  };
+  
+  MetaTile* metatile1 = MetaTile_Create(tilelist1, 4, 2, 2);
+  MetaTile* metatile2 = MetaTile_Create(tilelist2, 4, 2, 2);
+
+  MetaTile* metatilelist[] = 
+  {
+    metatile1,
+    metatile2
+  };
+
+  entity = Entity_Create(metatilelist);
+  // Entity_Update(entity, frame_counter);
+  Entity_Draw(entity, 6, 6);
 
   // Init stage
-  InitStage();
+  // InitStage();
 }
 
 void main (void)
@@ -101,7 +100,8 @@ void main (void)
       }
 
       // update background
-      UpdateAnimation(anim, frame_counter);
+      //UpdateAnimation(anim, frame_counter);
+      Entity_Update(entity, frame_counter);
 
       // update sprites
       SMS_initSprites();

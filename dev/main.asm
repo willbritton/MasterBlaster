@@ -15,7 +15,17 @@
 	.globl ___SMS__SEGA_signature
 	.globl _main
 	.globl _loadGraphics2vram
-	.globl _InitStage
+	.globl _Entity_Draw
+	.globl _Entity_GetFrameRate
+	.globl _Entity_GetCurrentFrame
+	.globl _Entity_Update
+	.globl _Entity_Delete
+	.globl _Entity_Create
+	.globl _MetaTile_Draw
+	.globl _MetaTile_Create
+	.globl _DeleteTile
+	.globl _CreateTile
+	.globl _Tile_Update
 	.globl _SMS_VRAMmemsetW
 	.globl _SMS_VRAMmemcpy
 	.globl _SMS_loadSpritePalette
@@ -27,10 +37,6 @@
 	.globl _SMS_loadPSGaidencompressedTilesatAddr
 	.globl _SMS_waitForVBlank
 	.globl _SMS_VDPturnOnFeature
-	.globl _UpdateAnimation
-	.globl _CreateAnimation
-	.globl _InitAnimation
-	.globl _DeleteAnimation
 	.globl _free
 	.globl _malloc
 	.globl _Player1Init
@@ -42,8 +48,7 @@
 	.globl _PSGSFXGetStatus
 	.globl _PSGPlayNoRepeat
 	.globl _PSGPlay
-	.globl _MAX_FRAMES
-	.globl _anim
+	.globl _entity
 	.globl _volume_atenuation
 	.globl _frame_counter
 	.globl _SMS_SRAM
@@ -94,14 +99,12 @@ _frame_counter::
 	.ds 1
 _volume_atenuation::
 	.ds 1
-_anim::
+_entity::
 	.ds 2
 ;--------------------------------------------------------
 ; ram data
 ;--------------------------------------------------------
 	.area _INITIALIZED
-_MAX_FRAMES::
-	.ds 1
 ;--------------------------------------------------------
 ; absolute external ram data
 ;--------------------------------------------------------
@@ -636,109 +639,275 @@ _Player1UpdateDraw::
 	ld	sp, ix
 	pop	ix
 	ret
-;Tiles/animation.h:30: void DeleteAnimation(Animation *anim)
+;Tiles/tile.h:24: void Tile_Update(Tile* tile)
 ;	---------------------------------
-; Function DeleteAnimation
+; Function Tile_Update
 ; ---------------------------------
-_DeleteAnimation::
-;Tiles/animation.h:32: if(anim != NULL)
+_Tile_Update::
+	push	ix
+	ld	ix,#0
+	add	ix,sp
+	push	af
+	ld	c, l
+	ld	b, h
+;Tiles/tile.h:26: tile->computedId = tile->id;
+	ld	hl, #0x0006
+	add	hl, bc
+	ex	(sp), hl
+	ld	a, (bc)
+	ld	e, a
+	ld	d, #0x00
+	pop	hl
+	push	hl
+	ld	(hl), e
+	inc	hl
+	ld	(hl), d
+;Tiles/tile.h:28: if(tile->flipX)
+	ld	l, c
+;	spillPairReg hl
+;	spillPairReg hl
+	ld	h, b
+;	spillPairReg hl
+;	spillPairReg hl
+	inc	hl
+	inc	hl
+	bit	0, (hl)
+	jr	Z, 00102$
+;Tiles/tile.h:29: tile->computedId += TILE_FLIPPED_X;
+	pop	hl
+	push	hl
+	ld	e, (hl)
+	inc	hl
+	ld	d, (hl)
+	ld	hl, #0x0200
+	add	hl, de
+	ex	de, hl
+	pop	hl
+	push	hl
+	ld	(hl), e
+	inc	hl
+	ld	(hl), d
+00102$:
+;Tiles/tile.h:31: if(tile->flipY)
+	ld	l, c
+;	spillPairReg hl
+;	spillPairReg hl
+	ld	h, b
+;	spillPairReg hl
+;	spillPairReg hl
+	inc	hl
+	inc	hl
+	inc	hl
+	bit	0, (hl)
+	jr	Z, 00104$
+;Tiles/tile.h:32: tile->computedId += TILE_FLIPPED_Y;
+	pop	hl
+	push	hl
+	ld	e, (hl)
+	inc	hl
+	ld	d, (hl)
+	ld	hl, #0x0400
+	add	hl, de
+	ex	de, hl
+	pop	hl
+	push	hl
+	ld	(hl), e
+	inc	hl
+	ld	(hl), d
+00104$:
+;Tiles/tile.h:34: if(tile->useSpritePalette)
+	push	bc
+	pop	iy
+	ld	e, 4 (iy)
+	bit	0, e
+	jr	Z, 00106$
+;Tiles/tile.h:35: tile->computedId += TILE_USE_SPRITE_PALETTE;
+	pop	hl
+	push	hl
+	ld	e, (hl)
+	inc	hl
+	ld	d, (hl)
+	ld	hl, #0x0800
+	add	hl, de
+	ex	de, hl
+	pop	hl
+	push	hl
+	ld	(hl), e
+	inc	hl
+	ld	(hl), d
+00106$:
+;Tiles/tile.h:37: if(tile->priority)
+	ld	hl, #5
+	add	hl, bc
+	bit	0, (hl)
+	jr	Z, 00109$
+;Tiles/tile.h:38: tile->computedId += TILE_PRIORITY;
+	pop	hl
+	push	hl
+	ld	c, (hl)
+	inc	hl
+	ld	b, (hl)
+	ld	hl, #0x1000
+	add	hl, bc
+	ex	de, hl
+	pop	hl
+	push	hl
+	ld	(hl), e
+	inc	hl
+	ld	(hl), d
+00109$:
+;Tiles/tile.h:39: }
+	ld	sp, ix
+	pop	ix
+	ret
+;Tiles/tile.h:41: Tile* CreateTile
+;	---------------------------------
+; Function CreateTile
+; ---------------------------------
+_CreateTile::
+	push	ix
+	ld	ix,#0
+	add	ix,sp
+	ld	b, a
+	ld	c, l
+;Tiles/tile.h:50: struct Tile *tile = malloc(sizeof (struct Tile));
+	push	bc
+	ld	hl, #0x0008
+	call	_malloc
+	pop	bc
+;Tiles/tile.h:51: tile->id = id;
+	ld	a, b
+	ld	(de), a
+;Tiles/tile.h:52: tile->collidable = collidable;
+	ld	l, e
+;	spillPairReg hl
+;	spillPairReg hl
+	ld	h, d
+;	spillPairReg hl
+;	spillPairReg hl
+	inc	hl
+	ld	(hl), c
+;Tiles/tile.h:53: tile->flipX = flipX;
+	ld	c, e
+	ld	b, d
+	inc	bc
+	inc	bc
+	ld	a, 4 (ix)
+	ld	(bc), a
+;Tiles/tile.h:54: tile->flipY = flipY;
+	ld	c, e
+	ld	b, d
+	inc	bc
+	inc	bc
+	inc	bc
+	ld	a, 5 (ix)
+	ld	(bc), a
+;Tiles/tile.h:55: tile->useSpritePalette = useSpritePalette;
+	ld	hl, #0x0004
+	add	hl, de
+	ld	a, 6 (ix)
+	ld	(hl), a
+;Tiles/tile.h:56: tile->priority = priority;
+	ld	hl, #0x0005
+	add	hl, de
+	ld	a, 7 (ix)
+	ld	(hl), a
+;Tiles/tile.h:58: Tile_Update(tile);
+;	spillPairReg hl
+;	spillPairReg hl
+	ex	de, hl
+	push	hl
+;	spillPairReg hl
+;	spillPairReg hl
+	call	_Tile_Update
+	pop	de
+;Tiles/tile.h:60: if (tile == NULL)
+	ld	a, d
+	or	a, e
+	jr	NZ, 00102$
+;Tiles/tile.h:61: return NULL;
+	ld	de, #0x0000
+;Tiles/tile.h:63: return tile;
+00102$:
+;Tiles/tile.h:64: }
+	pop	ix
+	pop	hl
+	pop	af
+	pop	af
+	jp	(hl)
+;Tiles/tile.h:66: void DeleteTile(Tile *tile)
+;	---------------------------------
+; Function DeleteTile
+; ---------------------------------
+_DeleteTile::
+;Tiles/tile.h:68: if(tile != NULL)
 	ld	a, h
 	or	a, l
-;Tiles/animation.h:33: free(anim);
+;Tiles/tile.h:69: free(tile);
 	jp	NZ,_free
-;Tiles/animation.h:34: }
+;Tiles/tile.h:70: }
 	ret
-;Tiles/animation.h:36: void InitAnimation(Animation* anim,
+;Tiles/metatile.h:14: MetaTile* MetaTile_Create
 ;	---------------------------------
-; Function InitAnimation
+; Function MetaTile_Create
 ; ---------------------------------
-_InitAnimation::
+_MetaTile_Create::
 	push	ix
 	ld	ix,#0
 	add	ix,sp
 	push	af
 	push	af
 	dec	sp
-	ld	c, l
-	ld	b, h
-	ld	-3 (ix), e
-	ld	-2 (ix), d
-;Tiles/animation.h:45: anim->currentFrame = 0;
-	ld	hl, #0x00a3
-	add	hl, bc
-	ld	(hl), #0x00
-;Tiles/animation.h:46: anim->numFrames = numFrames;
-	ld	hl, #0x00a4
-	add	hl, bc
-	ex	de, hl
-	ld	a, 4 (ix)
-	ld	(de), a
-;Tiles/animation.h:47: anim->mapPosX = mapPosX;
-	ld	hl, #0x00a0
-	add	hl, bc
+	ld	-3 (ix), l
+	ld	-2 (ix), h
+;Tiles/metatile.h:29: MetaTile* metatile = malloc(sizeof (struct MetaTile));
+	ld	hl, #0x0083
+	call	_malloc
+;Tiles/metatile.h:30: metatile->numTilesX = numTilesX;
+	ld	hl, #0x0081
+	add	hl, de
 	ld	a, 5 (ix)
 	ld	(hl), a
-;Tiles/animation.h:48: anim->mapPosY = mapPosY;
-	ld	hl, #0x00a1
-	add	hl, bc
+;Tiles/metatile.h:31: metatile->numTilesY = numTilesY;
+	ld	hl, #0x0082
+	add	hl, de
 	ld	a, 6 (ix)
 	ld	(hl), a
-;Tiles/animation.h:49: anim->animationSpeed = animationSpeed;
-	ld	hl, #0x00a2
-	add	hl, bc
-	ld	a, 7 (ix)
-	ld	(hl), a
-;Tiles/animation.h:50: anim->width = width;
-	ld	hl, #0x00a5
-	add	hl, bc
-	ld	a, 8 (ix)
-	ld	(hl), a
-;Tiles/animation.h:51: anim->height = height;
-	ld	hl, #0x00a6
-	add	hl, bc
-	ld	a, 9 (ix)
-	ld	(hl), a
-;Tiles/animation.h:53: if(anim->numFrames > MAX_FRAMES)
-	ld	hl, #_MAX_FRAMES
-	ld	a, (hl)
-	sub	a, 4 (ix)
-	jr	NC, 00111$
-;Tiles/animation.h:55: anim->numFrames = MAX_FRAMES;
-	ld	a, (_MAX_FRAMES+0)
-	ld	(de), a
-;Tiles/animation.h:58: for(unsigned char i = 0; i < anim->numFrames; i++)
-00111$:
+;Tiles/metatile.h:32: metatile->numTiles = numTiles;
+	ld	hl, #0x0080
+	add	hl, de
+	ld	c, l
+	ld	b, h
+	ld	a, 4 (ix)
+	ld	(bc), a
+;Tiles/metatile.h:35: for(i = 0; i < metatile->numTiles; ++i)
 	ld	-1 (ix), #0x00
-00105$:
-	ld	a, (de)
+00103$:
+	ld	a, (bc)
 	ld	l, a
 ;	spillPairReg hl
 ;	spillPairReg hl
 	ld	a, -1 (ix)
 	sub	a, l
-	jr	NC, 00107$
-;Tiles/animation.h:60: anim->frames[i] = frames[i];
-	push	de
+	jr	NC, 00101$
+;Tiles/metatile.h:37: metatile->tiles[i] = tiles[i];
+	ld	a, -1 (ix)
+	add	a, a
+	add	a, a
+	add	a, a
+	ld	l, a
+	ld	h, #0x00
+	add	hl, de
+	ex	(sp), hl
 	ld	l, -1 (ix)
 ;	spillPairReg hl
 ;	spillPairReg hl
-	ld	e, l
-	add	hl, hl
-	add	hl, hl
-	add	hl, de
-	pop	de
 	ld	h, #0x00
-	add	hl, bc
-	ex	(sp), hl
-	push	de
-	ld	e, -1 (ix)
-	ld	d, #0x00
-	ld	l, e
-	ld	h, d
+;	spillPairReg hl
+;	spillPairReg hl
 	add	hl, hl
 	add	hl, hl
-	add	hl, de
-	pop	de
+	add	hl, hl
 	ld	a, l
 	add	a, -3 (ix)
 	ld	l, a
@@ -753,496 +922,328 @@ _InitAnimation::
 	push	bc
 	ld	e, -5 (ix)
 	ld	d, -4 (ix)
-	ld	bc, #0x0005
+	ld	bc, #0x0008
 	ldir
 	pop	bc
 	pop	de
-;Tiles/animation.h:58: for(unsigned char i = 0; i < anim->numFrames; i++)
+;Tiles/metatile.h:35: for(i = 0; i < metatile->numTiles; ++i)
 	inc	-1 (ix)
-	jp	00105$
-00107$:
-;Tiles/animation.h:62: }
-	ld	sp, ix
-	pop	ix
-	pop	hl
-	pop	af
-	pop	af
-	pop	af
-	jp	(hl)
-;Tiles/animation.h:64: Animation* CreateAnimation(
-;	---------------------------------
-; Function CreateAnimation
-; ---------------------------------
-_CreateAnimation::
-	push	ix
-	ld	ix,#0
-	add	ix,sp
-;Tiles/animation.h:73: struct Animation* anim = malloc(sizeof (struct Animation));
-	push	hl
-	ld	hl, #0x00a7
-	call	_malloc
-	ex	de, hl
-	pop	de
-;Tiles/animation.h:75: if (anim == NULL)
-	ld	a, h
-	or	a, l
-	jr	NZ, 00102$
-;Tiles/animation.h:76: return NULL;
-	ld	de, #0x0000
 	jp	00103$
-00102$:
-;Tiles/animation.h:78: InitAnimation(anim, frames, numFrames, mapPosX, mapPosY, animationSpeed, width, height);
-	push	hl
-	ld	b, 9 (ix)
-	ld	c, 8 (ix)
-	push	bc
-	ld	b, 7 (ix)
-	ld	c, 6 (ix)
-	push	bc
-	ld	b, 5 (ix)
-	ld	c, 4 (ix)
-	push	bc
-	call	_InitAnimation
-	pop	hl
-;Tiles/animation.h:80: return anim;
-	ex	de, hl
-00103$:
-;Tiles/animation.h:81: }
-	pop	ix
-	pop	hl
-	pop	af
-	pop	af
-	pop	af
-	jp	(hl)
-;Tiles/animation.h:83: void UpdateAnimation(Animation* animation, unsigned char time)
-;	---------------------------------
-; Function UpdateAnimation
-; ---------------------------------
-_UpdateAnimation::
-	push	ix
-	ld	ix,#0
-	add	ix,sp
-	ld	iy, #-12
-	add	iy, sp
-	ld	sp, iy
-	ld	-4 (ix), l
-	ld	-3 (ix), h
-;Tiles/animation.h:85: if((time % animation->animationSpeed) == 0)
-	ld	a, -4 (ix)
-	ld	-2 (ix), a
-	ld	a, -3 (ix)
-	ld	-1 (ix), a
-	ld	l, -2 (ix)
-	ld	h, -1 (ix)
-	ld	de, #0x00a2
-	add	hl, de
-	ld	l, (hl)
-;	spillPairReg hl
-	ld	a, 4 (ix)
-	call	__moduchar
-	ld	-1 (ix), e
-	ld	a, e
-	or	a, a
-	jp	NZ, 00120$
-;Tiles/animation.h:87: animation->currentFrame++;
-	ld	a, -4 (ix)
-	add	a, #0xa3
-	ld	-12 (ix), a
-	ld	a, -3 (ix)
-	adc	a, #0x00
-	ld	-11 (ix), a
-	pop	hl
-	push	hl
-	ld	a, (hl)
-	ld	-1 (ix), a
-	inc	a
-	ld	-5 (ix), a
-	pop	hl
-	push	hl
-	ld	a, -5 (ix)
-	ld	(hl), a
-;Tiles/animation.h:89: if(animation->currentFrame > animation->numFrames)
-	ld	a, -4 (ix)
-	ld	-2 (ix), a
-	ld	a, -3 (ix)
-	ld	-1 (ix), a
-	ld	l, -2 (ix)
-	ld	h, -1 (ix)
-	ld	de, #0x00a4
-	add	hl, de
-	ld	a, (hl)
-	sub	a, -5 (ix)
-	jr	NC, 00102$
-;Tiles/animation.h:91: animation->currentFrame = 0;
-	pop	hl
-	push	hl
-	ld	(hl), #0x00
-00102$:
-;Tiles/animation.h:94: unsigned int flags = 0;
-	xor	a, a
-	ld	-2 (ix), a
-	ld	-1 (ix), a
-;Tiles/animation.h:87: animation->currentFrame++;
-	pop	hl
-	push	hl
-	ld	a, (hl)
-;Tiles/animation.h:96: if(animation->frames[animation->currentFrame].flipX)
-	ld	-5 (ix), a
-	ld	c, a
-	add	a, a
-	add	a, a
-	add	a, c
-	ld	-5 (ix), a
-	add	a, -4 (ix)
-	ld	-8 (ix), a
-	ld	a, #0x00
-	adc	a, -3 (ix)
-	ld	-7 (ix), a
-	ld	a, -8 (ix)
-	ld	-6 (ix), a
-	ld	a, -7 (ix)
-	ld	-5 (ix), a
-	ld	l, -6 (ix)
-	ld	h, -5 (ix)
-	inc	hl
-	ld	a, (hl)
-	ld	-5 (ix), a
-	bit	0, -5 (ix)
-	jr	Z, 00104$
-;Tiles/animation.h:98: flags |= TILE_FLIPPED_X;
-	ld	-2 (ix), #0x00
-	ld	-1 (ix), #0x02
-00104$:
-;Tiles/animation.h:101: if(animation->frames[animation->currentFrame].flipY)
-	ld	c, -8 (ix)
-	ld	b, -7 (ix)
-	inc	bc
-	inc	bc
-	ld	a, (bc)
-	ld	-5 (ix), a
-	bit	0, -5 (ix)
-	jr	Z, 00106$
-;Tiles/animation.h:103: flags |= TILE_FLIPPED_X;
-	ld	a, -1 (ix)
-	or	a, #0x02
-	ld	-1 (ix), a
-00106$:
-;Tiles/animation.h:106: if(animation->frames[animation->currentFrame].useSpritePalette)
-	ld	l, -8 (ix)
-;	spillPairReg hl
-;	spillPairReg hl
-	ld	h, -7 (ix)
-;	spillPairReg hl
-;	spillPairReg hl
-	inc	hl
-	inc	hl
-	inc	hl
-	bit	0, (hl)
-	jr	Z, 00108$
-;Tiles/animation.h:108: flags |= TILE_USE_SPRITE_PALETTE;
-	ld	a, -1 (ix)
-	or	a, #0x08
-	ld	-1 (ix), a
-00108$:
-;Tiles/animation.h:111: if(animation->frames[animation->currentFrame].priority)
-	ld	a, -8 (ix)
-	ld	-6 (ix), a
-	ld	a, -7 (ix)
-	ld	-5 (ix), a
-	ld	l, -6 (ix)
-	ld	h, -5 (ix)
-	ld	de, #0x0004
-	add	hl, de
-	ld	a, (hl)
-	ld	-5 (ix), a
-	bit	0, -5 (ix)
-	jr	Z, 00110$
-;Tiles/animation.h:113: flags |= TILE_PRIORITY;
-	ld	a, -1 (ix)
-	or	a, #0x10
-	ld	-1 (ix), a
-00110$:
-;Tiles/animation.h:116: if(animation->height > 1 || animation->width > 1)
-	ld	c, -4 (ix)
-	ld	b, -3 (ix)
-	ld	hl, #166
-	add	hl, bc
-	ld	c, (hl)
-	ld	a, #0x01
-	sub	a, c
-	jp	C, 00120$
-	ld	c, -4 (ix)
-	ld	b, -3 (ix)
-	ld	hl, #165
-	add	hl, bc
-	ld	c, (hl)
-	ld	a, #0x01
-	sub	a, c
-	jp	C, 00120$
-;Tiles/animation.h:123: SMS_setTileatXY(animation->mapPosX, animation->mapPosX, animation->frames[animation->currentFrame].tileId | flags);
-	ld	a, -4 (ix)
-	ld	-6 (ix), a
-	ld	a, -3 (ix)
-	ld	-5 (ix), a
-	ld	l, -6 (ix)
-	ld	h, -5 (ix)
-	ld	de, #0x00a0
-	add	hl, de
-	ld	a, (hl)
-	ld	-5 (ix), a
-	ld	-7 (ix), a
-	ld	-6 (ix), #0x00
-	ld	a, -7 (ix)
-	ld	-10 (ix), a
-	ld	a, -6 (ix)
-	ld	-9 (ix), a
-	ld	b, #0x05
-00162$:
-	sla	-10 (ix)
-	rl	-9 (ix)
-	djnz	00162$
-	ld	a, -5 (ix)
-	ld	-6 (ix), a
-	ld	-5 (ix), #0x00
-	ld	a, -6 (ix)
-	ld	-8 (ix), a
-	ld	a, -5 (ix)
-	ld	-7 (ix), a
-	ld	a, -10 (ix)
-	add	a, -8 (ix)
-	ld	-6 (ix), a
-	ld	a, -9 (ix)
-	adc	a, -7 (ix)
-	ld	-5 (ix), a
-	sla	-6 (ix)
-	rl	-5 (ix)
-	ld	a, -6 (ix)
-	ld	-8 (ix), a
-	ld	a, -5 (ix)
-	or	a, #0x78
-	ld	-7 (ix), a
-	ld	l, -8 (ix)
-;	spillPairReg hl
-;	spillPairReg hl
-	ld	h, -7 (ix)
-;	spillPairReg hl
-;	spillPairReg hl
-	rst	#0x08
-	pop	hl
-	push	hl
-	ld	a, (hl)
-	ld	c, a
-	add	a, a
-	add	a, a
-	add	a, c
-	add	a, -4 (ix)
-	ld	-6 (ix), a
-	ld	a, #0x00
-	adc	a, -3 (ix)
-	ld	-5 (ix), a
-	ld	l, -6 (ix)
-	ld	h, -5 (ix)
-	ld	a, (hl)
-	ld	-5 (ix), a
-	ld	-8 (ix), a
-	ld	-7 (ix), #0x00
-	ld	a, -8 (ix)
-	or	a, -2 (ix)
-	ld	-6 (ix), a
-	ld	a, -7 (ix)
-	or	a, -1 (ix)
-	ld	-5 (ix), a
-	ld	l, -6 (ix)
-;	spillPairReg hl
-;	spillPairReg hl
-	ld	h, -5 (ix)
-;	spillPairReg hl
-;	spillPairReg hl
-	rst	#0x18
-00120$:
-;Tiles/animation.h:126: }
+00101$:
+;Tiles/metatile.h:40: return metatile;
+;Tiles/metatile.h:41: }
 	ld	sp, ix
 	pop	ix
 	pop	hl
+	pop	af
 	inc	sp
 	jp	(hl)
-;Stages/stage1.h:3: void InitStage()
+;Tiles/metatile.h:43: void MetaTile_Draw
 ;	---------------------------------
-; Function InitStage
+; Function MetaTile_Draw
 ; ---------------------------------
-_InitStage::
-	ld	hl, #-56
-	add	hl, sp
-	ld	sp, hl
-;Stages/stage1.h:15: int arr[] = {
-	ld	hl, #0
-	add	hl, sp
-	ld	e, l
-	ld	d, h
-	ld	(hl), #0x02
-	inc	hl
-	ld	(hl), #0x00
-	ld	l, e
-;	spillPairReg hl
-;	spillPairReg hl
-	ld	h, d
-;	spillPairReg hl
-;	spillPairReg hl
-	inc	hl
-	inc	hl
-	ld	(hl), #0x02
-	inc	hl
-	ld	(hl), #0x02
-	ld	hl, #0x0004
-	add	hl, de
-	ld	(hl), #0x0b
-	inc	hl
-	ld	(hl), #0x00
-	ld	hl, #0x0006
-	add	hl, de
-	ld	(hl), #0x0b
-	inc	hl
-	ld	(hl), #0x00
-	ld	hl, #0x0008
-	add	hl, de
-	ld	(hl), #0x04
-	inc	hl
-	ld	(hl), #0x00
-	ld	hl, #0x000a
-	add	hl, de
-	ld	(hl), #0x02
-	inc	hl
-	ld	(hl), #0x00
-	ld	hl, #0x000c
-	add	hl, de
-	ld	(hl), #0x05
-	inc	hl
-	ld	(hl), #0x00
-	ld	hl, #0x000e
-	add	hl, de
-	ld	(hl), #0x0b
-	inc	hl
-	ld	(hl), #0x00
-	ld	hl, #0x0010
-	add	hl, de
-	ld	(hl), #0x03
-	inc	hl
-	ld	(hl), #0x00
-	ld	hl, #0x0012
-	add	hl, de
-	ld	(hl), #0x0b
-	inc	hl
-	ld	(hl), #0x00
-	ld	hl, #0x0014
-	add	hl, de
-	ld	(hl), #0x0b
-	inc	hl
-	ld	(hl), #0x00
-	ld	hl, #0x0016
-	add	hl, de
-	ld	(hl), #0x04
-	inc	hl
-	ld	(hl), #0x00
-	ld	hl, #0x0018
-	add	hl, de
-	ld	(hl), #0x02
-	inc	hl
-	ld	(hl), #0x00
-	ld	hl, #0x001a
-	add	hl, de
-	ld	(hl), #0x05
-	inc	hl
-	ld	(hl), #0x00
-	ld	hl, #0x001c
-	add	hl, de
-	ld	(hl), #0x0b
-	inc	hl
-	ld	(hl), #0x00
-	ld	hl, #0x001e
-	add	hl, de
-	ld	(hl), #0x0b
-	inc	hl
-	ld	(hl), #0x00
-	ld	hl, #0x0020
-	add	hl, de
-	ld	(hl), #0x04
-	inc	hl
-	ld	(hl), #0x00
-	ld	hl, #0x0022
-	add	hl, de
-	ld	(hl), #0x0b
-	inc	hl
-	ld	(hl), #0x00
-	ld	hl, #0x0024
-	add	hl, de
-	ld	(hl), #0x04
-	inc	hl
-	ld	(hl), #0x00
-	ld	hl, #0x0026
-	add	hl, de
-	ld	(hl), #0x02
-	inc	hl
-	ld	(hl), #0x00
-	ld	hl, #0x0028
-	add	hl, de
-	ld	(hl), #0x05
-	inc	hl
-	ld	(hl), #0x00
-	ld	hl, #0x002a
-	add	hl, de
-	ld	(hl), #0x0b
-	inc	hl
-	ld	(hl), #0x00
-	ld	hl, #0x002c
-	add	hl, de
-	ld	(hl), #0x0b
-	inc	hl
-	ld	(hl), #0x00
-	ld	hl, #0x002e
-	add	hl, de
-	ld	(hl), #0x0b
-	inc	hl
-	ld	(hl), #0x00
-	ld	hl, #0x0030
-	add	hl, de
-	ld	(hl), #0x03
-	inc	hl
-	ld	(hl), #0x00
-	ld	hl, #0x0032
-	add	hl, de
-	ld	(hl), #0x04
-	inc	hl
-	ld	(hl), #0x00
-	ld	hl, #0x0034
-	add	hl, de
-	ld	(hl), #0x02
-	inc	hl
-	ld	(hl), #0x00
-	ld	hl, #0x0036
-	add	hl, de
-	ld	(hl), #0x05
-	inc	hl
-	ld	(hl), #0x00
-;Stages/stage1.h:22: SMS_loadTileMapArea(1, 3, arr, 7, 4);
-	ld	hl, #0x407
-	push	hl
+_MetaTile_Draw::
+	push	ix
+	ld	ix,#0
+	add	ix,sp
+	ld	iy, #-34
+	add	iy, sp
+	ld	sp, iy
+	ex	de, hl
+;Tiles/metatile.h:50: unsigned char tilesXY = metatile->numTilesX;
+	ld	c, e
+	ld	b, d
+	ld	hl, #129
+	add	hl, bc
+	ld	c, (hl)
+;Tiles/metatile.h:53: for(i = 0; i < tilesXY; ++i)
 	push	de
-	ld	l, #0x03
-;	spillPairReg hl
-;	spillPairReg hl
-	ld	a, #0x01
-	call	_SMS_loadTileMapArea
-;Stages/stage1.h:23: }
-	ld	hl, #56
+	pop	iy
+	ld	b, #0x00
+00103$:
+	ld	a, b
+	sub	a, c
+	jr	NC, 00101$
+;Tiles/metatile.h:55: tileIds[i] = metatile->tiles[0].computedId; // TODO: Not working correctly
+	ld	e, b
+	ld	d, #0x00
+	ex	de, hl
+	add	hl, hl
+	ex	de, hl
+	push	de
+	ld	hl, #2
 	add	hl, sp
-	ld	sp, hl
+	add	hl, de
+	pop	de
+	ex	de, hl
+	ld	a, 6 (iy)
+	ld	-2 (ix), a
+	ld	a, 7 (iy)
+	ld	-1 (ix), a
+	ld	l, e
+	ld	h, d
+	ld	a, -2 (ix)
+	ld	(hl), a
+	inc	hl
+	ld	a, -1 (ix)
+	ld	(hl), a
+;Tiles/metatile.h:56: tileIds[i] = 0x1011;
+	ld	a, #0x11
+	ld	(de), a
+	inc	de
+	ld	a, #0x10
+	ld	(de), a
+;Tiles/metatile.h:53: for(i = 0; i < tilesXY; ++i)
+	inc	b
+	jp	00103$
+00101$:
+;Tiles/metatile.h:59: SMS_loadTileMapArea(x, y, tileIds, 2, 2);
+	ld	hl, #0x202
+	push	hl
+	ld	hl, #2
+	add	hl, sp
+	push	hl
+	ld	l, 5 (ix)
+;	spillPairReg hl
+;	spillPairReg hl
+	ld	a, 4 (ix)
+	call	_SMS_loadTileMapArea
+;Tiles/metatile.h:60: }
+	ld	sp, ix
+	pop	ix
+	pop	hl
+	pop	af
+	jp	(hl)
+;Tiles/entity.h:12: Entity* Entity_Create(MetaTile* metatile[]) 
+;	---------------------------------
+; Function Entity_Create
+; ---------------------------------
+_Entity_Create::
+	push	ix
+	ld	ix,#0
+	add	ix,sp
+	push	af
+	dec	sp
+	ex	(sp), hl
+;Tiles/entity.h:14: Entity* entity = malloc(sizeof(struct Entity));
+	ld	hl, #0x0044
+	call	_malloc
+;Tiles/entity.h:16: entity->currentFrame = 0;
+	ld	hl, #0x0042
+	add	hl, de
+	xor	a, a
+	ld	(hl), a
+	inc	hl
+	ld	(hl), a
+;Tiles/entity.h:17: entity->frameRate = 30;
+	ld	hl, #0x0040
+	add	hl, de
+	ld	(hl), #0x1e
+;Tiles/entity.h:20: for(i = 0; i < metatile[i]->numTiles; ++i)
+	ld	-1 (ix), #0x00
+00103$:
+	ld	l, -1 (ix)
+;	spillPairReg hl
+;	spillPairReg hl
+	ld	h, #0x00
+;	spillPairReg hl
+;	spillPairReg hl
+	add	hl, hl
+	pop	bc
+	push	bc
+	add	hl, bc
+	ld	c, (hl)
+	inc	hl
+	ld	b, (hl)
+	ld	l, c
+;	spillPairReg hl
+;	spillPairReg hl
+	ld	h, b
+;	spillPairReg hl
+;	spillPairReg hl
+	push	bc
+	ld	bc, #0x0080
+	add	hl, bc
+	pop	bc
+;	spillPairReg hl
+	ld	a,-1 (ix)
+	sub	a,(hl)
+	jr	NC, 00101$
+;Tiles/entity.h:22: entity->metatile[i] = metatile[i];
+	ld	a, -1 (ix)
+	add	a, a
+	ld	l, a
+	ld	h, #0x00
+	add	hl, de
+	ld	(hl), c
+	inc	hl
+	ld	(hl), b
+;Tiles/entity.h:20: for(i = 0; i < metatile[i]->numTiles; ++i)
+	inc	-1 (ix)
+	jp	00103$
+00101$:
+;Tiles/entity.h:25: return entity;
+;Tiles/entity.h:26: }
+	ld	sp, ix
+	pop	ix
 	ret
+;Tiles/entity.h:28: void Entity_Delete(Entity* entity)
+;	---------------------------------
+; Function Entity_Delete
+; ---------------------------------
+_Entity_Delete::
+;Tiles/entity.h:30: if(entity != NULL)
+	ld	a, h
+	or	a, l
+;Tiles/entity.h:31: free(entity);
+	jp	NZ,_free
+;Tiles/entity.h:32: }
+	ret
+;Tiles/entity.h:34: void Entity_Update(Entity* entity, unsigned int time)
+;	---------------------------------
+; Function Entity_Update
+; ---------------------------------
+_Entity_Update::
+	push	ix
+	ld	ix,#0
+	add	ix,sp
+	push	af
+	ex	(sp), hl
+	ld	c, e
+	ld	b, d
+;Tiles/entity.h:36: if((time % entity->frameRate) == 0)
+	pop	de
+	push	de
+	ld	hl, #64
+	add	hl, de
+	ld	e, (hl)
+	ld	d, #0x00
+	ld	l, c
+;	spillPairReg hl
+;	spillPairReg hl
+	ld	h, b
+;	spillPairReg hl
+;	spillPairReg hl
+;Tiles/entity.h:38: entity->currentFrame++;
+	call	__moduint
+	ld	a, -2 (ix)
+	add	a, #0x42
+	ld	c, a
+	ld	a, -1 (ix)
+	adc	a, #0x00
+	ld	b, a
+;Tiles/entity.h:36: if((time % entity->frameRate) == 0)
+	ld	a, d
+	or	a, e
+	jr	NZ, 00102$
+;Tiles/entity.h:38: entity->currentFrame++;
+	ld	l, c
+	ld	h, b
+	ld	e, (hl)
+	inc	hl
+	ld	d, (hl)
+	inc	de
+	ld	l, c
+	ld	h, b
+	ld	(hl), e
+	inc	hl
+	ld	(hl), d
+00102$:
+;Tiles/entity.h:41: if(entity->currentFrame > entity->numFrames)
+	ld	l, c
+	ld	h, b
+	ld	e, (hl)
+	inc	hl
+	ld	d, (hl)
+	pop	hl
+	push	hl
+	push	bc
+	ld	bc, #0x0041
+	add	hl, bc
+	pop	bc
+	ld	l, (hl)
+;	spillPairReg hl
+;	spillPairReg hl
+;	spillPairReg hl
+	xor	a, a
+	ld	h, a
+	sbc	hl, de
+	jr	NC, 00105$
+;Tiles/entity.h:43: entity->currentFrame = 0;
+	xor	a, a
+	ld	(bc), a
+	inc	bc
+	ld	(bc), a
+00105$:
+;Tiles/entity.h:45: }
+	ld	sp, ix
+	pop	ix
+	ret
+;Tiles/entity.h:47: unsigned char Entity_GetCurrentFrame(Entity* entity)
+;	---------------------------------
+; Function Entity_GetCurrentFrame
+; ---------------------------------
+_Entity_GetCurrentFrame::
+;Tiles/entity.h:49: return entity->currentFrame;
+	ld	de, #0x0042
+	add	hl, de
+	ld	a, (hl)
+;Tiles/entity.h:50: }
+	ret
+;Tiles/entity.h:52: unsigned char Entity_GetFrameRate(Entity* entity)
+;	---------------------------------
+; Function Entity_GetFrameRate
+; ---------------------------------
+_Entity_GetFrameRate::
+;Tiles/entity.h:54: return entity->frameRate;
+	ld	de, #0x0040
+	add	hl, de
+	ld	a, (hl)
+;Tiles/entity.h:55: }
+	ret
+;Tiles/entity.h:57: void Entity_Draw
+;	---------------------------------
+; Function Entity_Draw
+; ---------------------------------
+_Entity_Draw::
+	push	ix
+	ld	ix,#0
+	add	ix,sp
+	ex	de, hl
+;Tiles/entity.h:63: MetaTile_Draw(entity->metatile[entity->currentFrame], x, y);
+	push	de
+	pop	iy
+	ld	l, 66 (iy)
+;	spillPairReg hl
+	ld	h, 67 (iy)
+;	spillPairReg hl
+	add	hl, hl
+	add	hl, de
+	ld	c, (hl)
+	inc	hl
+	ld	h, (hl)
+;	spillPairReg hl
+	ld	d, 5 (ix)
+	ld	e, 4 (ix)
+	push	de
+	ld	l, c
+;	spillPairReg hl
+;	spillPairReg hl
+	call	_MetaTile_Draw
+;Tiles/entity.h:64: }
+	pop	ix
+	pop	hl
+	pop	af
+	jp	(hl)
 ;main.c:11: void loadGraphics2vram(void)
 ;	---------------------------------
 ; Function loadGraphics2vram
 ; ---------------------------------
 _loadGraphics2vram::
-	ld	hl, #-125
+	push	ix
+	ld	ix,#0
+	add	ix,sp
+	ld	hl, #-68
 	add	hl, sp
 	ld	sp, hl
 ;main.c:14: SMS_VRAMmemsetW(0, 0x0000, 0x4000);
@@ -1277,466 +1278,172 @@ _loadGraphics2vram::
 	ld	de, #_spritetiles_down_bin
 	ld	hl, #0x6000
 	call	_SMS_VRAMmemcpy
-;main.c:36: Frame frames[] =
-	ld	hl, #0
-	add	hl, sp
-	ld	(hl), #0x0b
-	ld	hl, #0
-	add	hl, sp
-	ex	de, hl
-	ld	c, e
-	ld	b, d
-	inc	bc
+;main.c:36: Tile tilelist1[] = 
+	ld	-68 (ix), #0x0b
+	ld	-67 (ix), #0x00
+	ld	-66 (ix), #0x00
+	ld	-65 (ix), #0x00
+	ld	-64 (ix), #0x00
+	ld	-63 (ix), #0x01
 	xor	a, a
-	ld	(bc), a
-	ld	c, e
-	ld	b, d
-	inc	bc
-	inc	bc
+	ld	-62 (ix), a
+	ld	-61 (ix), a
+	ld	-60 (ix), #0x0a
+	ld	-59 (ix), #0x00
+	ld	-58 (ix), #0x00
+	ld	-57 (ix), #0x00
+	ld	-56 (ix), #0x00
+	ld	-55 (ix), #0x01
 	xor	a, a
-	ld	(bc), a
-	ld	c, e
-	ld	b, d
-	inc	bc
-	inc	bc
-	inc	bc
+	ld	-54 (ix), a
+	ld	-53 (ix), a
+	ld	-52 (ix), #0x0b
+	ld	-51 (ix), #0x00
+	ld	-50 (ix), #0x00
+	ld	-49 (ix), #0x00
+	ld	-48 (ix), #0x00
+	ld	-47 (ix), #0x01
 	xor	a, a
-	ld	(bc), a
-	ld	hl, #0x0004
-	add	hl, de
-	ld	(hl), #0x01
-	ld	hl, #0x0005
-	add	hl, de
-	ld	(hl), #0x0b
-	ld	hl, #0x0006
-	add	hl, de
-	ld	(hl), #0x01
-	ld	hl, #0x0007
-	add	hl, de
-	ld	(hl), #0x00
-	ld	hl, #0x0008
-	add	hl, de
-	ld	(hl), #0x00
-	ld	hl, #0x0009
-	add	hl, de
-	ld	(hl), #0x01
-	ld	hl, #0x000a
-	add	hl, de
-	ld	(hl), #0x0b
-	ld	hl, #0x000b
-	add	hl, de
-	ld	(hl), #0x00
-	ld	hl, #0x000c
-	add	hl, de
-	ld	(hl), #0x00
-	ld	hl, #0x000d
-	add	hl, de
-	ld	(hl), #0x00
-	ld	hl, #0x000e
-	add	hl, de
-	ld	(hl), #0x01
-	ld	hl, #0x000f
-	add	hl, de
-	ld	(hl), #0x0b
-	ld	hl, #0x0010
-	add	hl, de
-	ld	(hl), #0x01
-	ld	hl, #0x0011
-	add	hl, de
-	ld	(hl), #0x00
-	ld	hl, #0x0012
-	add	hl, de
-	ld	(hl), #0x00
-	ld	hl, #0x0013
-	add	hl, de
-	ld	(hl), #0x01
-	ld	hl, #0x0014
-	add	hl, de
-	ld	(hl), #0x0b
-	ld	hl, #0x0015
-	add	hl, de
-	ld	(hl), #0x00
-	ld	hl, #0x0016
-	add	hl, de
-	ld	(hl), #0x00
-	ld	hl, #0x0017
-	add	hl, de
-	ld	(hl), #0x00
-	ld	hl, #0x0018
-	add	hl, de
-	ld	(hl), #0x01
-	ld	hl, #0x0019
-	add	hl, de
-	ld	(hl), #0x0b
-	ld	hl, #0x001a
-	add	hl, de
-	ld	(hl), #0x01
-	ld	hl, #0x001b
-	add	hl, de
-	ld	(hl), #0x00
-	ld	hl, #0x001c
-	add	hl, de
-	ld	(hl), #0x00
-	ld	hl, #0x001d
-	add	hl, de
-	ld	(hl), #0x01
-	ld	hl, #0x001e
-	add	hl, de
-	ld	(hl), #0x0b
-	ld	hl, #0x001f
-	add	hl, de
-	ld	(hl), #0x00
-	ld	hl, #0x0020
-	add	hl, de
-	ld	(hl), #0x00
-	ld	hl, #0x0021
-	add	hl, de
-	ld	(hl), #0x00
-	ld	hl, #0x0022
-	add	hl, de
-	ld	(hl), #0x01
-	ld	hl, #0x0023
-	add	hl, de
-	ld	(hl), #0x0b
-	ld	hl, #0x0024
-	add	hl, de
-	ld	(hl), #0x01
-	ld	hl, #0x0025
-	add	hl, de
-	ld	(hl), #0x00
-	ld	hl, #0x0026
-	add	hl, de
-	ld	(hl), #0x00
-	ld	hl, #0x0027
-	add	hl, de
-	ld	(hl), #0x01
-	ld	hl, #0x0028
-	add	hl, de
-	ld	(hl), #0x0b
-	ld	hl, #0x0029
-	add	hl, de
-	ld	(hl), #0x00
-	ld	hl, #0x002a
-	add	hl, de
-	ld	(hl), #0x00
-	ld	hl, #0x002b
-	add	hl, de
-	ld	(hl), #0x01
-	ld	hl, #0x002c
-	add	hl, de
-	ld	(hl), #0x01
-	ld	hl, #0x002d
-	add	hl, de
-	ld	(hl), #0x0b
-	ld	hl, #0x002e
-	add	hl, de
-	ld	(hl), #0x00
-	ld	hl, #0x002f
-	add	hl, de
-	ld	(hl), #0x01
-	ld	hl, #0x0030
-	add	hl, de
-	ld	(hl), #0x01
-	ld	hl, #0x0031
-	add	hl, de
-	ld	(hl), #0x01
-	ld	hl, #0x0032
-	add	hl, de
-	ld	(hl), #0x0b
-	ld	hl, #0x0033
-	add	hl, de
-	ld	(hl), #0x00
-	ld	hl, #0x0034
-	add	hl, de
-	ld	(hl), #0x00
-	ld	hl, #0x0035
-	add	hl, de
-	ld	(hl), #0x01
-	ld	hl, #0x0036
-	add	hl, de
-	ld	(hl), #0x01
-	ld	hl, #0x0037
-	add	hl, de
-	ld	(hl), #0x0b
-	ld	hl, #0x0038
-	add	hl, de
-	ld	(hl), #0x00
-	ld	hl, #0x0039
-	add	hl, de
-	ld	(hl), #0x01
-	ld	hl, #0x003a
-	add	hl, de
-	ld	(hl), #0x01
-	ld	hl, #0x003b
-	add	hl, de
-	ld	(hl), #0x01
-	ld	hl, #0x003c
-	add	hl, de
-	ld	(hl), #0x0b
-	ld	hl, #0x003d
-	add	hl, de
-	ld	(hl), #0x00
-	ld	hl, #0x003e
-	add	hl, de
-	ld	(hl), #0x00
-	ld	hl, #0x003f
-	add	hl, de
-	ld	(hl), #0x01
-	ld	hl, #0x0040
-	add	hl, de
-	ld	(hl), #0x01
-	ld	hl, #0x0041
-	add	hl, de
-	ld	(hl), #0x0b
-	ld	hl, #0x0042
-	add	hl, de
-	ld	(hl), #0x00
-	ld	hl, #0x0043
-	add	hl, de
-	ld	(hl), #0x01
-	ld	hl, #0x0044
-	add	hl, de
-	ld	(hl), #0x01
-	ld	hl, #0x0045
-	add	hl, de
-	ld	(hl), #0x01
-	ld	hl, #0x0046
-	add	hl, de
-	ld	(hl), #0x0b
-	ld	hl, #0x0047
-	add	hl, de
-	ld	(hl), #0x00
-	ld	hl, #0x0048
-	add	hl, de
-	ld	(hl), #0x00
-	ld	hl, #0x0049
-	add	hl, de
-	ld	(hl), #0x01
-	ld	hl, #0x004a
-	add	hl, de
-	ld	(hl), #0x01
-	ld	hl, #0x004b
-	add	hl, de
-	ld	(hl), #0x0b
-	ld	hl, #0x004c
-	add	hl, de
-	ld	(hl), #0x00
-	ld	hl, #0x004d
-	add	hl, de
-	ld	(hl), #0x01
-	ld	hl, #0x004e
-	add	hl, de
-	ld	(hl), #0x01
-	ld	hl, #0x004f
-	add	hl, de
-	ld	(hl), #0x01
-	ld	hl, #0x0050
-	add	hl, de
-	ld	(hl), #0x0c
-	ld	hl, #0x0051
-	add	hl, de
-	ld	(hl), #0x00
-	ld	hl, #0x0052
-	add	hl, de
-	ld	(hl), #0x00
-	ld	hl, #0x0053
-	add	hl, de
-	ld	(hl), #0x00
-	ld	hl, #0x0054
-	add	hl, de
-	ld	(hl), #0x00
-	ld	hl, #0x0055
-	add	hl, de
-	ld	(hl), #0x0d
-	ld	hl, #0x0056
-	add	hl, de
-	ld	(hl), #0x00
-	ld	hl, #0x0057
-	add	hl, de
-	ld	(hl), #0x00
-	ld	hl, #0x0058
-	add	hl, de
-	ld	(hl), #0x00
-	ld	hl, #0x0059
-	add	hl, de
-	ld	(hl), #0x00
-	ld	hl, #0x005a
-	add	hl, de
-	ld	(hl), #0x0e
-	ld	hl, #0x005b
-	add	hl, de
-	ld	(hl), #0x00
-	ld	hl, #0x005c
-	add	hl, de
-	ld	(hl), #0x00
-	ld	hl, #0x005d
-	add	hl, de
-	ld	(hl), #0x00
-	ld	hl, #0x005e
-	add	hl, de
-	ld	(hl), #0x00
-	ld	hl, #0x005f
-	add	hl, de
-	ld	(hl), #0x0f
-	ld	hl, #0x0060
-	add	hl, de
-	ld	(hl), #0x00
-	ld	hl, #0x0061
-	add	hl, de
-	ld	(hl), #0x00
-	ld	hl, #0x0062
-	add	hl, de
-	ld	(hl), #0x00
-	ld	hl, #0x0063
-	add	hl, de
-	ld	(hl), #0x00
-	ld	hl, #0x0064
-	add	hl, de
-	ld	(hl), #0x10
-	ld	hl, #0x0065
-	add	hl, de
-	ld	(hl), #0x00
-	ld	hl, #0x0066
-	add	hl, de
-	ld	(hl), #0x00
-	ld	hl, #0x0067
-	add	hl, de
-	ld	(hl), #0x00
-	ld	hl, #0x0068
-	add	hl, de
-	ld	(hl), #0x00
-	ld	hl, #0x0069
-	add	hl, de
-	ld	(hl), #0x11
-	ld	hl, #0x006a
-	add	hl, de
-	ld	(hl), #0x00
-	ld	hl, #0x006b
-	add	hl, de
-	ld	(hl), #0x00
-	ld	hl, #0x006c
-	add	hl, de
-	ld	(hl), #0x00
-	ld	hl, #0x006d
-	add	hl, de
-	ld	(hl), #0x00
-	ld	hl, #0x006e
-	add	hl, de
-	ld	(hl), #0x12
-	ld	hl, #0x006f
-	add	hl, de
-	ld	(hl), #0x00
-	ld	hl, #0x0070
-	add	hl, de
-	ld	(hl), #0x00
-	ld	hl, #0x0071
-	add	hl, de
-	ld	(hl), #0x00
-	ld	hl, #0x0072
-	add	hl, de
-	ld	(hl), #0x00
-	ld	hl, #0x0073
-	add	hl, de
-	ld	(hl), #0x13
-	ld	hl, #0x0074
-	add	hl, de
-	ld	(hl), #0x00
-	ld	hl, #0x0075
-	add	hl, de
-	ld	(hl), #0x00
-	ld	hl, #0x0076
-	add	hl, de
-	ld	(hl), #0x00
-	ld	hl, #0x0077
-	add	hl, de
-	ld	(hl), #0x00
-	ld	hl, #0x0078
-	add	hl, de
-	ld	(hl), #0x14
-	ld	hl, #0x0079
-	add	hl, de
-	ld	(hl), #0x00
-	ld	hl, #0x007a
-	add	hl, de
-	ld	(hl), #0x00
-	ld	hl, #0x007b
-	add	hl, de
-	ld	(hl), #0x00
-	ld	hl, #0x007c
-	add	hl, de
-	ld	(hl), #0x00
-;main.c:66: anim = CreateAnimation(frames, numFrames, 2, 2, 32, 1, 1);
-	ld	bc, #0x101
-	push	bc
-	ld	bc, #0x2002
-	push	bc
-	ld	a, #0x02
+	ld	-46 (ix), a
+	ld	-45 (ix), a
+	ld	-44 (ix), #0x0a
+	ld	-43 (ix), #0x00
+	ld	-42 (ix), #0x00
+	ld	-41 (ix), #0x00
+	ld	-40 (ix), #0x00
+	ld	-39 (ix), #0x01
+	xor	a, a
+	ld	-38 (ix), a
+	ld	-37 (ix), a
+;main.c:45: Tile tilelist2[] = 
+	ld	-36 (ix), #0x14
+	ld	-35 (ix), #0x00
+	ld	-34 (ix), #0x00
+	ld	-33 (ix), #0x00
+	ld	-32 (ix), #0x00
+	ld	-31 (ix), #0x01
+	xor	a, a
+	ld	-30 (ix), a
+	ld	-29 (ix), a
+	ld	-28 (ix), #0x15
+	ld	-27 (ix), #0x00
+	ld	-26 (ix), #0x00
+	ld	-25 (ix), #0x00
+	ld	-24 (ix), #0x00
+	ld	-23 (ix), #0x01
+	xor	a, a
+	ld	-22 (ix), a
+	ld	-21 (ix), a
+	ld	-20 (ix), #0x14
+	ld	-19 (ix), #0x00
+	ld	-18 (ix), #0x00
+	ld	-17 (ix), #0x00
+	ld	-16 (ix), #0x00
+	ld	-15 (ix), #0x01
+	xor	a, a
+	ld	-14 (ix), a
+	ld	-13 (ix), a
+	ld	-12 (ix), #0x15
+	ld	-11 (ix), #0x00
+	ld	-10 (ix), #0x00
+	ld	-9 (ix), #0x00
+	ld	-8 (ix), #0x00
+	ld	-7 (ix), #0x01
+	xor	a, a
+	ld	-6 (ix), a
+	ld	-5 (ix), a
+;main.c:54: MetaTile* metatile1 = MetaTile_Create(tilelist1, 4, 2, 2);
+	ld	hl, #0x202
+	push	hl
+	ld	a, #0x04
 	push	af
 	inc	sp
-	ld	a, #0x19
+	ld	hl, #3
+	add	hl, sp
+	call	_MetaTile_Create
+;main.c:55: MetaTile* metatile2 = MetaTile_Create(tilelist2, 4, 2, 2);
+	push	de
+	ld	hl, #0x202
+	push	hl
+	ld	a, #0x04
 	push	af
 	inc	sp
-	ex	de, hl
-	call	_CreateAnimation
-	ld	(_anim), de
-;main.c:69: InitStage();
-	call	_InitStage
-;main.c:70: }
-	ld	hl, #125
+	ld	hl, #37
 	add	hl, sp
-	ld	sp, hl
+	call	_MetaTile_Create
+	ld	c, e
+	ld	b, d
+	pop	de
+;main.c:57: MetaTile* metatilelist[] = 
+	ld	-4 (ix), e
+	ld	-3 (ix), d
+	ld	-2 (ix), c
+	ld	-1 (ix), b
+;main.c:63: entity = Entity_Create(metatilelist);
+	ld	hl, #64
+	add	hl, sp
+	call	_Entity_Create
+	ld	(_entity), de
+;main.c:65: Entity_Draw(entity, 6, 6);
+	ld	hl, #0x606
+	push	hl
+	ld	hl, (_entity)
+	call	_Entity_Draw
+;main.c:69: }
+	ld	sp, ix
+	pop	ix
 	ret
-;main.c:72: void main (void)
+;main.c:71: void main (void)
 ;	---------------------------------
 ; Function main
 ; ---------------------------------
 _main::
-;main.c:74: frame_counter = 0;
+;main.c:73: frame_counter = 0;
 	ld	hl, #_frame_counter
 	ld	(hl), #0x00
-;main.c:76: Player1Init();
+;main.c:75: Player1Init();
 	call	_Player1Init
-;main.c:77: InitConsole();
+;main.c:76: InitConsole();
 	call	_InitConsole
-;main.c:79: loadGraphics2vram();
+;main.c:78: loadGraphics2vram();
 	call	_loadGraphics2vram
-;main.c:80: SMS_displayOn();
+;main.c:79: SMS_displayOn();
 	ld	hl, #0x0140
 	call	_SMS_VDPturnOnFeature
-;main.c:82: PSGPlay(music_psg);
+;main.c:81: PSGPlay(music_psg);
 	ld	hl, #_music_psg
 	call	_PSGPlay
-;main.c:85: while(1)
+;main.c:84: while(1)
 00111$:
-;main.c:88: checkgamepause();
+;main.c:87: checkgamepause();
 	call	_checkgamepause
-;main.c:90: if(gamepause==0)
+;main.c:89: if(gamepause==0)
 	ld	a, (_gamepause+0)
 	or	a, a
 	jr	NZ, 00108$
-;main.c:92: frame_counter++;
+;main.c:91: frame_counter++;
 	ld	hl, #_frame_counter
 	inc	(hl)
-;main.c:94: if((frame_counter%64) == 0)
+;main.c:93: if((frame_counter%64) == 0)
 	ld	a, (_frame_counter+0)
 	and	a, #0x3f
 	jr	NZ, 00104$
-;main.c:96: volume_atenuation++;
+;main.c:95: volume_atenuation++;
 	ld	iy, #_volume_atenuation
 	inc	0 (iy)
-;main.c:97: if(volume_atenuation > 15)
+;main.c:96: if(volume_atenuation > 15)
 	ld	a, #0x0f
 	sub	a, 0 (iy)
 	jr	NC, 00104$
-;main.c:99: volume_atenuation = 0;
+;main.c:98: volume_atenuation = 0;
 	ld	0 (iy), #0x00
 00104$:
-;main.c:104: UpdateAnimation(anim, frame_counter);
+;main.c:104: Entity_Update(entity, frame_counter);
 	ld	a, (_frame_counter+0)
-	push	af
-	inc	sp
-	ld	hl, (_anim)
-	call	_UpdateAnimation
+	ld	e, a
+	ld	d, #0x00
+	ld	hl, (_entity)
+	call	_Entity_Update
 ;main.c:107: SMS_initSprites();
 	call	_SMS_initSprites
 ;main.c:109: Player1Update(frame_counter);
@@ -1781,8 +1488,6 @@ __str_2:
 	.ascii "Grab a friend and jump into endless bombastic fun!"
 	.db 0x00
 	.area _INITIALIZER
-__xinit__MAX_FRAMES:
-	.db #0x20	; 32
 	.area _CABS (ABS)
 	.org 0x7FF0
 ___SMS__SEGA_signature:

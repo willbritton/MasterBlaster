@@ -18,7 +18,7 @@ REM Player walk down
 
 REM Player walk left/right
 ..\utl\bmp2tile\BMP2Tile.exe assets\gfx\player_white_lr.png ^
-    -noremovedupes -nomirror -8x8 -palsms --fullpalette ^
+    -noremovedupes -nomirror -8x8 -palsms ^
     -savetiles Banks\bank2\spritetiles_lr.bin ^
     -savepalette Banks\bank2\spritepalette_lr.bin
 
